@@ -19,7 +19,7 @@
 #define eb emplace_back
 
 #define rep(i, a, b) for (ll i = (a); i < (b); ++i)
-#define read(t, k) t k; cin >> k
+#define read(T, k) T k; cin >> k
 
 #define IOS ios_base::sync_with_stdio(false); \
             cin.tie(nullptr);                 \
