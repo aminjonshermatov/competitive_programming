@@ -3,8 +3,16 @@ project(competitive_programming)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(div2 cf/div2/785/C.cpp)
-add_executable(div3 cf/div3/811/E.cpp)
-add_executable(div4 cf/div4/790/G.cpp)
+#codeforces
+add_executable(codeforces_div2 codeforces/div2/785/C.cpp)
+add_executable(codeforces_div3 codeforces/div3/811/E.cpp)
+add_executable(codeforces_div4 codeforces/div4/790/G.cpp)
+add_executable(archive codeforces/archive/1637/B.cpp)
+
+#codechef
+add_executable(codechef_starters codechef/starters/50/A.cpp)
+
+#cses
 add_executable(cses cses/SortingAndSearching/NestedRangesCheck.cpp)
-add_executable(archive cf/archive/1637/B.cpp)
+
+

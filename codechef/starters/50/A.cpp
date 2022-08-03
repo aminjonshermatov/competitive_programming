@@ -34,7 +34,10 @@ template<typename T = ll>
 using ordered_set = tree<T, null_type, less_equal<T>, rb_tree_tag, tree_order_statistics_node_update>;
 
 void solve() {
+    ll N;
+    cin >> N;
 
+    cout << N + 2 << '\n';
 }
 
 int main() {
