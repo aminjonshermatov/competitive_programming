@@ -35,7 +35,7 @@ mt19937 rnd(143);
 
 const ll inf = 1e15;
 const ll M = 1e9 + 7;
-const ld pi = atan2(0, -1);
+[[maybe_unused]] const ld pi = atan2(0, -1);
 const ld eps = 1e-6;
 
 void solve() {
@@ -50,8 +50,8 @@ int main() {
     IOS
 
     int T = 1;
-    cin >> T;
-    for (int tc = 1; tc <= T && is_multi; ++tc) {
+    if (is_multi) cin >> T;
+    for (int tc = 1; tc <= T; ++tc) {
         // cout << "Case #" << tc << ": ";
         solve();
         cout << '\n';
