@@ -10,9 +10,9 @@ add_executable(codeforces_div4 codeforces/div4/790/G.cpp)
 add_executable(archive codeforces/archive/1637/B.cpp)
 
 #codechef
-add_executable(codechef_starters codechef/starters/50/A.cpp)
+#add_executable(codechef_starters codechef/starters/50/A.cpp)
 
 #cses
-add_executable(cses cses/SortingAndSearching/NestedRangesCheck.cpp)
+add_executable(cses cses/SortingAndSearching/NestedRangesCount.cpp)
 
 
