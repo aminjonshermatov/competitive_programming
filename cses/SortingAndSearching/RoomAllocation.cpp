@@ -40,11 +40,43 @@ const ld eps = 1e-6;
 
 // ========================================= PROBLEM =========================================
 
-void solve() {
+const int SIZE = 2e5 + 1;
+int res[SIZE] ={0};
+array<int, 3> nums[SIZE];
 
+void solve() {
+    int n;
+    cin >> n;
+
+    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<>> pq;
+
+    int idx = 1;
+    rep(i, 0, n) {
+        cin >> nums[i][0] >> nums[i][1];
+        nums[i][2] = (int)i;
+    }
+
+    sort(nums, nums + n, [](auto &lhs, auto &rhs) {
+        if (lhs[0] == rhs[0]) return lhs[1] < rhs[1];
+        return lhs[0] < rhs[0];
+    });
+
+    rep(i, 0, n) {
+        int res_;
+        if (pq.empty() || pq.top().F >= nums[i][0]) res_ = idx, pq.push(mk(nums[i][1], idx++));
+        else {
+            auto [_, ii] = pq.top(); pq.pop();
+            pq.push(mk(nums[i][1], ii));
+            res_ = ii;
+        }
+        res[nums[i][2]] = res_;
+    }
+
+    cout << idx - 1 << '\n';
+    rep(i, 0, n) cout << res[i] << ' ';
 }
 
-bool is_multi = true;
+bool is_multi = false;
 
 int main() {
     // auto start = chrono::steady_clock::now();
