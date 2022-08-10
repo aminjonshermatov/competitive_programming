@@ -41,7 +41,16 @@ const ld eps = 1e-6;
 // ========================================= PROBLEM =========================================
 
 void solve() {
+    int64_t N; cin >> N;
 
+    vector<pair<int64_t, int64_t>> A(N);
+    rep (i, 0, N) cin >> A[i].F >> A[i].S;
+
+    sort(all(A));
+    int64_t s = 0, res = 0;
+    rep (i, 0, N) s += A[i].F, res += A[i].S - s;
+
+    cout << res;
 }
 
 bool is_multi = false;
