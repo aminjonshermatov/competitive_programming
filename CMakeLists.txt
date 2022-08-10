@@ -13,6 +13,6 @@ add_executable(archive codeforces/archive/1637/B.cpp)
 #add_executable(codechef_starters codechef/starters/50/A.cpp)
 
 #cses
-add_executable(cses cses/SortingAndSearching/ReadingBooks.cpp)
+add_executable(cses cses/SortingAndSearching/SumOfThreeValues.cpp)
 
 
