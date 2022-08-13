@@ -41,7 +41,23 @@ const ld eps = 1e-6;
 // ========================================= PROBLEM =========================================
 
 void solve() {
+    int N; cin >> N;
 
+    int64_t cur = 0;
+    vector<int64_t> pf(N, 0);
+    pf[0] = 1;
+    rep (i, 0, N) {
+        int64_t k; cin >> k;
+        cur += k;
+        ++pf[(cur % N + N) % N];
+    }
+
+    int64_t ans = 0;
+    rep (i, 0, N) {
+        ans += pf[i] * (pf[i] - 1) / 2;
+    }
+
+    cout << ans;
 }
 
 bool is_multi = false;
