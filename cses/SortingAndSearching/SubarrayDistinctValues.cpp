@@ -46,8 +46,18 @@ void solve() {
     vector<int64_t> A(N);
     rep (i, 0, N) cin >> A[i];
 
-    int ans = 0;
+    int64_t ans = 0, cur = 0;
+    map<int64_t, int64_t> f;
+    for (int64_t l = 0, r = 0; l < N;) {
+        while (r < N && cur + (f[A[r]] == 0) <= K) {
+            cur += (f[A[r]] == 0);
+            ++f[A[r++]];
+        }
 
+        ans += r - l;
+        --f[A[l]];
+        if (f[A[l++]] == 0) --cur;
+    }
 
     cout << ans;
 }
