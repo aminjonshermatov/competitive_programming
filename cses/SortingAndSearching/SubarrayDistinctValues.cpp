@@ -44,7 +44,7 @@ void solve() {
     int N, K; cin >> N >> K;
 
     vector<int64_t> A(N);
-    for (auto &a : A) cin >> a;
+    rep (i, 0, N) cin >> A[i];
 
     int ans = 0;
 
