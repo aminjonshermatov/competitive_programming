@@ -42,7 +42,47 @@ const ld eps = 1e-6;
 // ========================================= PROBLEM =========================================
 
 void solve() {
+    ll N, K;
+    cin >> N >> K;
+    vector<ll> A(N);
+    forr (a, A) cin >> a;
 
+    multiset<ll> lo, hi;
+    const ll lo_sz = K / 2 + (K & 1);
+    for (ll l = 0, r = 0; r < N; ++r) {
+        if (r - l + 1 > K) {
+            if (*lo.rbegin() >= A[l]) {
+                auto it = lo.find(A[l]);
+                if (it != lo.end()) {
+                    lo.erase(it);
+                    it = hi.find(*hi.begin());
+                    if (it != hi.end()) {
+                        lo.insert(*it);
+                        hi.erase(it);
+                    }
+                }
+            } else {
+                auto it = hi.find(A[l]);
+                if (it != hi.end()) hi.erase(it);
+            }
+            ++l;
+        }
+
+        lo.insert(A[r]);
+        if (lo.size() > lo_sz) {
+            auto it = lo.find(*lo.rbegin());
+            hi.insert(*it);
+            lo.erase(it);
+        }
+
+//        cout << l << ' ' << r << '\n';
+//        cout << "lo:\t";
+//        for (auto ii: lo) cout << ii << ' ';
+//        cout << "\nhi:\t";
+//        for (auto ii: hi) cout << ii << ' ';
+//        cout << '\n';
+        if (r + 1 >= K) cout << *lo.rbegin() << ' ';
+    }
 }
 
 bool is_multi = false;
