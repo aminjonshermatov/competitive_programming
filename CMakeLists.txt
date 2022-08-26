@@ -13,6 +13,6 @@ add_executable(archive codeforces/archive/1637/B.cpp debug.h)
 #add_executable(codechef_starters codechef/starters/50/A.cpp debug.h)
 
 #cses
-add_executable(cses cses/SortingAndSearching/SlidingMedian_fenwick_tree.cpp debug.h)
+add_executable(cses cses/SortingAndSearching/SlidingCost.cpp debug.h)
 
 
