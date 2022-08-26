@@ -42,7 +42,25 @@ const ld eps = 1e-6;
 // ========================================= PROBLEM =========================================
 
 void solve() {
+    ll N, K; cin >> N >> K;
+    vector<pair<ll, ll>> mv(N);
+    rep (i, 0, N) cin >> mv[i].S >> mv[i].F;
 
+    sort(all(mv));
+    multiset<ll> ends;
+    rep (i, 0, K) ends.insert(0);
+
+    ll ans = 0;
+    rep (i, 0, N) {
+        auto it = ends.upper_bound(mv[i].S);
+        if (it == ends.begin()) continue;
+
+        ends.erase(--it);
+        ends.insert(mv[i].F);
+        ++ans;
+    }
+
+    cout << ans;
 }
 
 bool is_multi = false;
