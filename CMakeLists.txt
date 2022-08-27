@@ -4,7 +4,7 @@ project(competitive_programming)
 set(CMAKE_CXX_STANDARD 17)
 
 #codeforces
-add_executable(codeforces_div2 codeforces/div2/785/C.cpp debug.h)
+add_executable(codeforces_div2 codeforces/div2/134/C.cpp debug.h)
 add_executable(codeforces_div3 codeforces/div3/811/E.cpp debug.h)
 add_executable(codeforces_div4 codeforces/div4/790/G.cpp debug.h)
 add_executable(archive codeforces/archive/1637/B.cpp debug.h)
