@@ -13,6 +13,8 @@ add_executable(archive codeforces/archive/1637/B.cpp debug.h)
 #add_executable(codechef_starters codechef/starters/50/A.cpp debug.h)
 
 #cses
-add_executable(cses cses/SortingAndSearching/MovieFestival2.cpp debug.h)
+add_executable(cses cses/SortingAndSearching/MaximumSubarraySum2.cpp debug.h)
 
+#atcoder
+add_executable(atcoder_abc atcoder/abc/266/C.cpp)
 
