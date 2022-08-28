@@ -41,8 +41,18 @@ const ld eps = 1e-6;
 
 // ========================================= PROBLEM =========================================
 
-void solve() {
+const ll SZ = 1e6 + 1;
+ll dp[SZ] = {0};
 
+void solve() {
+    ll N; cin >> N;
+
+    dp[0] = 1;
+    rep (s, 1, N + 1) {
+        rep (d, 1, 7) if (s - d >= 0) dp[s] += dp[s - d], dp[s] %= MOD;
+    }
+
+    cout << dp[N];
 }
 
 bool is_multi = false;
