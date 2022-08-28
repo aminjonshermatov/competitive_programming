@@ -43,8 +43,20 @@ const ld eps = 1e-6;
 
 void solve() {
     ll N, a, b; cin >> N >> a >> b;
+    vector<ll> A(N + 1);
+    A[0] = 0;
+    rep (i, 1, N + 1) {
+        ll t; cin >> t;
+        A[i] = A[i - 1] + t;
+    }
 
-    ll ans = 0;
+    ll ans = INT64_MIN;
+    multiset<ll> ss;
+    rep(i, a, N + 1) {
+        if (i > b) ss.erase(ss.find(A[i - b - 1]));
+        ss.insert(A[i - a]);
+        ans = max(ans, A[i] - *ss.begin());
+    }
 
     cout << ans;
 }
