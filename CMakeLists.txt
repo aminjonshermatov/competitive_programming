@@ -18,3 +18,6 @@ add_executable(cses cses/DynamicProgramming/GridPaths.cpp debug.h)
 #atcoder
 add_executable(atcoder_abc atcoder/abc/266/C.cpp)
 
+#data structures
+add_executable(ds data_structures/main.cpp)
+
