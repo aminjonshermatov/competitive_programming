@@ -42,7 +42,15 @@ const ld eps = 1e-6;
 // ========================================= PROBLEM =========================================
 
 void solve() {
+    int ss[200];
+    memset(ss, 0, sizeof(int) * 200);
+    int N; cin >> N;
+    rep (i, 0, N) {
+        char ch; cin >>ch;
+        ++ss[ch];
+    }
 
+    cout << (N == 5 && ss['T'] && ss['i'] && ss['m'] && ss['u'] && ss['r'] ? "YES" : "NO");
 }
 
 bool is_multi = true;

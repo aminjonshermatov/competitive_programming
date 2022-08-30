@@ -42,7 +42,29 @@ const ld eps = 1e-6;
 // ========================================= PROBLEM =========================================
 
 void solve() {
+    int N; cin >> N;
+    map<string, pair<array<int, 3>, int>> mm;
 
+    int res[3] = {0,0,0};
+    rep (k, 0, 3) {
+        rep (i, 0, N) {
+            string s; cin >> s;
+            if (mm.count(s) == 0) mm[s].F = {0,0,0};
+            auto it = mm.find(s);
+            ++it->S.S;
+            it->S.F[k] = 1;
+        }
+    }
+
+    for (auto it : mm) {
+        int s = 0;
+        rep (i, 0, 3) s += it.S.F[i];
+        if (s == 1) {
+            rep (i, 0, 3) if (it.S.F[i] == 1) res[i] += 3;
+        } else if (s == 2) rep (i, 0, 3) if (it.S.F[i] == 1) ++res[i];
+    }
+
+    rep (i, 0, 3) cout << res[i] << ' ';
 }
 
 bool is_multi = true;

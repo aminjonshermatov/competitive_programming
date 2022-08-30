@@ -42,7 +42,16 @@ const ld eps = 1e-6;
 // ========================================= PROBLEM =========================================
 
 void solve() {
+    int N; cin >> N;
+    string s1, s2; cin >> s1 >> s2;
 
+    bool ok = true;
+
+    for (int i = 0; i < N && ok; ++i) {
+        ok = s1[i] == s2[i] || (s1[i] == 'G' && s2[i] == 'B') || (s1[i] == 'B' && s2[i] == 'G');
+    }
+
+    cout << (ok ? "YES" : "NO");
 }
 
 bool is_multi = true;

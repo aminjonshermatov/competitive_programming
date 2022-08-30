@@ -42,7 +42,26 @@ const ld eps = 1e-6;
 // ========================================= PROBLEM =========================================
 
 void solve() {
+    int N; cin >> N;
+    string s; cin >> s;
 
+    ll l = 0, r = 0;
+    priority_queue<ll> pq;
+    for (int i = 0; i < N; ++i) {
+        if (s[i] == 'L') l += i, pq.push(N - 1 - 2 * i);
+        else r += N - i - 1, pq.push(2 * i - N + 1);
+    }
+
+    vector<ll> ans(N);
+
+    ll cur = l + r;
+    rep (i, 0, N) {
+        auto it = pq.top(); pq.pop();
+        if (it > 0) cur += it;
+        ans[i] = cur;
+    }
+
+    for (auto a : ans) cout << a << ' ';
 }
 
 bool is_multi = true;
