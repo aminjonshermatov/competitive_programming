@@ -13,7 +13,7 @@ add_executable(archive codeforces/archive/1637/B.cpp)
 #add_executable(codechef_starters codechef/starters/50/A.cpp)
 
 #cses
-add_executable(cses cses/DynamicProgramming/BookShop.cpp)
+add_executable(cses cses/DynamicProgramming/ArrayDescription.cpp)
 
 #atcoder
 add_executable(atcoder_abc atcoder/abc/266/C.cpp)

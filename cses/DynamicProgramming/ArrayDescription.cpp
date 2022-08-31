@@ -45,7 +45,37 @@ const ld eps = 1e-6;
 // ========================================= PROBLEM =========================================
 
 void solve() {
+    int n, m; cin >> n >> m;
 
+    V<V<ll>> dp(n, V<ll>(m + 1, 0));
+    ll a_0; cin >> a_0;
+
+    if (a_0 == 0) rep (i, 1, m + 1) dp[0][i] = 1;
+    else dp[0][a_0] = 1;
+
+    rep (i, 1, n) {
+        int temp; cin >> temp;
+        if (temp == 0) {
+            rep (mm, 1, m + 1) {
+                for (auto k : {mm - 1, mm, mm + 1}) {
+                    if (k > 0 && k <= m) {
+                        (dp[i][mm] += dp[i - 1][k]) %= MOD;
+                    }
+                }
+            }
+        } else {
+            for (auto k : {temp - 1, temp, temp + 1}) {
+                if (k > 0 && k <= m) {
+                    (dp[i][temp] += dp[i - 1][k]) %= MOD;
+                }
+            }
+        }
+    }
+
+    ll ans = 0;
+    rep (i, 1, m + 1) (ans += dp[n - 1][i]) %= MOD;
+
+    cout << ans;
 }
 
 bool is_multi = false;
