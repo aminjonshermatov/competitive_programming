@@ -5,7 +5,7 @@
 
 using namespace std;
 
-const size_t N = 1e5 + 2;
+const size_t N = 1e5 + 3;
 int C[N], n, m;
 
 auto dfs(int v, int c) -> void {
