@@ -7,33 +7,31 @@ using namespace std;
 
 const size_t N = 1e5 + 1;
 set<int> G[N];
-int used[N];
+int used[N], F[N];
 
-void dfs(int v) {
+int dfs(int v) {
     used[v] = 1;
 
+    int cnt = 1;
     for (auto to : G[v]) {
-        if (used[to] == 0) dfs(to);
+        if (used[to] == 0) cnt += dfs(to);
     }
+
+    return F[v] = cnt;
 }
 
 auto main() -> int32_t {
     int n; cin >> n;
 
     memset(used, 0, sizeof(int) * n);
+    memset(F, 0, sizeof(int) * n);
 
     for (int i = 1; i < n; ++i) {
         int temp; cin >> temp;
         G[--temp].insert(i);
     }
 
-    //dfs(0);
-    vector<int> res;
-
-    for (int i = 1; i < n; ++i) {
-        if (G[i].empty()) res.emplace_back(i + 1);
-    }
-
-    for (auto v : res) cout << v << ' ';
+    dfs(0);
+    for (int i = 0; i < n; ++i) cout << F[i] << ' ';
     cout << '\n';
 }
