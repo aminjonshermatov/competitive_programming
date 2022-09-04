@@ -43,7 +43,7 @@ auto main() -> int32_t {
     while (!q.empty()) {
         auto [i, j] = q.front(); q.pop();
         if (dist[i][j][0] == dist[i][j][1]) {
-            cout << dist[i][j][0] << '\n';
+            cout << dist[i][j][0];
             return 0;
         }
 
@@ -58,5 +58,5 @@ auto main() -> int32_t {
         }
     }
 
-    cout << -1 << '\n';
+    cout << -1;
 }
