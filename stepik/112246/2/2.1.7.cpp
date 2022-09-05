@@ -35,8 +35,7 @@ auto solve() {
     G[y][x] = 0;
 
     while (!q.empty()) {
-        auto it = q.front(); q.pop();
-        auto i = it[0], j = it[1], d = it[2];
+        auto [i, j, d] = q.front(); q.pop();
 
         for (int k = 0; k < 8; ++k) {
             auto ii = i + dy[k], jj = j + dx[k];
