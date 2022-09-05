@@ -8,6 +8,8 @@ using namespace std;
 auto solve() {
     int n, m, y, x, Q;
     cin >> n >> m >> y >> x >> Q;
+    --y, --x;
+
     function<bool(int, int)> isSafe;
     isSafe = [&](int i, int j) -> bool {
         return i >= 0 && i < n && j >= 0 && j < m;
@@ -20,6 +22,7 @@ auto solve() {
         if (isSafe(--i, --j)) {
             ++need;
             G[i][j] = 1;
+            if (i == y && j == x) --need;
         }
     }
 
@@ -28,10 +31,12 @@ auto solve() {
 
     int64_t ans = 0;
     queue<array<int, 3>> q;
-    q.push({--y, --x, 0});
+    q.push({y, x, 0});
+    G[y][x] = 0;
 
     while (!q.empty()) {
-        auto [i, j, d] = q.front(); q.pop();
+        auto it = q.front(); q.pop();
+        auto i = it[0], j = it[1], d = it[2];
 
         for (int k = 0; k < 8; ++k) {
             auto ii = i + dy[k], jj = j + dx[k];
