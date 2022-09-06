@@ -22,4 +22,4 @@ add_executable(atcoder_abc atcoder/abc/266/C.cpp)
 add_executable(ds data_structures/main.cpp)
 
 #stepik
-add_executable(stepik stepik/112246/2/2.2.2[didnt_solved].cpp)
+add_executable(stepik stepik/112246/2/2.2.4.cpp)
