@@ -16,34 +16,35 @@ auto solve() {
         }
     }
 
-    queue<array<int, 4>> q;
-    q.push({r, c, x, y});
+    deque<array<int, 4>> q;
+    q.push_back({r, c, x, y});
 
-    int ans = 0;
+    int ans = 1;
+    G[r][c] = '*';
     while (!q.empty()) {
-        auto [i, j, xx, yy] = q.front(); q.pop();
+        auto [i, j, xx, yy] = q.front(); q.pop_front();
 
         if (G[i - 1][j] == '.') {
             G[i - 1][j] = '*';
+            q.push_front({i - 1, j, xx, yy});
             ++ans;
-            q.push({i - 1, j, xx, yy});
         }
         if (G[i + 1][j] == '.') {
             G[i + 1][j] = '*';
+            q.push_front({i + 1, j, xx, yy});
             ++ans;
-            q.push({i + 1, j, xx, yy});
         }
 
         if (G[i][j - 1] == '.' && xx > 0) {
             G[i][j - 1] = '*';
+            q.push_back({i, j - 1, xx - 1, yy});
             ++ans;
-            q.push({i, j - 1, xx - 1, yy});
         }
 
         if (G[i][j + 1] == '.' && yy > 0) {
             G[i][j + 1] = '*';
+            q.push_back({i, j + 1, xx, yy - 1});
             ++ans;
-            q.push({i, j + 1, xx, yy - 1});
         }
     }
 
