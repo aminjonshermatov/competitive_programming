@@ -10,7 +10,7 @@ add_executable(codeforces_div4 codeforces/div4/817/D.cpp)
 add_executable(archive codeforces/archive/1637/B.cpp)
 
 #codechef
-#add_executable(codechef_starters codechef/starters/50/A.cpp)
+add_executable(codechef codechef/problems/MAXEXP.cpp)
 
 #cses
 add_executable(cses cses/DynamicProgramming/ArrayDescription.cpp)
