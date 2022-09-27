@@ -55,37 +55,33 @@ pair<ll, ll> helper(ll a) {
 void solve() {
     read(N);
 
-    vector<vector<ll>> M(N, vector<ll>(N));
+    vector<vector<pair<ll, ll>>> M(N, vector<pair<ll, ll>>(N));
     pair<ll, ll> zero{-1,-1};
     for (ll i = 0; i < N; ++i) {
         for (ll j = 0; j < N; ++j) {
-            cin >> M[i][j];
-            if (M[i][j] == 0 && zero.F == -1) {
-                zero = {i, j};
-            }
+            read(a);
+            M[i][j] = helper(a);
+            if (a == 0 && zero.F == -1) zero = {i, j};
         }
     }
 
     vector<vector<pair<ll, ll>>> dp(N, vector<pair<ll, ll>>(N));
-    dp[N - 1][N - 1] = {0, 0};
+    dp[N - 1][N - 1] = M[N - 1][N - 1];
     for (ll i = N - 1, j = N - 2; j >= 0; --j) {
-        auto [a2, a5] = helper(M[i][j]);
-        dp[i][j] = {a2 + dp[i][j + 1].F, a5 + dp[i][j + 1].S};
+        dp[i][j] = {M[i][j].F + dp[i][j + 1].F, M[i][j].S + dp[i][j + 1].S};
     }
 
     for (ll i = N - 2, j = N - 1; i >= 0; --i) {
-        auto [a2, a5] = helper(M[i][j]);
-        dp[i][j] = {a2 + dp[i + 1][j].F, a5 + dp[i + 1][j].S};
+        dp[i][j] = {M[i][j].F + dp[i + 1][j].F, M[i][j].S + dp[i + 1][j].S};
     }
 
     for (ll i = N - 2; i >= 0; --i) {
         for (ll j = N - 2; j >= 0; --j) {
-            auto [a2, a5] = helper(M[i][j]);
-            auto [d2, d5] = dp[i + 1][j];
-            auto [r2, r5] = dp[i][j + 1];
-
-            if (min(a2 + d2, a5 + d5) < min(a2 + r2, a5 + r5)) dp[i][j] = {a2 + d2, a5 + d5};
-            else dp[i][j] = {a2 + r2, a5 + r5};
+            if (min(M[i][j].F + dp[i + 1][j].F, M[i][j].S + dp[i + 1][j].S)
+              < min(M[i][j].F + dp[i][j + 1].F, M[i][j].S + dp[i][j + 1].S)) // down has less summary number of powers
+                dp[i][j] = {M[i][j].F + dp[i + 1][j].F, M[i][j].S + dp[i + 1][j].S};
+            else // right is more preferable
+                dp[i][j] = {M[i][j].F + dp[i][j + 1].F, M[i][j].S + dp[i][j + 1].S};
         }
     }
 
@@ -118,13 +114,10 @@ void solve() {
         vector<char> path;
 
         while (i != N - 1 || j != N - 1) {
-            auto [a2, a5] = helper(M[i][j]);
-
-            if (i + 1 < N && dp[i + 1][j].F + a2 == dp[i][j].F && dp[i + 1][j].S + a5 == dp[i][j].S) {
-                // down
+            if (i + 1 < N && dp[i + 1][j].F + M[i][j].F == dp[i][j].F && dp[i + 1][j].S + M[i][j].S == dp[i][j].S) {
                 path.push_back('D');
                 ++i;
-            } else if (j + 1 < N &&dp[i][j + 1].F + a2 == dp[i][j].F && dp[i][j + 1].S + a5 == dp[i][j].S) {
+            } else if (j + 1 < N && dp[i][j + 1].F + M[i][j].F == dp[i][j].F && dp[i][j + 1].S + M[i][j].S == dp[i][j].S) {
                 path.push_back('R');
                 ++j;
             } else {
