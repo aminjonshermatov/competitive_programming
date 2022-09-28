@@ -44,12 +44,32 @@ const ld eps = 1e-6;
 
 // ========================================= PROBLEM =========================================
 
-pair<ll, ll> helper(ll a) {
-    ll two = 0, five = 0;
-    for (auto temp = a; temp > 0 && (temp & 1) == 0; temp >>= 1, ++two) {}
-    for (auto temp = a; temp > 0 && temp % 5 == 0; temp /= 5, ++five) {}
+ll power(ll a, ll b) {
+    ll p = 0;
+    for (auto temp = a; temp > 0 && temp % b == 0; temp /= b, ++p) {}
 
-    return {two, five};
+    return p;
+}
+
+ll get_pow(pair<ll, ll> &p, bool is2) {
+    return is2 ? p.F : p.S;
+}
+
+string getPath(vector<vector<ll>> &dp, vector<vector<pair<ll, ll>>> &M, bool is2) {
+    const ll N = sz(dp);
+    string s;
+    for (ll i = N - 1, j = N - 1; i != 0 || j != 0;) {
+        if (i > 0 && dp[i - 1][j] + get_pow(M[i][j], is2) == dp[i][j]) {
+            s.push_back('D');
+            --i;
+        } else if (j > 0 && dp[i][j - 1] + get_pow(M[i][j], is2) == dp[i][j]) {
+            s.push_back('R');
+            --j;
+        }
+    }
+
+    reverse(all(s));
+    return s;
 }
 
 void solve() {
@@ -60,32 +80,30 @@ void solve() {
     for (ll i = 0; i < N; ++i) {
         for (ll j = 0; j < N; ++j) {
             read(a);
-            M[i][j] = helper(a);
+            M[i][j] = mk(power(a, 2), power(a, 5));
             if (a == 0 && zero.F == -1) zero = {i, j};
         }
     }
 
-    vector<vector<pair<ll, ll>>> dp(N, vector<pair<ll, ll>>(N));
-    dp[N - 1][N - 1] = M[N - 1][N - 1];
-    for (ll i = N - 1, j = N - 2; j >= 0; --j) {
-        dp[i][j] = {M[i][j].F + dp[i][j + 1].F, M[i][j].S + dp[i][j + 1].S};
-    }
+    vector<vector<ll>> dp2(N, vector<ll>(N, inf)), dp5(N, vector<ll>(N, inf));
+    dp2[0][0] = M[0][0].F;
+    dp5[0][0] = M[0][0].S;
 
-    for (ll i = N - 2, j = N - 1; i >= 0; --i) {
-        dp[i][j] = {M[i][j].F + dp[i + 1][j].F, M[i][j].S + dp[i + 1][j].S};
-    }
+    rep (i, 0, N) {
+        rep (j, 0, N) {
+            if (i > 0) {
+                dp2[i][j] = min(dp2[i][j], dp2[i - 1][j] + M[i][j].F);
+                dp5[i][j] = min(dp5[i][j], dp5[i - 1][j] + M[i][j].S);
+            }
 
-    for (ll i = N - 2; i >= 0; --i) {
-        for (ll j = N - 2; j >= 0; --j) {
-            if (min(M[i][j].F + dp[i + 1][j].F, M[i][j].S + dp[i + 1][j].S)
-              < min(M[i][j].F + dp[i][j + 1].F, M[i][j].S + dp[i][j + 1].S)) // down has less summary number of powers
-                dp[i][j] = {M[i][j].F + dp[i + 1][j].F, M[i][j].S + dp[i + 1][j].S};
-            else // right is more preferable
-                dp[i][j] = {M[i][j].F + dp[i][j + 1].F, M[i][j].S + dp[i][j + 1].S};
+            if (j > 0) {
+                dp2[i][j] = min(dp2[i][j], dp2[i][j - 1] + M[i][j].F);
+                dp5[i][j] = min(dp5[i][j], dp5[i][j - 1] + M[i][j].S);
+            }
         }
     }
 
-    ll res = min(dp[0][0].F, dp[0][0].S);
+    ll res = min(dp2[N - 1][N - 1], dp5[N - 1][N - 1]);
 
     if (res > 1 && zero.F != -1) {
         cout << 1 << '\n';
@@ -110,25 +128,9 @@ void solve() {
         }
 
     } else {
-        ll i = 0, j = 0;
-        vector<char> path;
+        string path = res == dp2[N - 1][N - 1] ? getPath(dp2, M, true) : getPath(dp5, M, false);
 
-        while (i != N - 1 || j != N - 1) {
-            if (i + 1 < N && dp[i + 1][j].F + M[i][j].F == dp[i][j].F && dp[i + 1][j].S + M[i][j].S == dp[i][j].S) {
-                path.push_back('D');
-                ++i;
-            } else if (j + 1 < N && dp[i][j + 1].F + M[i][j].F == dp[i][j].F && dp[i][j + 1].S + M[i][j].S == dp[i][j].S) {
-                path.push_back('R');
-                ++j;
-            } else {
-                cout << i << ' ' << j << " bad\n";
-                return;
-            }
-        }
-
-        cout << res << '\n';
-        for (auto ch : path) cout << ch;
-        cout << '\n';
+        cout << res << '\n' << path << '\n';
     }
 }
 bool is_multi = false;
