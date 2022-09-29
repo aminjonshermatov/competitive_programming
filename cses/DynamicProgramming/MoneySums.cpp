@@ -44,23 +44,39 @@ const ld eps = 1e-6;
 
 // ========================================= PROBLEM =========================================
 
+const ll MAX_N = 1e2 + 3;
+const ll MAX_S = 1e5 + 3;
+
+bool dp[MAX_N][MAX_S];
+
 void solve() {
     read(N);
-    vector<ll> pf(N + 1);
-    pf[0] = 0;
-    ll s = 0;
+    vector<ll> A(N);
+    ll max_ = 0;
+    forr (a, A) {
+        cin >> a;
+        max_ = max(max_, a);
+    }
+
+    rep (i, 0, MAX_N) {
+        rep (j, 0, MAX_S) dp[i][j] = false;
+    }
+
+    dp[0][0] = true;
+    ll max_s = max_ * N;
     rep (i, 1, N + 1) {
-        read(a);
-        pf[i] = pf[i - 1] + a;
-        s += a;
+        rep (s, 0, max_s + 1) {
+            dp[i][s] = dp[i - 1][s];
+            if (s >= A[i - 1] && dp[i - 1][s - A[i - 1]]) dp[i][s] = true;
+        }
     }
 
     set<ll> uniq;
-    rep (i, 1, N + 1)
-        rep (j, i, N + 1) uniq.insert(pf[j] - pf[i - 1]);
+    rep (s, 1, max_s + 1)
+        if (dp[N][s]) uniq.insert(s);
 
     cout << uniq.size() << '\n';
-    forr(a, uniq) cout << a << ' ';
+    forr (a, uniq) cout << a << ' ';
     cout << '\n';
 }
 

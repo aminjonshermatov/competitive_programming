@@ -14,7 +14,7 @@ add_executable(virtual codeforces/archive/virtual/3/B.cpp)
 add_executable(codechef codechef/problems/MAXEXP.cpp)
 
 #cses
-add_executable(cses "cses/DynamicProgramming/MoneySums[didn't solved].cpp")
+add_executable(cses "cses/DynamicProgramming/MoneySums.cpp")
 
 #atcoder
 add_executable(atcoder_abc atcoder/abc/266/C.cpp)
