@@ -29,4 +29,4 @@ add_executable(stepik stepik/112246/2/2.3.2.cpp)
 add_executable(temp temp.cpp)
 
 #acmp
-add_executable(acmp acmp/40.cpp)
+add_executable(acmp acmp/143.cpp)
