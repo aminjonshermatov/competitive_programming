@@ -7,7 +7,7 @@ using ll = long long;
 int main() {
     string  a, b;
     cin >> a >> b;
-    if (a.size() > b.size()) swap(a, b); // b.size() - max
+    if (a.size() > b.size()) swap(a, b); // b.size() -> max
 
     const int N(a.size());
     const int M(b.size());
