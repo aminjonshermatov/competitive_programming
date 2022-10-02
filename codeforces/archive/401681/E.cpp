@@ -23,7 +23,7 @@ typedef long double ld;
 
 #define rep(i, a, b) for (ll i = (a); (i) < (b); ++(i))
 #define forr(el, cont) for (auto &(el) : (cont))
-#define read(T, k) T k; cin >> k
+#define read(k) ll k; cin >> k
 
 #define IOS ios_base::sync_with_stdio(false); \
             cin.tie(nullptr);                 \
@@ -44,40 +44,19 @@ const ld eps = 1e-6;
 
 // ========================================= PROBLEM =========================================
 
-/*
-sort(all(s));
-cout << s << '\n';
-rep(i, 0, 26) cout << setw(2) << i + 1 << " \n"[i == 25];
-rep(i, 0, 26) cout << setw(2) << (char)(i + 'a') << " \n"[i == 25];
-*/
-
 void solve() {
-    string s; cin >> s;
+    read(K);
+    read(D);
 
-    const ll N(s.size());
-
-    map<char, vector<ll>> c2idx;
-    rep(i, 0, N) c2idx[s[i]].pb(i);
-
-    ll d = (s.front() < s.back() ? 1 : -1);
-
-    vector<ll> res;
-    for (auto ch = s.front(); ch != s.back() + d; ch += d) {
-        for (auto idx : c2idx[ch]) {
-            res.pb(idx);
-        }
+    if (D == 0 && K > 1) cout << "No solution" << '\n';
+    else {
+        cout << D;
+        rep (i, 0, K - 1) cout << 0;
+        cout << '\n';
     }
-
-    ll cost = 0;
-    for (int i = 1; i < res.size(); ++i) {
-        cost += abs(s[res[i - 1]] - s[res[i]]);
-    }
-
-    cout << cost << ' ' << res.size() << '\n';
-    for (const auto idx : res) cout << idx + 1 << ' ';
 }
 
-bool is_multi = true;
+bool is_multi = false;
 
 int main() {
     // auto start = chrono::steady_clock::now();

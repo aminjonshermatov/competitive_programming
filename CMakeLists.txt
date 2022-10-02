@@ -7,8 +7,8 @@ set(CMAKE_CXX_STANDARD 17)
 add_executable(codeforces_div2 codeforces/div2/134/C.cpp)
 add_executable(codeforces_div3 codeforces/div3/811/E.cpp)
 add_executable(codeforces_div4 codeforces/div4/817/D.cpp)
-add_executable(blocks codeforces/archive/block_1/week_1/1729B.cpp)
 add_executable(virtual codeforces/archive/virtual/3/B.cpp)
+add_executable(kfu codeforces/archive/401681/E.cpp)
 
 #codechef
 add_executable(codechef codechef/problems/MAXEXP.cpp)

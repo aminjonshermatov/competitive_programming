@@ -44,33 +44,20 @@ const ld eps = 1e-6;
 
 // ========================================= PROBLEM =========================================
 
-/*
-sort(all(s));
-cout << s << '\n';
-rep(i, 0, 26) cout << setw(2) << i + 1 << " \n"[i == 25];
-rep(i, 0, 26) cout << setw(2) << (char)(i + 'a') << " \n"[i == 25];
-*/
-
 void solve() {
     read(N);
-    string s; cin >> s;
+    read(K);
 
-    string res;
-    for (ll i = N - 1; i >= 0; --i) {
-        if (s[i] != '0') res.pb(s[i] - '1' + 'a');
-        else {
-            int a = s[i - 2] - '0';
-            int b = s[i - 1] - '0';
-            res.pb(a * 10 + b - 1 + 'a');
-            i -= 2;
-        }
+    V<V<ll>> M(N, V<ll>(N, 1));
+
+    rep (i, 0, N) M[i][i] = K - N + 1;
+
+    rep (i, 0, N) {
+        rep (j, 0, N) cout << M[i][j] << " \n"[j == N - 1];
     }
-
-    reverse(all(res));
-    cout << res;
 }
 
-bool is_multi = true;
+bool is_multi = false;
 
 int main() {
     // auto start = chrono::steady_clock::now();
