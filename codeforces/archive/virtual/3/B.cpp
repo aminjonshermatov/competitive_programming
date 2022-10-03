@@ -45,32 +45,47 @@ const ld eps = 1e-6;
 // ========================================= PROBLEM =========================================
 
 void solve() {
-    ll N, V;
-    cin >> N >> V;
+    ll N, v;
+    cin >> N >> v;
 
-    vector<array<ll, 3>> A(N);
-
-    rep (i, 1, N + 1) {
-        cin >> A[i - 1][1] >> A[i - 1][0];
-        A[i - 1][2] = i;
+    V<pair<ll, ll>> A, B;
+    rep(i, 0, N) {
+        read(t);
+        read(vv);
+        if (t == 1) A.emplace_back(vv, i + 1);
+        else B.emplace_back(vv, i + 1);
     }
 
-    sort(A.begin(), A.end(), [](auto &l, auto &r) { return l[0] * r[1] > r[0] * l[1]; });
-//    forr (a, A) cout << a[0] << ' ' << a[1] << '\n';
+    sort(A.rbegin(), A.rend());
+    sort(B.rbegin(), B.rend());
+
+    V<ll> pfA, pfB;
+    pfA.reserve(A.size() + 1);
+    pfA.emplace_back(0);
+    pfB.reserve(B.size() + 1);
+    pfB.emplace_back(0);
+    forr(a, A) pfA.emplace_back(a.F + pfA.back());
+    forr(b, B) pfB.emplace_back(b.F + pfB.back());
+
+//    forr(a, pfA) cout << a << ' ';
+//    cout << '\n';
+//    forr(a, pfB) cout << a << ' ';
 //    cout << '\n';
 
-    vector<ll> res;
-    ll ans = 0;
-    for (auto &r : A) {
-        if (V - r[1] < 0) continue;
-        res.push_back(r[2]);
-        ans += r[0];
-        V -= r[1];
-        if (V == 0) break;
+    ll ans = 0, ans_a = 0, ans_b = 0;
+    for (ll i = min(sz(A), v); i >= 0; --i) {
+        auto j = min(sz(B), (v - i) / 2);
+        auto cur = pfA[i] + pfB[j];
+        if (cur > ans) {
+            ans = cur;
+            ans_a = i;
+            ans_b = j;
+        }
     }
 
     cout << ans << '\n';
-    forr(a, res) cout << a << ' ';
+    rep(i, 0, ans_a) cout << A[i].S << ' ';
+    rep(i, 0, ans_b) cout << B[i].S << ' ';
     cout << '\n';
 }
 
