@@ -45,7 +45,22 @@ const ld eps = 1e-6;
 // ========================================= PROBLEM =========================================
 
 void solve() {
-    cout << "hello";
+    read(N);
+
+    string s;cin >> s;
+    ll ans = 0, cur = 0;
+    char prev = 'A';
+    rep(i, 0, N) {
+        if (prev == s[i] && s[i] == 'x') {
+            ++cur;
+            if (cur >= 3) ++ans;
+        } else {
+            cur = 1;
+        }
+        prev = s[i];
+    }
+
+    cout << ans << '\n';
 }
 
 bool is_multi = false;

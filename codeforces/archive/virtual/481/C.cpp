@@ -45,7 +45,24 @@ const ld eps = 1e-6;
 // ========================================= PROBLEM =========================================
 
 void solve() {
-    cout << "hello";
+    read(N);
+    read(M);
+
+    V<ll> pfA(N), B(M);
+    cin >> pfA.front();
+    rep(i, 1, N) {
+        read(a);
+        pfA[i] = pfA[i - 1] + a;
+    }
+    forr(b, B) cin >> b;
+
+    rep(i, 0, M) {
+        auto j = lower_bound(pfA.begin(), pfA.end(), B[i]) - pfA.begin();
+        auto f = j + 1;
+        auto k = B[i];
+        if (j > 0) k -= pfA[j - 1];
+        cout << f << ' ' << k << '\n';
+    }
 }
 
 bool is_multi = false;

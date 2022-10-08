@@ -45,7 +45,19 @@ const ld eps = 1e-6;
 // ========================================= PROBLEM =========================================
 
 void solve() {
-    cout << "hello";
+    read(N);
+    V<ll>A(N);
+    forr(a, A) cin >> a;
+
+    set<ll> seen;
+    V<ll> ans;
+    for (ll i = N - 1; i >= 0; --i) {
+        if (seen.count(A[i]) == 0) ans.pb(A[i]);
+        seen.insert(A[i]);
+    }
+    reverse(all(ans));
+    cout << sz(ans) << '\n';
+    forr(a, ans) cout << a << ' ';
 }
 
 bool is_multi = false;

@@ -44,8 +44,46 @@ const ld eps = 1e-6;
 
 // ========================================= PROBLEM =========================================
 
+const ll max_n = 2e5 + 11;
+ll f[max_n];
+
+void upd(ll idx, ll val) {
+    for (ll i = idx; i < max_n; i += i & -i) f[i] += val;
+}
+
+ll get(ll idx) {
+    ll res = 0;
+    for (ll i = idx; i > 0; i -= i & -i) res += f[i];
+    return res;
+}
+
 void solve() {
-    cout << "hello";
+    read(N);
+    read(K);
+    V<ll> R(N + 1), M(N + 1, 0);
+    fill(f, f + N + 1, 0);
+
+    set<ll> ss;
+    rep(i, 1, N + 1) {
+        cin >> R[i];
+        ss.insert(R[i]);
+    }
+
+    map<ll, ll> comp;
+    ll idx = 0;
+    forr(a, ss) comp[a] = ++idx;
+
+    rep(i, 1, N + 1) upd(comp[R[i]], 1);
+    rep(i, 0, K) {
+        read(p);
+        read(q);
+        if (R[p] > R[q]) ++M[p];
+        else if (R[p] < R[q]) ++M[q];
+    }
+
+    V<ll> ans(N);
+    rep(i, 1, N + 1) ans[i - 1] = get(comp[R[i]] - 1) - M[i];
+    forr(a, ans) cout << a << ' ';
 }
 
 bool is_multi = false;
