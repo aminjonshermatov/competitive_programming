@@ -21,7 +21,7 @@ add_executable(cses "cses/DynamicProgramming/MoneySums.cpp")
 add_executable(atcoder_abc atcoder/abc/266/C.cpp)
 
 #data structures
-add_executable(ds data_structures/main.cpp)
+add_executable(ds data_structures/segment_tree.cpp)
 
 #stepik
 add_executable(stepik stepik/112246/2/2.3.2.cpp)
