@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <climits>
+#include <limits>
 
 /*
 4
@@ -42,7 +43,7 @@ auto solve() {
         // auto t = std::__lg(r - l + 1);
         // return std::max(st[t][l], st[t][r + 1 - (1 << t)]);
 
-        int res = INT_MIN;
+        int res = std::numeric_limits<int>::min();
         for (int level = static_cast<int>(lg_n); level >= 0; --level) {
             if (l + (1 << level) <= r + 1) {
                 res = std::max(res, st[level][l]);
