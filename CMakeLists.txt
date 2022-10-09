@@ -31,3 +31,6 @@ add_executable(temp temp.cpp)
 
 #acmp
 add_executable(acmp acmp/143.cpp)
+
+#nstus
+add_executable(nstus nstus/10.cpp)
