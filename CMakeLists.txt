@@ -31,7 +31,7 @@ add_executable(stepik stepik/112246/2/2.3.3.cpp)
 add_executable(temp temp.cpp)
 
 #acmp
-add_executable(acmp acmp/143.cpp)
+add_executable(acmp acmp/759.cpp)
 
 #nstus
 add_executable(nstus nstus/10.cpp)
