@@ -45,7 +45,6 @@ const ld eps = 1e-6;
 // ========================================= PROBLEM =========================================
 
 void solve() {
-    cout << "hello";
 }
 
 bool is_multi = false;
