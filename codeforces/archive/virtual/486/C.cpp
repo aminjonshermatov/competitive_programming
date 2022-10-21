@@ -15,7 +15,8 @@ typedef long double ld;
 
 #define F first
 #define S second
-#define mk make_pair
+#define P pair
+#define mp make_pair
 #define pb push_back
 #define eb emplace_back
 #define all(x) (x).begin(), (x).end()
@@ -47,28 +48,30 @@ const ld eps = 1e-6;
 
 
 void solve() {
-    read(N);
-    multiset<ll> ms;
-    rep(i, 0, N) {
-        read(a);
-        ms.insert(a);
+    read(K);
+
+    V<P<ll, P<ll, ll>>> A;
+    rep(k, 0, K) {
+        read(N);
+
+        V<ll> B(N);
+        ll s = 0;
+        forr(b, B) cin >> b, s += b;
+
+        rep(i, 0, N) A.pb(mp(s - B[i], mp(k, i)));
     }
 
-    V<ll> ans;
-    forr(a, ms) {
-        if (sz(ans) == 0) ans = {a};
-        rep(i, 0, 31) {
-            auto l = ms.find(a - (1 << i));
-            auto r = ms.find(a + (1 << i));
-
-            if (l != ms.end() && r != ms.end() && sz(ans) < 3) ans = {a - (1 << i), a, a + (1 << i)};
-            if (l != ms.end() && sz(ans) < 2) ans = {a - (1 << i), a};
-            if (r != ms.end() && sz(ans) < 2) ans = {a, a + (1 << i)};
+    sort(all(A));
+    rep(i, 0, sz(A) - 1) {
+        if (A[i].F == A[i + 1].F && A[i].S.F != A[i + 1].S.F) {
+            cout << "YES\n";
+            cout << A[i].S.F + 1 << ' ' << A[i].S.S + 1 << '\n'
+                << A[i + 1].S.F + 1 << ' ' << A[i + 1].S.S + 1 << '\n';
+            return;
         }
     }
 
-    cout << sz(ans) << '\n';
-    forr(a, ans) cout << a << ' ';
+    cout << "NO\n";
 }
 
 bool is_multi = false;

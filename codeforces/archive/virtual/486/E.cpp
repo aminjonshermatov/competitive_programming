@@ -45,51 +45,42 @@ const ld eps = 1e-6;
 
 // ========================================= PROBLEM =========================================
 
-const ll max_n = 2e5 + 11;
-const ll log_n = 40;
-ll prev_[max_n][log_n];
-ll dp[max_n][log_n];
+ll go(string s, string p) {
+    assert(sz(p) == 2);
+    ll ii = -1, jj = -1, ans = 0;
+
+    rep(i, 0, sz(s)) if (s[i] == p[1]) jj = i;
+    if (jj == -1) return inf;
+    while (jj + 1 != sz(s)) {
+        swap(s[jj], s[jj + 1]);
+        ans++;
+        ++jj;
+    }
+
+    rep(i, 0, sz(s) - 1) if (s[i] == p[0]) ii = i;
+    if (ii == -1) return inf;
+    while (ii + 2 != sz(s)) {
+        swap(s[ii], s[ii + 1]);
+        ++ans;
+        ++ii;
+    }
+    if (s.front() != '0') return ans;
+
+    ll pos = sz(s);
+    for (ll i = sz(s) - 3; i >= 0; --i) {
+        if (s[i] != '0') pos = i;
+    }
+    if (pos == inf) return inf;
+    return ans + pos;
+}
 
 void solve() {
     ull n;
     cin >> n;
 
     auto s = to_string(n);
-    array<ll, 10> fr{};
-    fill(all(fr), 0);
-    forr(c, s) ++fr[c - '0'];
-
-    if (fr[0] < 2
-        && !(fr[2] > 0 && fr[5] > 0)
-        && !(fr[5] > 0 && fr[0] > 0)
-        && !(fr[7] > 0 && fr[5] > 0)) {
-        cout << -1;
-        return;
-    }
-
-    ll ans = INT_MAX;
-    ll N = sz(s);
-    ll i00 = N - 1;
-    while (i00 >= 0 && s[i00] != '0') --i00;
-    ll i01 = N - 1;
-    while (i01 >= 0 && (s[i01] != '0' || i00 == i01)) --i01;
-    if (i00 >= 0 && i01 >= 0) ans = min(ans, N - i00 - 1 + N - i01 - 2);
-
-    ll i252 = N - 1;
-    while (i252 >= 0 && s[i252] != '2') --i252;
-    ll i255 = N - 1;
-    while (i255 >= 0 && s[i255] != '5') --i255;
-    if (i252 >= 0 && i255 >= 0) ans = min(ans, N - i255 - 1 + N - i252 - 2);
-
-    ll i505 = i255;
-    while (i505 >= 0 && (s[i505] != '5' || i505 >= i00)) --i505;
-    if (i505 >= 0 && i00 >= 0) ans = min(ans, N - i00 - 1 + N - i505 - 2);
-
-    ll i757 = N - 1;
-    while (i757 >= 0 && (s[i757] != '7' || i757 >= i255)) --i757;
-    if (i757 >= 0 && i255 >= 0) ans = min(ans, N - i255 - 1 + N - i757 - 2);
-
-    cout << (ans == INT_MAX ? -1 : ans);
+    ll ans = min(go(s, "00"), min(go(s, "25"), min(go(s, "50"), go(s, "75"))));
+    cout << (ans == inf ? -1 : ans);
 }
 
 bool is_multi = false;
