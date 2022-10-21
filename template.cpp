@@ -14,7 +14,8 @@ typedef long double ld;
 
 #define F first
 #define S second
-#define mk make_pair
+#define P pair
+#define mp make_pair
 #define pb push_back
 #define eb emplace_back
 #define all(x) (x).begin(), (x).end()
