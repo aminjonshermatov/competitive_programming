@@ -10,6 +10,7 @@ using namespace std;
 #pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx,avx,tune=native")
 
 typedef long long ll;
+typedef unsigned long long ull;
 typedef long double ld;
 
 #define F first
