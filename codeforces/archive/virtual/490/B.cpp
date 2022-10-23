@@ -16,7 +16,7 @@ typedef long double ld;
 #define F first
 #define S second
 #define P pair
-#define mk make_pair
+#define mp make_pair
 #define pb push_back
 #define eb emplace_back
 #define all(x) (x).begin(), (x).end()
@@ -47,6 +47,17 @@ const ld eps = 1e-6;
 // ========================================= PROBLEM =========================================
 
 void solve() {
+    read(N);
+    string s;
+    cin >> s;
+
+    for (ll d = 2; d <= N; ++d) {
+        if (N % d == 0) {
+            reverse(s.begin(), s.begin() + d);
+        }
+    }
+
+    cout << s;
 }
 
 bool is_multi = false;

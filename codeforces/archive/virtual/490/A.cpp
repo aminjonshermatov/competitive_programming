@@ -16,7 +16,7 @@ typedef long double ld;
 #define F first
 #define S second
 #define P pair
-#define mk make_pair
+#define mp make_pair
 #define pb push_back
 #define eb emplace_back
 #define all(x) (x).begin(), (x).end()
@@ -47,6 +47,19 @@ const ld eps = 1e-6;
 // ========================================= PROBLEM =========================================
 
 void solve() {
+    read(N);
+    read(K);
+    V<ll> A(N);
+    forr(a, A) cin >> a;
+
+    ll i = 0, j = N - 1, ans = 0;
+    for (; i <= j;) {
+        if (A[i] > K && A[j] > K) break;
+        if (A[i] <= K) ++i, ++ans;
+        if (i - 1 != j && A[j] <= K) --j, ++ans;
+    }
+
+    cout << ans;
 }
 
 bool is_multi = false;

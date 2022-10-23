@@ -16,7 +16,7 @@ typedef long double ld;
 #define F first
 #define S second
 #define P pair
-#define mk make_pair
+#define mp make_pair
 #define pb push_back
 #define eb emplace_back
 #define all(x) (x).begin(), (x).end()
@@ -46,7 +46,58 @@ const ld eps = 1e-6;
 
 // ========================================= PROBLEM =========================================
 
+const ll nax = 5e3;
+
+V<ll> G[nax];
+V<bool> used, used2;
+
+void dfs(ll v, ll p) {
+    used[v] = true;
+
+    forr(u, G[v]) if (u != p && !used[u]) {
+        dfs(u, v);
+    }
+}
+
+ll dfs2(ll v, ll p) {
+    used2[v] = true;
+    ll ans = 1;
+    forr(u, G[v]) if (u != p && !used2[u]) {
+        ans += dfs2(u, v);
+    }
+
+    return ans;
+}
+
 void solve() {
+    ll N, M, s;
+    cin >> N >> M >> s;
+
+    used.assign(N, false);
+
+    rep(_, 0, M) {
+        ll p, q;
+        cin >> p >> q;
+        --p, --q;
+
+        G[p].pb(q);
+    }
+
+    dfs(--s, -1);
+
+    V<P<ll, ll>> A;
+    rep(v, 0, N) if (!used[v]) {
+        used2 = used;
+        A.pb(mp(dfs2(v, -1), v));
+    }
+
+    ll ans = 0;
+    sort(rall(A));
+    for (auto [_, v] : A) {
+        if (!used[v]) dfs(v, -1), ++ans;
+    }
+
+    cout << ans;
 }
 
 bool is_multi = false;

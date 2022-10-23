@@ -16,7 +16,7 @@ typedef long double ld;
 #define F first
 #define S second
 #define P pair
-#define mk make_pair
+#define mp make_pair
 #define pb push_back
 #define eb emplace_back
 #define all(x) (x).begin(), (x).end()
@@ -47,6 +47,30 @@ const ld eps = 1e-6;
 // ========================================= PROBLEM =========================================
 
 void solve() {
+    ll N, K;
+    string s;
+    cin >> N >> K >> s;
+
+    array<deque<ll>, 26> A{};
+    rep(i, 0, N) {
+        A[s[i] - 'a'].push_back(i);
+    }
+
+    ll i = 0;
+    while (K) {
+        while (K && !A[i].empty()) --K, A[i].pop_front();
+        ++i;
+    }
+
+    V<P<ll, char>> B;
+    rep(j, 0, 26) {
+        while (!A[j].empty()) B.emplace_back(A[j].front(), j + 'a'), A[j].pop_front();
+    }
+    sort(all(B));
+    string res;
+    for (auto [_, ch] : B) res.push_back(ch);
+
+    cout << res;
 }
 
 bool is_multi = false;
