@@ -10,6 +10,7 @@ using namespace std;
 #pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx,avx,tune=native")
 
 typedef long long ll;
+typedef pair<ll, ll> pll;
 typedef long double ld;
 
 #define F first
@@ -44,40 +45,7 @@ const ld eps = 1e-6;
 
 // ========================================= PROBLEM =========================================
 
-const ll MAX_N = 1e2 + 3;
-const ll MAX_S = 1e5 + 3;
-
-bool dp[MAX_N][MAX_S];
-
 void solve() {
-    read(N);
-    vector<ll> A(N);
-    ll max_ = 0;
-    forr (a, A) {
-        cin >> a;
-        max_ = max(max_, a);
-    }
-
-    rep (i, 0, MAX_N) {
-        rep (j, 0, MAX_S) dp[i][j] = false;
-    }
-
-    dp[0][0] = true;
-    ll max_s = max_ * N;
-    rep (i, 1, N + 1) {
-        rep (s, 0, max_s + 1) {
-            dp[i][s] = dp[i - 1][s];
-            if (s >= A[i - 1] && dp[i - 1][s - A[i - 1]]) dp[i][s] = true;
-        }
-    }
-
-    set<ll> uniq;
-    rep (s, 1, max_s + 1)
-        if (dp[N][s]) uniq.insert(s);
-
-    cout << uniq.size() << '\n';
-    forr (a, uniq) cout << a << ' ';
-    cout << '\n';
 }
 
 bool is_multi = false;
