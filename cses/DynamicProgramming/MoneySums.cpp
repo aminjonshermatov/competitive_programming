@@ -46,6 +46,32 @@ const ld eps = 1e-6;
 // ========================================= PROBLEM =========================================
 
 void solve() {
+    read(N);
+    V<ll> A(N);
+    forr(a, A) cin >> a;
+
+    V<V<pll>> dp(N, V<pll>(N));
+
+    for (ll i = N - 1; i >= 0; --i) {
+        rep(j, i, N) {
+            if (i == j) dp[i][j] = {A[i], 0};
+            else {
+                if (A[i] + dp[i + 1][j].S > A[j] + dp[i][j - 1].S) {
+                    dp[i][j] = {
+                            A[i] + dp[i + 1][j].S,
+                            dp[i + 1][j].F
+                    };
+                } else {
+                    dp[i][j] = {
+                            A[j] + dp[i][j - 1].S,
+                            dp[i][j - 1].F
+                    };
+                }
+            }
+        }
+    }
+
+    cout << dp[0][N - 1].F;
 }
 
 bool is_multi = false;
