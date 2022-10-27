@@ -13,39 +13,47 @@
 0 4
 */
 
-auto solve() {
-    size_t N;
-    std::cin >> N;
+using namespace std;
+using ll = long long;
 
-    std::vector<int> f(N + 1, 0);
+struct ftree {
+    vector<ll> A, B;
+    ll N;
 
-    decltype(auto) inc = [&f](size_t idx, int val) {
-        for (++idx; idx < f.size(); idx += idx & -idx) f[idx] += val;
-    };
-
-    decltype(auto) sum = [&f](size_t idx) {
-        int res = 0;
-        for (++idx; idx > 0; idx -= idx & -idx) res += f[idx];
-
-        return res;
-    };
-
-    for (size_t i = 0; i < N; ++i) {
-        int val;
-        std::cin >> val;
-        inc(i, val);
+    explicit ftree(ll N_) : N{N_} {
+        A.assign(N + 1, 0);
+        B.assign(N + 1, 0);
     }
 
-    size_t q;
-    std::cin >> q;
-
-    for (size_t i = 0; i < q; ++i) {
-        size_t l, r;
-        std::cin >> l >> r;
-        std::cout << sum(r) - sum(l - 1) << std::endl;
+    void add(vector<ll> &C, ll idx, ll v) {
+        while (idx <= N) {
+            C[idx] += v;
+            idx += idx & -idx;
+        }
     }
-}
 
-auto main() -> int32_t {
-    solve();
-}
+    // [l, r]
+    void range_add(ll l, ll r, ll v) {
+        add(A, l, v);
+        add(A, r + 1, -v);
+        add(B, l, v * (l - 1));
+        add(B, r + 1, -v * r);
+    }
+
+    ll sum(vector<ll> &C, ll idx) {
+        ll ans = 0;
+        while (idx > 0) {
+            ans += C[idx];
+            idx -= idx & -idx;
+        }
+        return ans;
+    }
+
+    ll prefix_sum(ll idx) {
+        return sum(A, idx) * idx - sum(B, idx);
+    }
+
+    ll range_sum(ll l, ll r) {
+        return prefix_sum(r) - prefix_sum(l - 1);
+    }
+};
