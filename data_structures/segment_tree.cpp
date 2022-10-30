@@ -9,93 +9,91 @@ using ll = long long;
 
 struct segtree {
 
-    vector<ll> tree;
-    int size;
+    static inline constexpr ll DEFAULT_VALUE = 0ll;
+    static inline constexpr ll NO_OPERATION = 0ll;
 
-    void init(int n) {
-        size = 1;
-        while (size < n) size <<= 1;
-        tree.assign(2 * size - 1, 0);
-    }
+    struct node {
+        ll val = DEFAULT_VALUE;
+        ll lazy = NO_OPERATION;
 
-    void build(vector<ll> &a, int x, int lx, int rx) {
-        if (rx - lx == 1) {
-            if (lx < a.size()) tree[x] = a[lx];
-            return;
+        void apply([[maybe_unused]] ll l, [[maybe_unused]] ll r, ll v) {
+            val += v;
+            lazy += v;
         }
 
-        auto m = (lx + rx) / 2;
-        build(a, 2 * x + 1, lx, m);
-        build(a, 2 * x + 2, m, rx);
-        tree[x]=  tree[2 * x + 1] + tree[2 * x + 2];
-    }
+        static node unite(const node &a, const node &b) {
+            return node{
+                    min(a.val, b.val),
+                    NO_OPERATION
+            };
+        }
+    };
 
-    void build(vector<ll> &a) {
-        init(a.size());
-        build(a, 0, 0, size);
+    static inline constexpr node NEUTRAL_ELEMENT = {numeric_limits<ll>::max(), NO_OPERATION};
+
+    ll size;
+    vector<node> tree;
+
+    explicit segtree(ll n) {
+        size = 1ll;
+        while (size < n) size <<= 1;
+        tree.assign(2 * size - 1, {});
     }
 
     void print() {
-        for (int i = 0; i < 2 * size - 1; ++i) {
-            cout << tree[i] << ' ';
+        for (ll i = 1, j = 0; j < ll(tree.size()); i <<= 1) {
+            ll c = 0;
+            while (c++ < i) cout << tree[j].val << ',' << tree[j++].lazy << ' ';
+            cout << '\n';
         }
-        cout << '\n';
     }
 
-    // [lx, rx)
-    void set(int i, int v, int x, int lx, int rx) {
-        if (rx - lx == 1) {
-            tree[x] = v;
+    inline void push(ll x, ll lx, ll rx) {
+        if (rx - lx == 1 || tree[x].lazy == NO_OPERATION) return;
+
+        ll mid = lx + (rx - lx) / 2;
+        tree[2 * x + 1].apply(lx, mid, tree[x].lazy);
+        tree[2 * x + 2].apply(mid, rx, tree[x].lazy);
+        tree[x].lazy = NO_OPERATION;
+    }
+
+    inline void pull(ll x) {
+        tree[x] = node::unite(tree[2 * x + 1], tree[2 * x + 2]);
+    }
+
+    void modify(ll l, ll r, ll v, ll x, ll lx, ll rx) {
+        push(x, lx, rx);
+        if (l >= rx || r <= lx) return;
+        if (l <= lx && rx <= r) {
+            tree[x].apply(lx, rx, v);
             return;
         }
 
-        int m = (lx + rx) / 2;
-        if (i < m)  set(i, v, 2 * x + 1, lx, m);
-        else        set(i, v, 2 * x + 2, m, rx);
-        tree[x] = tree[2 * x + 1] + tree[2 * x + 2];
+        ll mid = lx + (rx - lx) / 2;
+        modify(l, r, v, 2 * x + 1, lx, mid);
+        modify(l, r, v, 2 * x + 2, mid, rx);
+        pull(x);
     }
 
-    void set(int i, int v) {
-        set(i, v, 0, 0, size);
+    void modify(ll l, ll r, ll v) {
+        modify(l, r, v, 0, 0, size);
     }
 
-    ll sum(int l, int r, int x, int lx, int rx) {
-        if (l >= rx || r <= lx) return 0;
+    node get(ll l, ll r, ll x, ll lx, ll rx) {
+        push(x, lx, rx);
+        if (l >= rx || r <= lx) return NEUTRAL_ELEMENT;
         if (l <= lx && rx <= r) return tree[x];
 
-        int m = (lx + rx) / 2;
-        auto s1 = sum(l, r, 2 * x + 1, lx, m);
-        auto s2 = sum(l, r, 2 * x + 2, m, rx);
-        return s1 + s2;
+        ll mid = lx + (rx - lx) / 2;
+        auto res = node::unite(get(l, r, 2 * x + 1, lx, mid),
+                               get(l, r, 2 * x + 2, mid, rx));
+        pull(x);
+        return res;
     }
 
-    ll sum(int l, int r) {
-        return sum(l, r, 0, 0, size);
+    ll get(ll l, ll r) {
+        auto res = get(l, r, 0, 0, size);
+        return res.val;
     }
 
 };
-
-auto main() -> int32_t {
-    int n, m;
-    cin >> n >> m;
-    vector<ll> A(n);
-    for (auto &a : A) cin >> a;
-
-    segtree st;
-    st.build(A);
-
-    for (int t = 0; t < m; ++t) {
-        int c;
-        cin >> c;
-
-        if (c == 1) {
-            int i, v;
-            cin >> i >> v;
-            st.set(i, v);
-        } else {
-            int l, r;
-            cin >> l >> r;
-            cout << st.sum(l, r) << '\n';
-        }
-    }
-}
