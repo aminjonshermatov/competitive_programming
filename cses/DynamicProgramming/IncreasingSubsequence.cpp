@@ -53,10 +53,9 @@ void solve() {
     forr(a, A) cin >> a;
 
     V<ll> dp;
-    set<ll> seen;
     forr(a, A) {
-        auto it = upper_bound(all(dp), a);
-        if (it == dp.end() && seen.count(a) == 0) dp.pb(a), seen.insert(a);
+        auto it = lower_bound(all(dp), a);
+        if (it == dp.end()) dp.pb(a);
         else *it = a;
     }
 
