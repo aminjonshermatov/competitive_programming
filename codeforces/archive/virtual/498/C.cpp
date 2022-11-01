@@ -52,17 +52,19 @@ void solve() {
     V<ll> A(N);
     forr(a, A) cin >> a;
 
-    map<ll, ll> sf;
-    for (ll i = N - 1, s = 0; i >= 0; --i) {
+    map<ll, ll> pf;
+    ll s = 0;
+    for (ll i = N - 1; i >= 0; --i) {
         s += A[i];
-        sf.emplace(s, i);
+        pf.emplace(s, i);
     }
 
-    ll s = 0, ans = 0;
+    ll ans = 0, cur = 0;
     rep(i, 0, N) {
-        s += A[i];
-        if (auto it = sf.find(s); it != sf.end() && it->second > i) ans = max(ans, s);
+        cur += A[i];
+        if (auto it = pf.find(cur); it != pf.end() && it->second > i) ans = max(ans, cur);
     }
+
     cout << ans;
 }
 

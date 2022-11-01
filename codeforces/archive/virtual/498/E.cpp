@@ -49,17 +49,18 @@ const ld eps = 1e-6;
 
 ll N, Q;
 V<set<ll>> G;
-V<ll> size_, order;
-map<ll, ll> v2order;
+V<ll> used, W, order;
+map<ll, ll> v2idx;
 
 void dfs(ll v) {
-    size_[v] = 1;
-    v2order[v] = sz(order);
-    order.emplace_back(v);
+    W[v] = 1;
+    v2idx[v] = sz(order);
+    order.pb(v);
+    used[v] = 1;
 
-    for (auto u : G[v]) {
+    for (auto u : G[v]) if (used[u] == 0) {
         dfs(u);
-        size_[v] += size_[u];
+        W[v] += W[u];
     }
 }
 
@@ -67,23 +68,25 @@ void solve() {
     cin >> N >> Q;
 
     G.resize(N + 1);
-    size_.resize(N + 1);
+    used.assign(N + 1, 0);
+    W.resize(N + 1);
+
     rep(i, 2, N + 1) {
-        read(p);
-        G[p].emplace(i);
+        read(x);
+        G[x].insert(i);
     }
 
     dfs(1);
 
-    V<ll> ans(Q);
+    V<ll> res(Q);
     rep(q, 0, Q) {
         read(u); read(k);
 
-        if (size_[u] < k) ans[q] = -1;
-        else ans[q] = order[v2order[u] + k - 1];
+        if (W[u] < k) res[q] = -1;
+        else res[q] = order[v2idx[u] + k - 1];
     }
 
-    forr(a, ans) cout << a << '\n';
+    forr(a, res) cout << a << '\n';
 }
 
 bool is_multi = false;

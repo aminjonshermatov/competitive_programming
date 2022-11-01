@@ -48,34 +48,31 @@ const ld eps = 1e-6;
 // ========================================= PROBLEM =========================================
 
 void solve() {
-    ll N, K;
-    cin >> N >> K;
-
+    read(N); read(K);
     V<ll> A(N);
     forr(a, A) cin >> a;
 
     auto B = A;
     sort(rall(B));
-    ll max_s = 0;
-    map<ll, ll> need;
-    rep(i, 0, K) max_s += B[i], ++need[B[i]];
+    ll sum = 0;
+    map<ll, ll> used;
+    rep(i, 0, K) sum += B[i], ++used[B[i]];
 
     V<ll> ans;
-
-    ans.reserve(K);
-    ll l = 0, r = 0;
-    for (ll mx = 0; r < N; ++r) {
+    ll mx = 0, l = 0, r = 0;
+    for (--K; r < N; ++r) {
         mx = max(mx, A[r]);
-        if (auto it = need.find(mx); it != need.end() && it->second > 0 && K > 1) {
+        if (auto it = used.find(mx); it != used.end() && it->second > 0 && K > 0) {
             --it->second;
-            mx = 0;
             --K;
+            mx = 0;
             ans.pb(r - l + 1);
             l = r + 1;
         }
     }
     ans.pb(r - l);
-    cout << max_s << '\n';
+
+    cout << sum << '\n';
     forr(a, ans) cout << a << ' ';
 }
 

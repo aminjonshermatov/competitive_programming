@@ -49,14 +49,25 @@ const ld eps = 1e-6;
 
 void solve() {
     read(N);
-    V<ll> A(N);
-    forr(a, A) cin >> a;
+    string a, b;
+    cin >> a >> b;
 
-    rep(i, 0, N) {
-        if (!(A[i] & 1)) --A[i];
+    bool is_odd = N & 1;
+    auto h = N >> 1;
+    ll ans = 0;
+    rep(i, 0, h) {
+        map<char, ll> m;
+        ++m[a[i]]; ++m[a[N - i - 1]];
+        ++m[b[i]]; ++m[b[N - i - 1]];
+
+        if (sz(m) == 1) continue;
+        if (sz(m) == 2) ans += m.begin()->second != m.rbegin()->second;
+        else if (sz(m) == 4) ans += 2;
+        else ans += 1 + (a[i] == a[N - i - 1]);
     }
 
-    forr(a, A) cout << a << ' ';
+    ans += is_odd && a[h] != b[h];
+    cout << ans;
 }
 
 bool is_multi = false;

@@ -47,16 +47,56 @@ const ld eps = 1e-6;
 
 // ========================================= PROBLEM =========================================
 
+inline constexpr array<ll, 4> dy = {1, 0, -1, 0};
+inline constexpr array<ll, 4> dx = {0, 1, 0, -1};
+
 void solve() {
-    read(N);
-    V<ll> A(N);
-    forr(a, A) cin >> a;
+    ll N, M, K;
+    cin >> N >> M >> K;
 
-    rep(i, 0, N) {
-        if (!(A[i] & 1)) --A[i];
-    }
+    auto isSafe = [&](ll i, ll j) { return i >= 0 && i < N && j >= 0 && j < M; };
 
-    forr(a, A) cout << a << ' ';
+    V<V<ull>> A(N, V<ull>(M));
+    forr(r, A) forr(a, r) cin >> a;
+
+    if (N == 1 && M == 1) { cout << (A[0][0] == K); return; }
+
+    V<V<map<ull, ll>>> cnt(N, V<map<ull, ll>>(M));
+
+    auto dfs1 = [&](const auto &self, ll i, ll j, ull a, ll c) -> void {
+        if (c == 0) {
+            ++cnt[i][j][a];
+            return;
+        }
+
+        rep(k, 0, 2) {
+            ll ii = i + dy[k], jj = j + dx[k];
+            if (isSafe(ii, jj)) {
+                self(self, ii, jj, a ^ A[ii][jj], c - 1);
+            }
+        }
+    };
+
+    ll ans = 0;
+    auto dfs2 = [&](const auto &self, ll i, ll j, ull a, ll c) -> void {
+        if (c == 0) {
+            ans += cnt[i][j][K ^ a];
+            return;
+        }
+
+        rep(k, 2, 4) {
+            ll ii = i + dy[k], jj = j + dx[k];
+            if (isSafe(ii, jj)) {
+                self(self, ii, jj, c > 1 ? a ^ A[ii][jj] : a, c - 1);
+            }
+        }
+    };
+
+    ll h = (N + M - 2) >> 1;
+    dfs1(dfs1, 0, 0, A[0][0], h);
+    dfs2(dfs2, N - 1, M - 1, A[N - 1][M - 1], N + M - 2 - h);
+
+    cout << ans;
 }
 
 bool is_multi = false;
