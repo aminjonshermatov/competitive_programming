@@ -14,8 +14,8 @@ typedef pair<ll, ll> pll;
 typedef unsigned long long ull;
 typedef long double ld;
 
-#define F first
-#define S second
+#define fi first
+#define se second
 #define P pair
 #define mp make_pair
 #define pb push_back

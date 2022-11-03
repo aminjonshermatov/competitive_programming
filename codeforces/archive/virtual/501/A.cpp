@@ -48,6 +48,17 @@ const ld eps = 1e-6;
 // ========================================= PROBLEM =========================================
 
 void solve() {
+    ll N, M;
+    cin >> N >> M;
+    V<ll> A(M, 0);
+
+    rep(i, 0, N) {
+        read(l); read(r);
+        rep(j, l - 1, r) ++A[j];
+    }
+
+    cout << count(all(A), 0) << '\n';
+    rep(i, 0, M) if (A[i] == 0) cout << i + 1 << ' ';
 }
 
 bool is_multi = false;

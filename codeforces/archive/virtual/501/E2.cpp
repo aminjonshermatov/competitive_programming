@@ -47,7 +47,61 @@ const ld eps = 1e-6;
 
 // ========================================= PROBLEM =========================================
 
+ll N, M;
+V<string> A;
+const ll nax = 1001;
+int dp_l[nax][nax], dp_r[nax][nax], dp_t[nax][nax], dp_b[nax][nax];
+
 void solve() {
+    cin >> N >> M;
+    A.resize(N);
+    forr(a, A) cin >> a;
+
+    for (auto &it : {dp_l, dp_r, dp_t, dp_b}) memset(it, 0, sizeof(dp_l));
+
+    rep(i, 0, N) {
+        if (A[i][0] == '*') dp_l[i][0] = 1;
+        if (A[i][M - 1] == '*') dp_r[i][M - 1] = 1;
+    }
+
+    rep(j, 0, M) {
+        if (A[0][j] == '*') dp_t[0][j] = 1;
+        if (A[N - 1][j] == '*') dp_b[N - 1][j] = 1;
+    }
+
+    rep(i, 0, N) rep(j, 1, M) if (A[i][j] == '*') dp_l[i][j] += dp_l[i][j - 1] + 1;
+    rep(i, 0, N) for (ll j = M - 2; j >= 0; --j) if (A[i][j] == '*') dp_r[i][j] += dp_r[i][j + 1] + 1;
+    rep(j, 0, M) rep(i, 1, N) if (A[i][j] == '*') dp_t[i][j] += dp_t[i - 1][j] + 1;
+    rep(j, 0, M) for (ll i = N - 2; i >= 0; --i) if (A[i][j] == '*') dp_b[i][j] += dp_b[i + 1][j] + 1;
+
+//    for (auto &it : {dp_l, dp_r, dp_t, dp_b}) {
+//        rep(i, 0, N) {
+//            rep(j, 0, M) cout << it[i][j] << " \n"[j + 1 == M];
+//        }
+//        cout << '\n';
+//    }
+
+    V<tuple<ll, ll, ll>> ans;
+    rep(i, 1, N - 1) {
+        rep(j, 1, M - 1) {
+            if (A[i][j] == '*' || A[i][j] == '#') {
+                auto mn = min({dp_l[i][j - 1], dp_r[i][j + 1], dp_t[i - 1][j], dp_b[i + 1][j]});
+                if (mn > 0) {
+                    for (ll k = mn; k >= 0; --k) A[i][j - k] = A[i][j + k] = A[i - k][j] = A[i + k][j] = '#';
+                    ans.emplace_back(i + 1, j + 1, mn);
+                }
+            }
+        }
+    }
+
+    rep(i, 0, N) {
+        rep(j, 0, M) {
+            if (A[i][j] == '*') { cout << -1; return; }
+        }
+    }
+
+    cout << sz(ans) << '\n';
+    forr(a, ans) cout << get<0>(a) << ' ' << get<1>(a) << ' ' << get<2>(a) << '\n';
 }
 
 bool is_multi = false;

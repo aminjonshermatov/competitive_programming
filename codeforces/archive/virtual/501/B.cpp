@@ -48,6 +48,22 @@ const ld eps = 1e-6;
 // ========================================= PROBLEM =========================================
 
 void solve() {
+    ll N;
+    string a, b;
+    cin >> N >> a >> b;
+
+    V<ll> ans;
+    rep(i, 0, N) {
+        if (a[i] != b[i]) {
+            ll j = i + 1;
+            while (j < N && a[j] != b[i]) ++j;
+            if (j == N) { cout << "-1"; return; }
+            for (ll k = j; k - 1 >= i; --k) swap(a[k], a[k - 1]), ans.eb(k);
+        }
+    }
+
+    cout << sz(ans) << '\n';
+    forr(x, ans) cout << x << ' ';
 }
 
 bool is_multi = false;

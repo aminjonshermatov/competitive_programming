@@ -48,6 +48,22 @@ const ld eps = 1e-6;
 // ========================================= PROBLEM =========================================
 
 void solve() {
+    ll N, M;
+    cin >> N >> M;
+    V<pll> A(N);
+    ll w = 0, wt = 0;
+    forr(a, A) cin >> a.fi >> a.se, w += a.fi, wt += a.se;
+
+    if (wt > M) { cout << -1; return; }
+    sort(all(A), [](auto &l, auto &r) { return l.fi - l.se > r.fi - r.se; });
+    ll i = 0;
+    while (w > M && i < N) {
+        w += A[i].se - A[i].fi;
+        ++i;
+    }
+
+    if (w > M) { cout << -1; return; }
+    cout << i;
 }
 
 bool is_multi = false;
