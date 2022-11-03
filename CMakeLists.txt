@@ -25,7 +25,7 @@ add_executable(atcoder_abc atcoder/abc/266/C.cpp)
 add_executable(ds data_structures/main.cpp)
 
 #stepik
-add_executable(stepik "stepik/199929/1/1.1.2.cpp")
+add_executable(stepik "stepik/199929/1/1.1.3.cpp")
 
 #temp
 add_executable(temp temp.cpp)
