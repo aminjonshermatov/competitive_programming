@@ -22,7 +22,7 @@ add_executable(codechef codechef/problems/MAXEXP.cpp)
 add_executable(atcoder_abc atcoder/abc/266/C.cpp)
 
 #data structures
-add_executable(ds data_structures/main.cpp)
+add_executable(templates templates/lca.cpp)
 
 #stepik
 add_executable(stepik "stepik/199929/1/1.2.1.cpp")
@@ -32,6 +32,3 @@ add_executable(temp temp.cpp)
 
 #acmp
 add_executable(acmp acmp/119.cpp)
-
-#nstus
-add_executable(nstus nstus/10.cpp)
