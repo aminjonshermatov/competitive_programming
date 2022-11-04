@@ -48,23 +48,21 @@ const ld eps = 1e-6;
 // ========================================= PROBLEM =========================================
 
 void solve() {
-    ll n, k, s;
-    cin >> n >> k >> s;
+    ll N, K, S;
+    cin >> N >> K >> S;
 
-    ll need = n * k - s;
-    if (need < 0) { cout << "NO"; return; }
+    if ((N - 1) * K < S || K > S) { cout << "NO"; return; }
+    S -= K;
 
-    ll x = min(n - 1, ll(1 + ceil(sqrt(1 + 8 * need))) / 2);
-    cout << need << ' ' << x << '\n';
-    V<pll> ans;
-    while (need > 0 && x > 0) {
-        ll fl = min(need / (n - x), x);
-        if (fl == 0) { --x; continue; }
-        ans.eb(fl, n - x);
-        need -= fl * (n - x--);
+    cout << "YES\n";
+    ll cur = 1;
+    rep(_, 0, K) {
+        ll m = min(S, N - 2) + 1;
+        S -= m - 1;
+        if (cur + m <= N) cur += m;
+        else cur -= m;
+        cout << cur << ' ';
     }
-    cout << "ans\n";
-    forr(a, ans) cout << a.fi << ' ' << a.se << '\n';
 }
 
 bool is_multi = false;
