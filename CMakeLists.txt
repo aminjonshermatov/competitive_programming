@@ -25,7 +25,7 @@ add_executable(atcoder_abc atcoder/abc/266/C.cpp)
 add_executable(templates templates/lca.cpp)
 
 #stepik
-add_executable(stepik "stepik/199929/3/3.3.1.cpp")
+add_executable(stepik "stepik/199929/3/3.4.1.cpp")
 
 #temp
 add_executable(temp temp.cpp)
