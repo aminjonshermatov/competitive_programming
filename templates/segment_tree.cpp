@@ -10,23 +10,20 @@ using ll = long long;
 struct segtree {
 
     static inline constexpr ll DEFAULT_VALUE = 0ll;
-    static inline constexpr ll NO_OPERATION = 1ll;
-    static inline constexpr ll MOD = 1e9 + 7;
+    static inline constexpr ll NO_OPERATION = -1ll;
 
     struct node {
         ll val;
         ll lazy;
 
         void apply([[maybe_unused]] ll l, [[maybe_unused]] ll r, ll v) {
-            val *= v;
-            val %= MOD;
-            lazy *= v;
-            lazy %= MOD;
+            val = v * (r - l);
+            lazy = v;
         }
 
         static node unite(const node &a, const node &b) {
             return node{
-                    (a.val + b.val) % MOD,
+                    a.val + b.val,
                     NO_OPERATION
             };
         }
