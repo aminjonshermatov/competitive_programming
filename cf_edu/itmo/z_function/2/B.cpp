@@ -6,7 +6,7 @@ void solve() {
     int k, j;
     cin >> k >> j;
 
-    if (j == 0 or (j & 1) == 1) cout << 0;
+    if (j == 0 || (j & 1) == 1) cout << 0;
     else {
         while (j > 0) {
             if ((j & (j - 1)) == 0) break;

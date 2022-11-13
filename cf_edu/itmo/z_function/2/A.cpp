@@ -6,18 +6,14 @@ void solve() {
     string s;
     cin >> s;
 
-    cout << 0 << ' ';
-    for (int i = 1; i < s.size(); ++i) {
-        int ii = i, jj = 0;
+    const auto N = (int)s.size();
 
-        while (ii < s.size() and jj < s.size()) {
-            if (s[ii] != s[jj]) break;
-            ++ii;
-            ++jj;
-        }
-
-        cout << jj << ' ';
+    vector<int> z(N, 0);
+    for (int i = 1; i < N; ++i) {
+        while (z[i] + i < N && s[z[i]] == s[z[i] + i]) ++z[i];
     }
+
+    for (auto c : z) cout << c << ' ';
     cout << '\n';
 }
 
