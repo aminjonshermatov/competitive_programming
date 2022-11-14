@@ -9,7 +9,7 @@ add_executable(codeforces_div3 codeforces/div3/811/E.cpp)
 add_executable(codeforces_div4 codeforces/div4/817/D.cpp)
 add_executable(virtual codeforces/archive/virtual/501/A.cpp)
 add_executable(probelmset codeforces/archive/problemset/161D.cpp)
-add_executable(edu cf_edu/itmo/dsu/1/B.cpp)
+add_executable(edu cf_edu/itmo/dsu/1/C.cpp)
 add_executable(kfu codeforces/archive/403347/J.cpp)
 
 #codechef
