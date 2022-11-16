@@ -48,8 +48,40 @@ const ld eps = 1e-6;
 
 // ========================================= PROBLEM =========================================
 
-void solve() {
+inline constexpr array<int, 5> dk = {1, 0, -1, 0, 1};
 
+void solve() {
+    int n, m;
+    cin >> n >> m;
+    V<string> M(n);
+    forr(r, M) cin >> r;
+
+    auto is_safe = [&](int i, int j) { return i >= 0 && i < n && j >= 0 && j < m; };
+
+    queue<pii> q;
+    int ans = 0;
+    rep(i, 0, n) {
+        rep(j, 0, m) {
+            if (M[i][j] != '#') {
+                ++ans;
+                q.emplace(i, j);
+                while (!q.empty()) {
+                    auto [y, x] = q.front(); q.pop();
+
+                    rep(k, 0, 4) {
+                        int yy = y + dk[k];
+                        int xx = x + dk[k + 1];
+                        if (is_safe(yy, xx) && M[yy][xx] != '#') {
+                            M[yy][xx] = '#';
+                            q.emplace(yy, xx);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    cout << ans;
 }
 
 bool is_multi = false;
