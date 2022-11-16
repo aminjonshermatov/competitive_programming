@@ -48,19 +48,8 @@ const ld eps = 1e-6;
 
 // ========================================= PROBLEM =========================================
 
-ll binpow(ll a, ll n) {
-    ll res = 1;
-    while (n > 0) {
-        if (n & 1) res *= a, res %= MOD, --n;
-        a *= a, a %= MOD;
-        n >>= 1;
-    }
-
-    return  res;
-}
-
 inline ll dist(pii &a, pii &b) {
-    return abs(a.fi - b.fi) + abs(a.se - b.se);
+    return 0ll + abs(a.fi - b.fi) + abs(a.se - b.se);
 }
 
 void solve() {
@@ -73,33 +62,33 @@ void solve() {
         mm[max(a.fi, a.se)].eb(a);
     }
 
+    mm[0].emplace_back(0, 0);
     for (auto &[_, cont] : mm) {
-        sort(all(cont), [](pii a, pii b) {
+        sort(all(cont), [](pii &a, pii &b) {
             if (a.fi != b.fi) return a.fi < b.fi;
             return a.se > b.se;
         });
     }
 
-    ll ans = 0;
-    pii cur{0,0};
+    V<pll> dp(sz(mm) + 1, mp(inf, inf));
+    dp[0].fi = dp[0].se = 0;
+    int cur = 0, prev = 0;
     for (auto &[_, cont] : mm) {
-        int ss = sz(cont);
-        pii &f = cont.front();
-        pii &b = cont.back();
-        if (dist(cur, f) < dist(cur, b)) {
-            for (int i = 0; i < ss; ++i) {
-                ans += dist(cur, cont[i]);
-                cur = cont[i];
-            }
-        } else {
-            for (int i = ss - 1; i >= 0; --i) {
-                ans += dist(cur, cont[i]);
-                cur = cont[i];
-            }
-        }
+        ++cur;
+        pii curl = cont.front();
+        pii curr = cont.back();
+
+        pii prevl = mm[prev].front();
+        pii prevr = mm[prev].back();
+
+        dp[cur].se = min(dp[cur].se, dp[cur - 1].fi + dist(prevl, curl) + dist(curl, curr));
+        dp[cur].se = min(dp[cur].se, dp[cur - 1].se + dist(prevr, curl) + dist(curl, curr));
+        dp[cur].fi = min(dp[cur].fi, dp[cur - 1].fi + dist(prevl, curr) + dist(curr, curl));
+        dp[cur].fi = min(dp[cur].fi, dp[cur - 1].se + dist(prevr, curr) + dist(curr, curl));
+        prev = _;
     }
 
-    cout << ans;
+    cout << min(dp[cur].fi, dp[cur].se);
 }
 
 bool is_multi = false;

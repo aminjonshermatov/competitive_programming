@@ -48,21 +48,29 @@ const ld eps = 1e-6;
 // ========================================= PROBLEM =========================================
 
 void solve() {
-    ll N, r;
-    cin >> N >> r;
-
-    V<char> A(N);
+    int n, m, k;
+    cin >> n >> m >> k;
+    V<int> A(n);
     forr(a, A) cin >> a;
-    if (count(all(A), '1') == 0) { cout << -1; return; }
 
-    rep(c, 1, N) {
-        ll s = 0, i = 0, x = c;
-        bool ok = true;
-        while (s < N && x > 0 && ok) {
-            while (i < N && (A[i] == '0' || s +))
+    auto can = [&](int i) -> bool {
+        for (int cur_cap = 0, cur_m = 1; i < n; ++i) {
+            if (cur_cap + A[i] > k) {
+                if (cur_m == m) return false;
+                ++cur_m;
+                cur_cap = 0;
+            } cur_cap += A[i];
         }
+        return true;
+    };
+
+    int lo = 0, hi = n;
+    while (lo < hi) {
+        int mid = lo + (hi - lo) / 2;
+        if (can(mid)) hi = mid;
+        else lo = mid + 1;
     }
-    cout << -1;
+    cout << n - lo;
 }
 
 bool is_multi = false;
