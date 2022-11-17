@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 20)
 add_executable(codeforces_div2 codeforces/div2/134/C.cpp)
 add_executable(codeforces_div3 codeforces/div3/811/E.cpp)
 add_executable(codeforces_div4 codeforces/div4/817/D.cpp)
-add_executable(virtual codeforces/archive/virtual/521/main.cpp)
+add_executable(virtual codeforces/archive/virtual/521/D.cpp)
 add_executable(probelmset codeforces/archive/problemset/161D.cpp)
 add_executable(edu cf_edu/itmo/dsu/1/C.cpp)
 add_executable(kfu codeforces/archive/403347/J.cpp)
@@ -16,7 +16,7 @@ add_executable(kfu codeforces/archive/403347/J.cpp)
 add_executable(codechef codechef/problems/MAXEXP.cpp)
 
 #cses
-#add_executable(cses cses/GraphAlgorithms/HighScore.cpp)
+add_executable(cses cses/GraphAlgorithms/HighScore.cpp)
 
 #atcoder
 add_executable(atcoder_abc atcoder/abc/266/C.cpp)
