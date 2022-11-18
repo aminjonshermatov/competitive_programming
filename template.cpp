@@ -14,6 +14,8 @@ typedef long long           ll;
 typedef long double         ld;
 typedef pair<ll, ll>        pll;
 typedef pair<int, int>      pii;
+typedef pair<ll, int>       pli;
+typedef pair<int, ll>       pil;
 typedef unsigned long long  ull;
 
 #define fi      first
