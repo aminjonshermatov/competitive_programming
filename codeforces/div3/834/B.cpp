@@ -40,10 +40,32 @@ const ld pi = atan2(0, -1);
 const ld eps = 1e-6;
 
 void solve() {
+    int m, s;
+    cin >> m >> s;
 
+    ll sum = s;
+    set<int> seen;
+    bool ok = true;
+    rep(_, 0, m) {
+        int x;
+        cin >> x;
+        if (seen.count(x) > 0) ok = false;
+        seen.insert(x);
+        sum += x;
+    }
+    if (!ok) { cout << "No\n"; return; }
+
+    int k = 0;
+    rep(i, 1, 201) {
+        if (seen.count(i) > 0) ++k;
+        else s -= i;
+        if (k == m && s == 0) { cout << "Yes\n"; return; }
+        else if (s < 0) break;
+    }
+    cout << "No\n";
 }
 
-bool is_multi = false;
+bool is_multi = true;
 
 int main() {
     ios_base::sync_with_stdio(false);

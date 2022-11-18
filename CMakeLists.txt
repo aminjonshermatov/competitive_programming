@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 #codeforces
 add_executable(codeforces_div2 codeforces/div2/134/C.cpp)
-add_executable(codeforces_div3 codeforces/div3/811/E.cpp)
+add_executable(codeforces_div3 codeforces/div3/834/D.cpp)
 add_executable(codeforces_div4 codeforces/div4/817/D.cpp)
 add_executable(virtual codeforces/archive/virtual/521/D.cpp)
 add_executable(probelmset codeforces/archive/problemset/161D.cpp)

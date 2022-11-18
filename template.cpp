@@ -28,7 +28,7 @@ typedef unsigned long long  ull;
 #define rall(x) (x).rbegin(), (x).rend()
 #define sz(x)   (ll)((x).size())
 
-#define rep(i, a, b)    for (decltype(a) i = (a); (i) < (b); ++(i))
+#define rep(i, a, b)    for (auto i = (a); (i) < (b); ++(i))
 #define forr(el, cont)  for (auto &(el) : (cont))
 #define read(k)         ll k; cin >> k
 

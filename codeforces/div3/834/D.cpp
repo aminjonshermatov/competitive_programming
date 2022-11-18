@@ -39,16 +39,60 @@ const ll MOD = 1e9 + 7;
 const ld pi = atan2(0, -1);
 const ld eps = 1e-6;
 
-void solve() {
-
+ull binpow(ll x, ll p) {
+    ull ans = 1;
+    while (p > 0) {
+        if (p & 1) ans *= x;
+        x *= x;
+        p >>= 1;
+    }
+    return ans;
 }
 
-bool is_multi = false;
+pair<int, int> get(ll x) {
+    pair<int, int> res{0,0};
+    for (ll k = x; k % 2 == 0; ++res.fi, k >>= 1) {}
+    for (ll k = x; k % 5 == 0; ++res.se, k /= 5) {}
+    return res;
+}
+
+array<pii, 10> A;
+
+void solve() {
+    ll n, m;
+    cin >> n >> m;
+
+    pair<int, int> init = get(n);
+
+    pair<int, ll> ans{min(init.fi, init.se), n};
+    rep(i, 0, 30) {
+        rep(j, 0, 13) {
+            ull k = (1 << i) * binpow(5, j);
+            for (int x = 1; x < 10 && x * k <= m; ++x) {
+                int z = min(i + init.fi + A[x].fi, j + init.se + A[x].se);
+                if (z == ans.fi) {
+                    //cout << "z=" << z << ' ' << k << ' ' << x << '\n';
+                    ans.se = max(ans.se, ll(k * n * x));
+                } else if (z > ans.fi) {
+                    //cout << "zz=" << z << ' ' << k << ' ' << x << '\n';
+                    ans = {z, k * n * x};
+                }
+            }
+        }
+    }
+    if (min(init.fi, init.se) == ans.fi) ans.se = n * m;
+
+    cout << ans.se << '\n';
+}
+
+bool is_multi = true;
 
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(nullptr);
     cout.tie(nullptr);
+
+    rep(i, 1, 10) A[i] = get(i);
 
     int T = 1;
     if (is_multi) cin >> T;
