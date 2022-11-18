@@ -14,6 +14,8 @@ typedef long long           ll;
 typedef long double         ld;
 typedef pair<ll, ll>        pll;
 typedef pair<int, int>      pii;
+typedef pair<ll, int>       pli;
+typedef pair<int, ll>       pil;
 typedef unsigned long long  ull;
 
 #define fi      first
@@ -38,7 +40,47 @@ const ld pi = atan2(0, -1);
 const ld eps = 1e-6;
 
 void solve() {
+    int n, m, k;
+    cin >> n >> m >> k;
 
+    vector<vector<pii>> G(n);
+    rep(_, 0, m) {
+        int a, b, w;
+        cin >> a >> b >> w;
+
+        G[--a].eb(--b, w);
+    }
+
+    vector<priority_queue<ll>> best(n);
+    priority_queue<pli, vector<pli>, greater<>> pq;
+    pq.emplace(0, 0);
+    best[0].emplace(0);
+
+    while (!pq.empty()) {
+        auto [c, v] = pq.top(); pq.pop();
+        if (c > best[v].top()) continue;
+
+        for (auto [u, w] : G[v]) {
+            if (sz(best[u]) < k) {
+                best[u].emplace(c + w);
+                pq.emplace(c + w, u);
+            } else if (best[u].top() > c + w) {
+                best[u].pop();
+                best[u].emplace(c + w);
+                pq.emplace(c + w, u);
+            }
+        }
+    }
+
+    vector<ll> res;
+    res.reserve(k);
+    while (!best[n - 1].empty()) {
+        res.emplace_back(best[n - 1].top());
+        best[n - 1].pop();
+    }
+
+    reverse(all(res));
+    forr(d, res) cout << d << ' ';
 }
 
 bool is_multi = false;
