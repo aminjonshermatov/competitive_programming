@@ -40,7 +40,31 @@ const ld pi = atan2(0, -1);
 const ld eps = 1e-6;
 
 void solve() {
+    int n, m;
+    cin >> n >> m;
 
+    vector<vector<int>> adj(n);
+    rep(_, 0, m) {
+        int a, b;
+        cin >> a >> b;
+        adj[--a].eb(--b);
+    }
+
+    vector<int> used(n, 0), order;
+    order.reserve(n);
+
+    auto dfs = [&](auto &self, int v) -> bool {
+        used[v] = 1;
+
+        forr(u, adj[v]) if (used[u] == 1 || (used[u] == 0 && self(self, u))) return true;
+        order.eb(v);
+        used[v] = 2;
+        return false;
+    };
+
+    rep(v, 0, n) if (!used[v] && dfs(dfs, v)) { cout << "IMPOSSIBLE"; return; }
+    reverse(all(order));
+    forr(v, order) cout << v + 1 << ' ';
 }
 
 bool is_multi = false;

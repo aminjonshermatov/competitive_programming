@@ -16,7 +16,7 @@ add_executable(kfu codeforces/archive/403347/J.cpp)
 add_executable(codechef codechef/problems/MAXEXP.cpp)
 
 #cses
-add_executable(cses cses/GraphAlgorithms/RoundTripII.cpp)
+add_executable(cses cses/GraphAlgorithms/CourseSchedule.cpp)
 
 #atcoder
 add_executable(atcoder_abc atcoder/abc/266/C.cpp)
