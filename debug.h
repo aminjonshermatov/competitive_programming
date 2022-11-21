@@ -2,9 +2,6 @@
 // Created by aminjon on 8/24/22.
 //
 
-#ifndef COMPETITIVE_PROGRAMMING_DEBUG_H
-#define COMPETITIVE_PROGRAMMING_DEBUG_H
-
 #include <iostream>
 #include <vector>
 #include <deque>
@@ -144,5 +141,3 @@ std::ostream& operator<<(std::ostream& out, const std::tuple<Types...>& value) {
     TuplePrinter<std::tuple<Types...>, 0, sizeof...(Types) - 1>::print(out, value);
     return out << ')';
 }
-
-#endif //COMPETITIVE_PROGRAMMING_DEBUG_H
