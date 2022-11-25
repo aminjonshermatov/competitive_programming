@@ -44,27 +44,23 @@ void solve() {
     cin >> n;
 
     vector<string> A(n);
-    array<vector<int>, 10> ids;
-    forr(id, ids) id.reserve(n);
 
-    forr(s, A) {
-        cin >> s;
-        rep(i, 0, 10) ids[s[i] - '0'].eb(i + 1);
-    }
-    rep(i, 0, 10) sort(all(ids[i]));
+    forr(s, A) cin >> s;
 
     int ans = inf;
-    rep(i, 0, 10) {
-        rep(start, 0, 11) {
-            forr(id, ids[i]) {
-                rep(k, 1, 11) if ((k + start) % 10 + 1 == id) {
-                    start += k;
-                    break;
-                }
-            }
-            ans = min(ans, start - 1);
+    for (auto c = '0'; c <= '9'; ++c) {
+        map<int, int> mm;
+
+        int cur = 0;
+        rep(i, 0, n) {
+            auto j = A[i].find(c);
+            if (mm.count(j) > 0) mm[j] += 10;
+            else mm[j] = j;
+            cur = max(cur, mm[j]);
         }
+        ans = min(ans, cur);
     }
+
     cout << ans;
 }
 

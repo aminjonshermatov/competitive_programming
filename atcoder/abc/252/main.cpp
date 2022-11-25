@@ -39,23 +39,8 @@ const ll MOD = 1e9 + 7;
 const ld pi = atan2(0, -1);
 const ld eps = 1e-6;
 
-const int MAXN = int(2e5 + 10);
-ull cnt[MAXN];
-
 void solve() {
-    int n;
-    cin >> n;
 
-    fill(cnt, cnt + n + 1, 0);
-
-    rep(i, 0, n) {
-        int x;
-        cin >> x;
-        ++cnt[x];
-    }
-
-    rep(i, 1, n + 1) cnt[i] += cnt[i - 1];
-    cout << cnt[n];
 }
 
 bool is_multi = false;
