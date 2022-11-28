@@ -35,16 +35,24 @@ typedef unsigned long long  ull;
 
 template<typename T = ll> using ordered_set = tree<T, null_type, less_equal<T>, rb_tree_tag, tree_order_statistics_node_update>;
 
-const ll inf = 1e9;
+const ll inf = 1e15;
 const ll MOD = 1e9 + 7;
 const ld pi = atan2(0, -1);
 const ld eps = 1e-6;
 
 void solve() {
+    int n, k;
+    cin >> n >> k;
 
+    string x(k, '.');
+    iota(all(x), 'a');
+    string res = x;
+    while (sz(res) < n) res += x;
+    while (sz(res) > n) res.pop_back();
+    cout << res << '\n';
 }
 
-bool is_multi = false;
+bool is_multi = true;
 
 int main() {
     ios_base::sync_with_stdio(false);

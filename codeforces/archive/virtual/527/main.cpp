@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 #include <ext/pb_ds/assoc_container.hpp>
 #include <ext/pb_ds/tree_policy.hpp>
+#include <ranges>
 
 #pragma GCC optimize("Ofast")
 #pragma GCC optimize("unroll-loops")
@@ -29,7 +30,6 @@ typedef unsigned long long  ull;
 #define sz(x)   (ll)((x).size())
 
 #define rep(i, a, b)    for (auto i = (a); (i) < (b); ++(i))
-#define rep(i, b)       for (auto i = (0); (i) < (b); ++(i))
 #define forr(el, cont)  for (auto &(el) : (cont))
 #define read(k)         ll k; cin >> k
 
@@ -41,7 +41,27 @@ const ld pi = atan2(0, -1);
 const ld eps = 1e-6;
 
 void solve() {
+    int n; cin >> n;
 
+    vector<int> A(n);
+    map<int, int> h;
+    int mx = 0;
+    forr(a, A) cin >> a, ++h[a], mx = max(mx, a);
+
+    rep(_, 0, 250) {
+        bool moved = false;
+        rep(i, 1, n) {
+            if (A[i] != mx && A[i] == A[i - 1]) {
+                --h[A[i]], --h[A[i - 1]];
+                if (i & 1) ++h[A[i] += mx - A[i]], ++h[A[i - 1] += mx - A[i - 1]];
+                else ++h[A[i] += A[i] - A[i - 2]], ++h[A[i - 1] += A[i - 1] - A[i - 2]];
+                mx = max(mx, A[i]);
+                moved |= 1;
+            }
+        }
+        if (!moved && h[mx] == n) { cout << "Yes"; return; }
+    }
+    cout << "No";
 }
 
 bool is_multi = false;
