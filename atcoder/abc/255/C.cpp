@@ -34,13 +34,27 @@ typedef unsigned long long  ull;
 
 template<typename T = ll> using ordered_set = tree<T, null_type, less_equal<T>, rb_tree_tag, tree_order_statistics_node_update>;
 
-const ll inf = 1e9;
+const ll inf = 1e15;
 const ll MOD = 1e9 + 7;
 const ld pi = atan2(0, -1);
-const ld eps = 1e-6;
+const ld eps = 1e-7;
 
 void solve() {
+    ll x, a, d, n; cin >> x >> a >> d >> n;
 
+    ll an = a + d * (n - 1);
+    if (d < 0) {
+        tie(a, an) = tuple(an, a);
+        d *= -1;
+    }
+    if (x <= a) {
+        cout << a - x << '\n';
+    } else if (x >= an) {
+        cout << x - an << '\n';
+    } else {
+        x -= a;
+        cout << min(x % d, d - x % d) << '\n';
+    }
 }
 
 bool is_multi = false;

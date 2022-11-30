@@ -34,13 +34,42 @@ typedef unsigned long long  ull;
 
 template<typename T = ll> using ordered_set = tree<T, null_type, less_equal<T>, rb_tree_tag, tree_order_statistics_node_update>;
 
-const ll inf = 1e9;
+const ll inf = 1e15;
 const ll MOD = 1e9 + 7;
 const ld pi = atan2(0, -1);
-const ld eps = 1e-6;
+const ld eps = 1e-7;
 
 void solve() {
+    int n, k; cin >> n >> k;
 
+    vector<ll> A(k);
+    forr(a, A) cin >> a, --a;
+    vector<pll> P(n);
+    forr(p, P) cin >> p.fi >> p.se;
+
+    vector<bool> seen(n);
+    auto f = [&](ld r) -> bool {
+        fill(all(seen), false);
+        forr(a, A) seen[a] = true;
+        forr(a, A) {
+            rep(i, 0, n) {
+                if (seen[i]) continue;
+                auto d = (P[i].fi - P[a].fi) * (P[i].fi - P[a].fi) + (P[i].se - P[a].se) * (P[i].se - P[a].se);
+                if (d <= r * r) seen[i] = true;
+            }
+        }
+
+        return all_of(all(seen), [](auto el) { return el; });
+    };
+
+    ld lo = 1e-6, hi = 4e6;
+    while (hi - lo > eps) {
+        auto mid = lo + (hi -lo) / 2;
+
+        if (f(mid)) hi = mid;
+        else lo = mid;
+    }
+    cout << fixed << setprecision(9) << lo;
 }
 
 bool is_multi = false;

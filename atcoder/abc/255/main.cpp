@@ -20,7 +20,6 @@ typedef unsigned long long  ull;
 
 #define fi      first
 #define se      second
-#define P       pair
 #define mp      make_pair
 #define pb      push_back
 #define eb      emplace_back
@@ -34,10 +33,10 @@ typedef unsigned long long  ull;
 
 template<typename T = ll> using ordered_set = tree<T, null_type, less_equal<T>, rb_tree_tag, tree_order_statistics_node_update>;
 
-const ll inf = 1e9;
+const ll inf = 1e15;
 const ll MOD = 1e9 + 7;
 const ld pi = atan2(0, -1);
-const ld eps = 1e-6;
+const ld eps = 1e-7;
 
 void solve() {
 
