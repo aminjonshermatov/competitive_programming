@@ -32,3 +32,6 @@ add_executable(temp temp.cpp)
 
 #acmp
 add_executable(acmp acmp/119.cpp)
+
+#adventofcode
+add_executable(adventofcode adventofcode/2022/main.cpp)
