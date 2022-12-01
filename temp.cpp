@@ -32,7 +32,8 @@ typedef unsigned long long  ull;
 #define forr(el, cont)  for (auto &(el) : (cont))
 #define read(k)         ll k; cin >> k
 
-template<typename T = ll> using ordered_set = tree<T, null_type, less_equal<T>, rb_tree_tag, tree_order_statistics_node_update>;
+template<typename T>            using ordered_set = tree<T, null_type, less_equal<T>, rb_tree_tag, tree_order_statistics_node_update>;
+template<typename K,typename V> using gp_ht = gp_hash_table<K, V, hash<K>, equal_to<K>, direct_mask_range_hashing<>, linear_probe_fn<>, hash_standard_resize_policy<hash_exponential_size_policy<>, hash_load_check_resize_trigger<>, true>>;
 
 const ll inf = 1e9;
 const ll MOD = 1e9 + 7;
