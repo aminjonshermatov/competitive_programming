@@ -19,7 +19,7 @@ add_executable(codechef codechef/problems/MAXEXP.cpp)
 add_executable(cses cses/GraphAlgorithms/GiantPizza.cpp)
 
 #atcoder
-add_executable(atcoder_abc atcoder/abc/256/main.cpp)
+add_executable(atcoder_abc atcoder/abc/258/main.cpp)
 
 #data structures
 add_executable(templates templates/lca.cpp)
