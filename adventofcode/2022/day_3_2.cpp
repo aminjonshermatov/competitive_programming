@@ -35,13 +35,36 @@ typedef unsigned long long  ull;
 template<typename T>             using ordered_set = tree<T, null_type, less_equal<T>, rb_tree_tag, tree_order_statistics_node_update>;
 template<typename K, typename V> using gp_ht = gp_hash_table<K, V, hash<K>, equal_to<K>, direct_mask_range_hashing<>, linear_probe_fn<>, hash_standard_resize_policy<hash_exponential_size_policy<>, hash_load_check_resize_trigger<>, true>>;
 
-const ll inf = 1e9;
+const ll inf = 1e15;
 const ll MOD = 1e9 + 7;
 const ld pi = atan2(0, -1);
 const ld eps = 1e-6;
 
-void solve() {
+inline constexpr auto zipped = {pair{'a', 1}, pair{'A', 27}};
 
+void solve() {
+    string line;
+
+    array<map<char, int>, 3> cnt{};
+    ll ans = 0;
+continue_: for (ll i = 0; getline(cin, line); ++i) {
+        forr(ch, line) ++cnt[i % 3][ch];
+        if ((i + 1) % 3 == 0) {
+            rep(j, 0, 26) {
+                for (auto [init, score] : zipped) {
+                    auto mn = cnt[0][char(j + init)];
+                    rep(k, 1, 3) mn = min(mn, cnt[k][char(init + j)]);
+                    if (mn > 0) {
+                        ans += score + j;
+                        rep(k, 0, 3) cnt[k].clear();
+                        goto continue_;
+                    }
+                }
+            }
+        }
+    }
+
+    cout << ans;
 }
 
 bool is_multi = false;
