@@ -40,7 +40,18 @@ const ld pi = atan2(0, -1);
 const ld eps = 1e-6;
 
 void solve() {
+    string s;
+    cin >> s;
 
+    const int n = sz(s);
+    s += 'x';
+    int k = 0;
+
+    rep(i, 0, n) {
+        if (s[i] == '0' && s[i + 1] == '0') ++i, ++k;
+    }
+
+    cout << n - k;
 }
 
 bool is_multi = false;

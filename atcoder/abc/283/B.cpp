@@ -40,7 +40,29 @@ const ld pi = atan2(0, -1);
 const ld eps = 1e-6;
 
 void solve() {
+    int n;
+    cin >> n;
 
+    vector<int> A(n);
+    forr(a, A) cin >> a;
+
+    int q;
+    cin >> q;
+    rep(_, 0, q) {
+        char t;
+        cin >> t;
+
+        if (t == '1') {
+            int k, x;
+            cin >> k >> x;
+            A[k - 1] = x;
+        } else {
+            int k;
+            cin >> k;
+
+            cout << A[k - 1] << '\n';
+        }
+    }
 }
 
 bool is_multi = false;

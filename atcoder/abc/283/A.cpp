@@ -40,7 +40,12 @@ const ld pi = atan2(0, -1);
 const ld eps = 1e-6;
 
 void solve() {
+    ll a, b;
+    cin >> a >> b;
 
+    ll res = 1;
+    rep(_, 0, b) res *= a;
+    cout << res;
 }
 
 bool is_multi = false;
