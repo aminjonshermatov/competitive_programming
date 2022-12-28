@@ -41,7 +41,12 @@ const ld pi = atan2(0, -1);
 const ld eps = 1e-6;
 
 void solve() {
-
+    set<int> ss;
+    rep(i, 5) {
+        int x; cin >> x;
+        ss.insert(x);
+    }
+    cout << sz(ss) << '\n';
 }
 
 bool is_multi = false;

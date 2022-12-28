@@ -41,7 +41,20 @@ const ld pi = atan2(0, -1);
 const ld eps = 1e-6;
 
 void solve() {
+    int n;
+    cin >> n;
 
+    vector<int> P_(n);
+    forr(p, P_) cin >> p;
+
+    vector<int> cnt(n, 0);
+    rep(i, n) {
+        rep(j, 3) {
+            ++cnt[(P_[i] - 1 - i + j + n) % n];
+        }
+    }
+
+    cout << *max_element(all(cnt));
 }
 
 bool is_multi = false;

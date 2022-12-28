@@ -41,7 +41,15 @@ const ld pi = atan2(0, -1);
 const ld eps = 1e-6;
 
 void solve() {
+    string s, t;
+    cin >> s >> t;
 
+    if (sz(s) > sz(t)) { cout << "No\n"; return; }
+    rep(i, sz(s)) {
+        if (s[i] != t[i]) { cout << "No\n"; return; }
+    }
+
+    cout << "Yes\n";
 }
 
 bool is_multi = false;

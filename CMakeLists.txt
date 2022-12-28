@@ -19,7 +19,7 @@ add_executable(codechef codechef/problems/MAXEXP.cpp)
 add_executable(cses cses/GraphAlgorithms/MailDelivery.cpp)
 
 #atcoder
-add_executable(atcoder_abc atcoder/abc/267/main.cpp)
+add_executable(atcoder_abc atcoder/abc/268/main.cpp)
 
 #data structures
 add_executable(templates templates/lca.cpp)
