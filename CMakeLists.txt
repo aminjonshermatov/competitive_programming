@@ -23,7 +23,7 @@ add_executable(cses cses/GraphAlgorithms/MailDelivery.cpp)
 add_executable(atcoder_abc atcoder/abc/271/main.cpp)
 
 #data structures
-add_executable(templates templates/lca.cpp)
+add_executable(templates templates/modular.cpp)
 
 #stepik
 add_executable(stepik stepik/199929/5/5.1.2.cpp)

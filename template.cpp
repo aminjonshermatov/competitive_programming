@@ -1,3 +1,4 @@
+// #define _GLIBCXX_DEBUG
 #include <bits/stdc++.h>
 #include <ext/pb_ds/assoc_container.hpp>
 #include <ext/pb_ds/tree_policy.hpp>
@@ -28,7 +29,7 @@ typedef unsigned long long  ull;
 #define rall(x) (x).rbegin(), (x).rend()
 #define sz(x)   (ll)((x).size())
 
-#define rep(i, b)    for (auto i = 0; (i) < (b); ++(i))
+#define rep(i, b)       for (auto i = 0; (i) < (b); ++(i))
 #define forr(el, cont)  for (auto &(el) : (cont))
 
 template<typename T>             using ordered_set = tree<T, null_type, less_equal<T>, rb_tree_tag, tree_order_statistics_node_update>;
