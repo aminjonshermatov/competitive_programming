@@ -35,13 +35,73 @@ typedef unsigned long long  ull;
 template<typename T>             using ordered_set = tree<T, null_type, less_equal<T>, rb_tree_tag, tree_order_statistics_node_update>;
 template<typename K, typename V> using gp_ht = gp_hash_table<K, V, hash<K>, equal_to<K>, direct_mask_range_hashing<>, linear_probe_fn<>, hash_standard_resize_policy<hash_exponential_size_policy<>, hash_load_check_resize_trigger<>, true>>;
 
-const ll inf = 1e15;
+const ll inf = 1e18;
 const ll MOD = 1e9 + 7;
 const ld pi = atan2(0, -1);
 const ld eps = 1e-6;
 
-void solve() {
+struct max_flow_edmond_karp {
+    vector<vector<ll>> &adj;
+    vector<int> pa;
+    vector<bool> used;
+    int n;
 
+    max_flow_edmond_karp(int n_, vector<vector<ll>> &adj_)
+            : n(n_) , adj(adj_){ }
+
+    bool bfs(int s, int t) {
+        fill(all(used), false);
+        used[s] = true;
+        queue<int> q;
+        q.push(s);
+        while (!q.empty()) {
+            auto v = q.front(); q.pop();
+            rep(u, n) if (!used[u] && adj[v][u] > 0) {
+                pa[u] = v;
+                used[u] = true;
+                q.push(u);
+            }
+        }
+        return used[t];
+    }
+
+    ll max_flow(int s, int t) {
+        ll flow = 0;
+        pa.resize(n);
+        used.resize(n);
+
+        while (bfs(s, t)) {
+            ll cur_f = inf;
+            for (int v = t; v != s; v = pa[v]) {
+                int u = pa[v];
+                cur_f = min(cur_f, adj[u][v]);
+            }
+            flow += cur_f;
+            for (int v = t; v != s; v = pa[v]) {
+                int u = pa[v];
+                adj[u][v] -= cur_f;
+                adj[v][u] += cur_f;
+            }
+        }
+
+        return flow;
+    }
+};
+
+void solve() {
+    int n, m; cin >> n >> m;
+
+    vector<vector<ll>> adj(n, vector<ll>(n, 0));
+    rep(_, m) {
+        int a, b, c; cin >> a >> b >> c;
+        --a, --b;
+
+        adj[a].eb(b);
+        adj[a][b] += c;
+    }
+
+    max_flow_edmond_karp mx_flow(n, adj);
+    cout << mx_flow.max_flow(0, n - 1);
 }
 
 bool is_multi = false;
