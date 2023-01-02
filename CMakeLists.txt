@@ -36,3 +36,6 @@ add_executable(acmp acmp/119.cpp)
 
 #adventofcode
 add_executable(adventofcode adventofcode/2022/main.cpp)
+
+#eolymp
+add_executable(eolymp eolymp/1738.cpp)
