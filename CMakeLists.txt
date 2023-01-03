@@ -11,7 +11,7 @@ add_executable(virtual codeforces/archive/virtual/529/main.cpp)
 add_executable(probelmset codeforces/archive/problemset/161D.cpp)
 add_executable(edu cf_edu/itmo/dsu/1/C.cpp)
 add_executable(kfu codeforces/archive/403347/J.cpp)
-add_executable(special codeforces/special/good_bye_2022/main.cpp)
+add_executable(special codeforces/special/hello_2023/main.cpp)
 
 #codechef
 add_executable(codechef codechef/problems/MAXEXP.cpp)
