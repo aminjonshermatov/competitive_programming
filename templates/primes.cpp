@@ -5,11 +5,11 @@
 
 using namespace std;
 
-struct num_theory {
+struct primes {
     int n;
     vector<int> lp, pr;
 
-    explicit num_theory(int n_) : n(n_) { lp.assign(n + 1, 0); }
+    explicit primes(int n_) : n(n_) { lp.assign(n + 1, 0); }
 
     auto find_primes() {
         for (int i = 2; i <= n; ++i) {
