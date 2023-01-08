@@ -4,15 +4,6 @@
 #include <iostream>
 #include <vector>
 
-/*
-4
-1 2 3 4
-3
-0 2
-1 3
-0 4
-*/
-
 using namespace std;
 using ll = long long;
 
@@ -56,4 +47,29 @@ struct ftree {
     ll range_sum(ll l, ll r) {
         return prefix_sum(r) - prefix_sum(l - 1);
     }
+};
+
+struct BIT { // [l, r]
+    vector<ll> bit;
+    int n;
+
+    explicit BIT(int n_) : bit(n_ + 1, 0), n(n_)  { }
+
+    void add(int idx, int val) {
+        for (++idx; idx < n; idx += idx & -idx)
+            bit[idx] += val;
+    }
+
+    void modify(int l, int r, int val) {
+        add(l, val);
+        add(r + 1, -val);
+    }
+
+    ll get(int idx) {
+        ll ret = 0;
+        for (++idx; idx > 0; idx -= idx & -idx)
+            ret += bit[idx];
+        return ret;
+    }
+
 };
