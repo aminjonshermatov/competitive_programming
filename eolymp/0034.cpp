@@ -41,6 +41,42 @@ const ld pi = atan2(0, -1);
 const ld eps = 1e-6;
 
 void solve() {
+    int n, m, k; cin >> n >> m >> k;
+    vector<int> winners(m);
+    forr(w, winners) cin >> w, --w;
+
+    vector<vector<ll>> g(n, vector<ll>(n, inf));
+    rep(i, k) {
+        int a, b, c; cin >> a >> b >> c;
+        --a, --b;
+
+        g[a][b] = g[b][a] = c;
+    }
+    int s; cin >> s; --s;
+
+    vector<ll> dist(n, inf);
+    priority_queue<pair<ll, int>, vector<pair<ll, int>>, greater<>> pq;
+    dist[s] = 0;
+    pq.emplace(0, s);
+
+    while (!pq.empty()) {
+        auto [t, v] = pq.top(); pq.pop();
+        if (dist[v] != t) continue;
+
+        rep(u, n) {
+            if (dist[v] + g[v][u] < dist[u]) {
+                dist[u] = dist[v] + g[v][u];
+                pq.emplace(dist[u], u);
+            }
+        }
+    }
+
+    if (any_of(all(winners), [&](int w) { return dist[w] == inf; })) {
+        cout << "It is not fault of sponsor...\n";
+        return;
+    }
+    ll mx_t = 0; forr(w, winners) mx_t = max(mx_t, dist[w]);
+    cout << "The good sponsor!\n" << mx_t << '\n';
 }
 
 bool is_multi = false;
