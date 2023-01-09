@@ -35,7 +35,7 @@ typedef unsigned long long  ull;
 template<typename T>             using ordered_set = tree<T, null_type, less_equal<T>, rb_tree_tag, tree_order_statistics_node_update>;
 template<typename K, typename V> using gp_ht = gp_hash_table<K, V, hash<K>, equal_to<K>, direct_mask_range_hashing<>, linear_probe_fn<>, hash_standard_resize_policy<hash_exponential_size_policy<>, hash_load_check_resize_trigger<>, true>>;
 
-const ll inf = 1e15;
+const ll inf = 1e9;
 const ll MOD = 1e9 + 7;
 const ld pi = atan2(0, -1);
 const ld eps = 1e-6;
@@ -45,17 +45,18 @@ void solve() {
     vector<int> winners(m);
     forr(w, winners) cin >> w, --w;
 
-    vector<vector<ll>> g(n, vector<ll>(n, inf));
+    vector<vector<pii>> g(n);
     rep(i, k) {
         int a, b, c; cin >> a >> b >> c;
         --a, --b;
 
-        g[a][b] = g[b][a] = c;
+        g[a].eb(b, c);
+        g[b].eb(a, c);
     }
     int s; cin >> s; --s;
 
-    vector<ll> dist(n, inf);
-    priority_queue<pair<ll, int>, vector<pair<ll, int>>, greater<>> pq;
+    vector<int> dist(n, inf);
+    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<>> pq;
     dist[s] = 0;
     pq.emplace(0, s);
 
@@ -63,9 +64,9 @@ void solve() {
         auto [t, v] = pq.top(); pq.pop();
         if (dist[v] != t) continue;
 
-        rep(u, n) {
-            if (dist[v] + g[v][u] < dist[u]) {
-                dist[u] = dist[v] + g[v][u];
+        for (auto [u, tt] : g[v]) {
+            if (dist[v] + tt < dist[u]) {
+                dist[u] = dist[v] + tt;
                 pq.emplace(dist[u], u);
             }
         }
@@ -75,7 +76,7 @@ void solve() {
         cout << "It is not fault of sponsor...\n";
         return;
     }
-    ll mx_t = 0; forr(w, winners) mx_t = max(mx_t, dist[w]);
+    int mx_t = 0; forr(w, winners) mx_t = max(mx_t, dist[w]);
     cout << "The good sponsor!\n" << mx_t << '\n';
 }
 
