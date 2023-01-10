@@ -25,8 +25,7 @@ template <typename T> Node<T> *push(T num, Node<T> *node) {
 
 template<typename T> Node<T> *pop(Node<T> *node) {
     if (node == nullptr) return node;
-    node = node->nxt;
-    return node;
+    return node->nxt;
 }
 
 template<typename T> T peek(Node<T> *node) {
