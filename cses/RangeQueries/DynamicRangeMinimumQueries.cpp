@@ -139,8 +139,8 @@ template<typename T = int> struct segment_tree {
 
     template<typename U>
     friend ostream& operator<<(ostream &out, const segment_tree<U> &st) {
-        for (ll i = 1, j = 0; j < st.tree.size(); i <<= 1) {
-            ll c = 0;
+        for (auto i = 1u, j = 0u; j < st.tree.size(); i <<= 1) {
+            auto c = 0u;
             while (c++ < i) out << st.tree[j].val << ',' << st.tree[j++].lazy << ' ';
             out << '\n';
         }
