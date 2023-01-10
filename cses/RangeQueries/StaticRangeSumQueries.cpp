@@ -41,8 +41,18 @@ const ld pi = atan2(0, -1);
 const ld eps = 1e-6;
 
 void solve() {
-    int n; cin >> n;
-    cout << __builtin_ctz(n);
+    int n, q; cin >> n >> q;
+    vector<ll> pf(n + 1, 0);
+    rep(i, n) {
+        int x; cin >> x;
+        pf[i + 1] = pf[i] + x;
+    }
+
+    auto get = [&](int l, int r) -> ll { return pf[r] - pf[l - 1]; };
+    rep(i, q) {
+        int l, r; cin >> l >> r;
+        cout << get(l, r) << '\n';
+    }
 }
 
 bool is_multi = false;
