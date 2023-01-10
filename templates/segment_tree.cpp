@@ -5,79 +5,70 @@
 
 using namespace std;
 
-using ll = long long;
+template<typename T = int> struct segment_tree {
 
-struct segtree {
+    static inline constexpr T DEFAULT_VALUE = T(numeric_limits<T>::max());
+    static inline constexpr T NO_OPERATION = T(-1);
 
-    static inline constexpr ll DEFAULT_VALUE = 0ll;
-    static inline constexpr ll NO_OPERATION = -1ll;
+    template<typename U> struct node {
+        U val;
+        U lazy;
 
-    struct node {
-        ll val;
-        ll lazy;
-
-        void apply([[maybe_unused]] ll l, [[maybe_unused]] ll r, ll v) {
-            val = v * (r - l);
+        void apply([[maybe_unused]] int l, [[maybe_unused]] int r, U v) {
+            val = v;
             lazy = v;
         }
 
-        static node unite(const node &a, const node &b) {
+        template<typename V> static node unite(const node<V> &a, const node<V> &b) {
             return node{
-                    a.val + b.val,
+                    min(a.val, b.val),
                     NO_OPERATION
             };
         }
     };
 
-    static inline constexpr node NEUTRAL_ELEMENT = {DEFAULT_VALUE, NO_OPERATION};
+    static inline constexpr node<T> NEUTRAL_ELEMENT = {DEFAULT_VALUE, NO_OPERATION};
 
-    ll size;
-    vector<node> tree;
+    int size;
+    vector<node<T>> tree;
 
-    explicit segtree(ll n) {
-        size = 1ll;
+    explicit segment_tree(int n) {
+        size = 1;
         while (size < n) size <<= 1;
         tree.assign(2 * size - 1, NEUTRAL_ELEMENT);
     }
 
-    explicit segtree(vector<ll> &a) : segtree(ll(a.size())) {
-        build(a, 0, 0, size);
+    template<typename U = T> explicit segment_tree(vector<U> &A) : segment_tree(A.size()) {
+        build(A, 0, 0, size);
     }
 
-    void print() {
-        for (ll i = 1, j = 0; j < ll(tree.size()); i <<= 1) {
-            ll c = 0;
-            while (c++ < i) cout << tree[j].val << ',' << tree[j++].lazy << ' ';
-            cout << '\n';
-        }
-    }
-
-    inline void push(ll x, ll lx, ll rx) {
+    inline void push(int x, int lx, int rx) {
         if (rx - lx == 1 || tree[x].lazy == NO_OPERATION) return;
 
-        ll mid = lx + (rx - lx) / 2;
+        int mid = lx + (rx - lx) / 2;
         tree[2 * x + 1].apply(lx, mid, tree[x].lazy);
         tree[2 * x + 2].apply(mid, rx, tree[x].lazy);
         tree[x].lazy = NO_OPERATION;
     }
 
-    inline void pull(ll x) {
-        tree[x] = node::unite(tree[2 * x + 1], tree[2 * x + 2]);
+    inline void pull(int x) {
+        tree[x] = node<T>::unite(tree[2 * x + 1], tree[2 * x + 2]);
     }
 
-    void build(vector<ll> &a, ll x, ll lx, ll rx) {
+    template<typename U = T>
+    void build(vector<U> &A, int x, int lx, int rx) {
         if (rx - lx == 1) {
-            if (lx < ll(a.size())) tree[x] = {a[lx], NO_OPERATION};
+            if (lx < A.size()) tree[x] = {A[lx], NO_OPERATION};
             return;
         }
 
-        ll mid = lx + (rx - lx) / 2;
-        build(a, 2 * x + 1, lx, mid);
-        build(a, 2 * x + 2, mid, rx);
+        int mid = lx + (rx - lx) / 2;
+        build(A, 2 * x + 1, lx, mid);
+        build(A, 2 * x + 2, mid, rx);
         pull(x);
     }
 
-    void modify(ll l, ll r, ll v, ll x, ll lx, ll rx) {
+    void modify(int l, int r, T v, int x, int lx, int rx) {
         push(x, lx, rx);
         if (l >= rx || r <= lx) return;
         if (l <= lx && rx <= r) {
@@ -85,30 +76,39 @@ struct segtree {
             return;
         }
 
-        ll mid = lx + (rx - lx) / 2;
+        int mid = lx + (rx - lx) / 2;
         modify(l, r, v, 2 * x + 1, lx, mid);
         modify(l, r, v, 2 * x + 2, mid, rx);
         pull(x);
     }
 
-    void modify(ll l, ll r, ll v) {
+    void modify(int l, int r, int v) {
         modify(l, r, v, 0, 0, size);
     }
 
-    node get(ll l, ll r, ll x, ll lx, ll rx) {
+    node<T> get(int l, int r, int x, int lx, int rx) {
         push(x, lx, rx);
         if (l >= rx || r <= lx) return NEUTRAL_ELEMENT;
         if (l <= lx && rx <= r) return tree[x];
 
-        ll mid = lx + (rx - lx) / 2;
-        auto res = node::unite(get(l, r, 2 * x + 1, lx, mid),
-                               get(l, r, 2 * x + 2, mid, rx));
+        int mid = lx + (rx - lx) / 2;
+        auto res = node<T>::unite(get(l, r, 2 * x + 1, lx, mid),
+                                  get(l, r, 2 * x + 2, mid, rx));
         pull(x);
         return res;
     }
 
-    ll get(ll l, ll r) {
+    T get(int l, int r) {
         return get(l, r, 0, 0, size).val;
     }
 
+    template<typename U>
+    friend ostream& operator<<(ostream &out, const segment_tree<U> &st) {
+        for (auto i = 1u, j = 0u; j < st.tree.size(); i <<= 1) {
+            auto c = 0u;
+            while (c++ < i) out << st.tree[j].val << ',' << st.tree[j++].lazy << ' ';
+            out << '\n';
+        }
+        return out;
+    }
 };
