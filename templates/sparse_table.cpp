@@ -2,69 +2,35 @@
 // Created by aminjon on 8/27/22.
 //
 
-#include <iostream>
-#include <vector>
-#include <climits>
-#include <limits>
+#include <bits/stdc++.h>
 
-/*
-4
-1 2 3 4
-3
-0 2
-1 3
-0 4
-*/
+using namespace std;
 
-auto solve() {
-    size_t n;
-    std::cin >> n;
+auto Min = []<typename T>(const T &lhs, const T &rhs) -> T { return lhs < rhs ? lhs : rhs; };
+auto Max = []<typename T>(const T &lhs, const T &rhs) -> T { return lhs > rhs ? lhs : rhs; };
 
-    const size_t lg_n = std::__lg(n);
+template <typename T, typename Op> struct sparse_table {
+    using value_type = T;
+    Op op;
+    vector<vector<T>> table;
 
-    std::vector<std::vector<int>> st(lg_n + 1, std::vector<int>(n, 0));
-
-    for (size_t i = 0; i < n; ++i) std::cin >> st[0][i];
-
-    for (size_t level = 1; level <= lg_n; ++level) {
-        for (size_t i = 0; i + (1 << level) <= n; ++i) {
-            st[level][i] = std::max(st[level - 1][i], st[level - 1][i + (1 << (level - 1))]);
-        }
-    }
-
-    for (size_t level = 0; level <= lg_n; ++level) {
-        for (size_t i = 0; i + (1 << level) <= n; ++i) {
-            std::cout << st[level][i] << ' ';
-        }
-        std::cout << std::endl;
-    }
-
-    decltype(auto) rmq = [&](size_t l, size_t r) {
-        // auto t = std::__lg(r - l + 1);
-        // return std::max(st[t][l], st[t][r + 1 - (1 << t)]);
-
-        int res = std::numeric_limits<int>::min();
-        for (int level = static_cast<int>(lg_n); level >= 0; --level) {
-            if (l + (1 << level) <= r + 1) {
-                res = std::max(res, st[level][l]);
-                l += (1 << level);
+    template<typename U = T> auto build(const vector<U> &A) -> void {
+        table.assign(A.size(), {});
+        for (auto i = 0u; i < A.size(); ++i) table[i] = {A[i]};
+        for (auto l = 1u, j = 0u; 2 * l <= A.size(); ++j, l <<= 1) {
+            for (auto i = 0u; i + 2 * l <= A.size(); ++i) {
+                table[i].emplace_back(op(table[i][j], table[i + l][j]));
             }
         }
-
-        return res;
-    };
-
-    size_t q;
-    std::cin >> q;
-
-    for (size_t i = 0; i < q; ++i) {
-        size_t l, r;
-        std::cin >> l >> r;
-
-        std::cout << rmq(l, r) << std::endl;
     }
-}
 
-auto main() -> int32_t {
-    solve();
-}
+    sparse_table() = default;
+    template<typename U = T> explicit sparse_table(const vector<U> &A) { build(A); }
+    template<typename U = T> sparse_table(const vector<U> &A, Op &op_) : op(op_) { build(A); }
+
+    [[nodiscard]] auto get(int l, int r) const -> int {
+        assert(l < r);
+        const auto b = 31 - __builtin_clz(r - l);
+        return op(table[l][b], table[r - (1 << b)][b]);
+    }
+};
