@@ -41,8 +41,7 @@ const ld pi = atan2(0, -1);
 const ld eps = 1e-6;
 
 void solve() {
-    int n; cin >> n;
-    cout << __builtin_ctz(n);
+
 }
 
 bool is_multi = false;
