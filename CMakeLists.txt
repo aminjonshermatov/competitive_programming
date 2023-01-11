@@ -14,7 +14,7 @@ add_executable(kfu codeforces/archive/403347/J.cpp)
 add_executable(special codeforces/special/hello_2023/main.cpp)
 
 #codechef
-add_executable(codechef codechef/starters/72/main.cpp)
+add_executable(codechef codechef/starters/73/main.cpp)
 
 #cses
 add_executable(cses cses/RangeQueries/HotelQueries.cpp)
