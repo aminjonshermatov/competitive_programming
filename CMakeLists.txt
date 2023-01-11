@@ -17,7 +17,7 @@ add_executable(special codeforces/special/hello_2023/main.cpp)
 add_executable(codechef codechef/starters/72/main.cpp)
 
 #cses
-add_executable(cses cses/RangeQueries/RangeUpdateQueries.cpp)
+add_executable(cses cses/RangeQueries/ForestQueries.cpp)
 
 #atcoder
 add_executable(atcoder_abc atcoder/abc/277/main.cpp)
