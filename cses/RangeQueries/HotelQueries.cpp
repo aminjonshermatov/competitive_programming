@@ -174,7 +174,7 @@ void solve() {
     auto ge = []<typename T>(const T &tree_val, const T &given) -> T { return tree_val >= given; };
     rep(_, m) {
         int r; cin >> r;
-        auto idx = st.get_first<decltype(ge)>(r, 0, ge);
+        auto idx = st.get_first(r, 0, ge);
         cout << idx + 1 << ' ';
         auto before = st.get(idx, idx + 1);
         st.modify(idx, idx + 1, before - r);
