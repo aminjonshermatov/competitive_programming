@@ -5,14 +5,20 @@
 
 using namespace std;
 
+auto GE =   []<typename T>(const T &tree_val, const T &given) -> T { return tree_val >= given; };
+auto G =    []<typename T>(const T &tree_val, const T &given) -> T { return tree_val > given; };
+auto LE =   []<typename T>(const T &tree_val, const T &given) -> T { return tree_val <= given; };
+auto L =    []<typename T>(const T &tree_val, const T &given) -> T { return tree_val < given; };
+
 template<typename T = int> struct segment_tree {
 
-    static inline constexpr T DEFAULT_VALUE = T(numeric_limits<T>::max());
+    static inline constexpr T DEFAULT_VALUE = T(numeric_limits<T>::min());
     static inline constexpr T NO_OPERATION = T(-1);
 
     template<typename U> struct node {
         U val;
         U lazy;
+        int right;
 
         void apply([[maybe_unused]] int l, [[maybe_unused]] int r, U v) {
             val = v;
@@ -21,8 +27,9 @@ template<typename T = int> struct segment_tree {
 
         template<typename V> static node unite(const node<V> &a, const node<V> &b) {
             return node{
-                    min(a.val, b.val),
-                    NO_OPERATION
+                    max(a.val, b.val),
+                    NO_OPERATION,
+                    b.right
             };
         }
     };
@@ -58,7 +65,7 @@ template<typename T = int> struct segment_tree {
     template<typename U = T>
     void build(vector<U> &A, int x, int lx, int rx) {
         if (rx - lx == 1) {
-            if (lx < A.size()) tree[x] = {A[lx], NO_OPERATION};
+            if (lx < A.size()) tree[x] = {A[lx], NO_OPERATION, lx};
             return;
         }
 
@@ -100,6 +107,20 @@ template<typename T = int> struct segment_tree {
 
     T get(int l, int r) {
         return get(l, r, 0, 0, size).val;
+    }
+
+    template<typename Op> T get_first(T v, int i, int x, int lx, int rx, Op &op) {
+        if (!op(tree[x].val, v) || tree[x].right < i) return -1;
+        if (rx - lx == 1) return lx;
+
+        int mid = lx + (rx - lx) / 2;
+        auto res = get_first(v, i, 2 * x + 1, lx, mid, op);
+        if (res == -1) res = get_first(v, i, 2 * x + 2, mid, rx, op);
+        return res;
+    }
+
+    template<typename Op> T get_first(T v, int i, Op &op) {
+        return get_first(v, i, 0, 0, size, op);
     }
 
     template<typename U>
