@@ -38,7 +38,7 @@ template <typename T = int> struct fenwick_tree_range_update_point_query {
     explicit fenwick_tree_range_update_point_query(int n_) : n(n_), bit(n_, T(0))  { }
 
     template<typename U = T> explicit fenwick_tree_range_update_point_query(const vector<U> &A) : n(A.size()) , bit(A.size(), T(0)) {
-        for (auto idx = 0u; idx < n; ++idx) add(idx, A[idx]);
+        for (auto idx = 0u; idx < n; ++idx) modify(idx, idx + 1, A[idx]);
     }
 
     auto add(int idx, T val) -> void {
