@@ -20,7 +20,7 @@ add_executable(codechef codechef/starters/73/main.cpp)
 add_executable(cses cses/RangeQueries/HotelQueries.cpp)
 
 #atcoder
-add_executable(atcoder_abc atcoder/abc/277/main.cpp)
+add_executable(atcoder_abc atcoder/abc/278/main.cpp)
 
 #data structures
 add_executable(templates templates/persistent_stack.cpp)
