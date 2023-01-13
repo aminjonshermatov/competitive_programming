@@ -41,7 +41,17 @@ const ld pi = atan2(0, -1);
 const ld eps = 1e-6;
 
 void solve() {
+    int n; cin >> n;
+    vector<int> A(n);
+    ordered_set<int> os;
+    rep(i, n) cin >> A[i], os.insert(i);
 
+    rep(_, n) {
+        int idx; cin >> idx;
+        auto it = os.find_by_order(idx - 1);
+        cout << A[*it] << ' ';
+        os.erase(it);
+    }
 }
 
 bool is_multi = false;
