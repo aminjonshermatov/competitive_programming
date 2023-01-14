@@ -35,13 +35,31 @@ typedef unsigned long long  ull;
 template<typename T>             using ordered_set = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>;
 template<typename K, typename V> using gp_ht = gp_hash_table<K, V, hash<K>, equal_to<K>, direct_mask_range_hashing<>, linear_probe_fn<>, hash_standard_resize_policy<hash_exponential_size_policy<>, hash_load_check_resize_trigger<>, true>>;
 
-const ll inf = 1e15;
+const ll inf = 1e9;
 const ll MOD = 1e9 + 7;
 const ld pi = atan2(0, -1);
 const ld eps = 1e-6;
 
 void solve() {
+    int n, q; cin >> n >> q;
+    vector<int> A(n);
+    forr(a, A) cin >> a;
 
+    ordered_set<pii> os;
+    rep(i, n) os.insert(mp(A[i], i));
+
+    rep(_, q) {
+        char t; cin >> t;
+        if (t == '!') {
+            int k, x; cin >> k >> x, --k;
+            os.erase(mp(A[k], k));
+            A[k] = x;
+            os.insert(mp(A[k], k));
+        } else if (t == '?') {
+            int a, b; cin >> a >> b;
+            cout << os.order_of_key(mp(b, inf)) - os.order_of_key(mp(a - 1, inf)) << '\n';
+        }
+    }
 }
 
 bool is_multi = false;
