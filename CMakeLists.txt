@@ -17,7 +17,7 @@ add_executable(special codeforces/special/hello_2023/main.cpp)
 add_executable(codechef codechef/starters/73/main.cpp)
 
 #cses
-add_executable(cses cses/RangeQueries/PrefixSumQueries.cpp)
+add_executable(cses cses/RangeQueries/PizzeriaQueries.cpp)
 
 #atcoder
 add_executable(atcoder_abc atcoder/abc/279/main.cpp)
