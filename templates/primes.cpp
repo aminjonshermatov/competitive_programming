@@ -5,11 +5,14 @@
 
 using namespace std;
 
-template<typename T> struct primes {
+template<typename T> struct Primes {
     T n;
     vector<T> lp, pr;
 
-    explicit primes(T n_) : n(n_) { lp.assign(n + 1, T(0)); find_primes(); }
+    using iterator          = vector<T>::iterator;
+    using const_iterator    = vector<T>::const_iterator;
+
+    explicit Primes(T n_) : n(n_) { lp.assign(n + 1, T(0)); find_primes(); }
 
     auto find_primes() -> void {
         for (T i = 2; i <= n; ++i) {
@@ -23,4 +26,9 @@ template<typename T> struct primes {
             }
         }
     }
+
+    iterator begin() { return pr.begin(); }
+    [[nodiscard]] const_iterator begin() const { return pr.begin(); }
+    iterator end() { return pr.end(); }
+    [[nodiscard]] const_iterator end() const { return pr.end(); }
 };
