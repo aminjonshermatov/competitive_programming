@@ -41,6 +41,8 @@ inline constexpr int MOD = 1e9 + 7;
 inline const ld pi = ::atan2(0, -1);
 inline constexpr ld eps = 1e-6;
 
+mt19937 rnd(chrono::steady_clock::now().time_since_epoch().count());
+
 void solve() {
 }
 
