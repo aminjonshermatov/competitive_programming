@@ -44,6 +44,45 @@ inline constexpr ld eps = 1e-6;
 mt19937 rnd(chrono::steady_clock::now().time_since_epoch().count());
 
 void solve() {
+    ll n, c; cin >> n >> c;
+    ll C = c;
+    vector<int> A(n);
+    rep(i, n) cin >> A[i];
+    using el_t = tuple<ll, int, bool>; // (val, is_from_left);
+    vector<el_t> evs(2 * n);
+    rep(i, n) {
+        ll x = A[i];
+        evs[2 * i]      = tuple(x + i + 1, i, true);
+        evs[2 * i + 1]  = tuple(x + n - i, i, false);
+    }
+
+    sort(all(evs));
+    vector<bool> used(n, false);
+    bool any_l = false;
+    map<ll, int> inserted;
+    for (auto [cost, idx, is_from_left] : evs) {
+        if (used[idx]) continue;
+        auto mn = min(c, cost);
+        if (mn == cost) used[idx] = true, any_l |= is_from_left, inserted.emplace(cost, idx);
+        else break;
+        c -= mn;
+    }
+    if (!any_l) {
+        bool ok = false;
+        ll mn = inf;
+        rep(i, n) if (!used[i]) mn = min<ll>(mn, A[i] + i + 1);
+        rep(i, n) if (used[i]) {
+            if (c + A[i] + n - i >= A[i] + i + 1 || c + A[i] + n - i >= mn) {
+                ok = true;
+                break;
+            }
+        }
+
+        if (ok) cout << count(all(used), true) << '\n';
+        else cout << max<int>(0, count(all(used), true) - 1) << '\n';
+        return;
+    }
+    cout << count(all(used), true) << '\n';
 }
 
 bool is_multi = true;
