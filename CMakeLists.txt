@@ -3,6 +3,8 @@ project(competitive_programming)
 
 set(CMAKE_CXX_STANDARD 20)
 
+add_definitions(-DLOCAL)
+
 #codeforces
 add_executable(codeforces_div2 codeforces/div2/848/main.cpp)
 add_executable(codeforces_div3 codeforces/div3/834/D.cpp)
@@ -30,7 +32,7 @@ add_executable(templates templates/persistent_stack.cpp)
 add_executable(stepik stepik/199929/5/5.1.2.cpp)
 
 #temp
-add_executable(temp temp.cpp)
+add_executable(temp temp.cpp debug.h)
 
 #acmp
 add_executable(acmp acmp/119.cpp)

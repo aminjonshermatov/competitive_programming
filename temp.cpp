@@ -8,6 +8,12 @@
 #pragma GCC optimize("fast-math")
 #pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx,avx,tune=native")
 
+#ifdef LOCAL
+#include "debug.h"
+#else
+#define dbg(...) 42
+#endif
+
 using namespace std;
 using namespace __gnu_pbds;
 
@@ -44,8 +50,6 @@ inline constexpr ld eps = 1e-6;
 mt19937 rnd(chrono::steady_clock::now().time_since_epoch().count());
 
 void solve() {
-    int n; cin >> n;
-    cout << n;
 }
 
 bool is_multi = false;

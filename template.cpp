@@ -8,6 +8,12 @@
 #pragma GCC optimize("fast-math")
 #pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx,avx,tune=native")
 
+#ifdef LOCAL
+#include "debug.h"
+#else
+#define dbg(...) 42
+#endif
+
 using namespace std;
 using namespace __gnu_pbds;
 
