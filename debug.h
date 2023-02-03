@@ -2,6 +2,7 @@
 
 using namespace std;
 
+// https://codeforces.com/contest/1037/submission/42390789
 string to_string(string s) {
     return '"' + s + '"';
 }
