@@ -20,7 +20,7 @@ add_executable(codechef codechef/starters/73/main.cpp)
 add_executable(cses cses/RangeQueries/ForestQueriesII.cpp)
 
 #atcoder
-add_executable(atcoder_abc atcoder/abc/043/main.cpp)
+add_executable(atcoder_abc atcoder/abc/044/main.cpp)
 add_executable(atcoder_arc atcoder/arc/058/main.cpp)
 
 #data structures
