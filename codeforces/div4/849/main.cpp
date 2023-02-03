@@ -46,10 +46,12 @@ mt19937 rnd(chrono::steady_clock::now().time_since_epoch().count());
 void solve() {
     ll n, c; cin >> n >> c;
     ll C = c;
+    vector<int> A(n);
+    rep(i, n) cin >> A[i];
     using el_t = tuple<ll, int, bool>; // (val, is_from_left);
     vector<el_t> evs(2 * n);
     rep(i, n) {
-        ll x; cin >> x;
+        ll x = A[i];
         evs[2 * i]      = tuple(x + i + 1, i, true);
         evs[2 * i + 1]  = tuple(x + n - i, i, false);
     }
@@ -66,28 +68,20 @@ void solve() {
         c -= mn;
     }
     if (!any_l) {
-        pll mn(inf, -1);
-        for (auto [cost, idx, is_from_left] : evs) {
-            if (!is_from_left || used[idx]) continue;
-            if (mn.fi > cost) mn = pair(cost, idx);
-        }
-        if (mn.fi > C) goto ans;
-        auto it = inserted.lower_bound(mn.fi);
-        if (it == inserted.end()) {
-            ll cur_s = c;
-            for (auto [cost, idx, is_from_left] : evs) {
-                if (is_from_left) continue;
-                used[idx] = false;
-                if ((cur_s += cost) >= mn.fi) break;
+        bool ok = false;
+        ll mn = inf;
+        rep(i, n) if (!used[i]) mn = min<ll>(mn, A[i] + i + 1);
+        rep(i, n) if (used[i]) {
+            if (c + A[i] + n - i >= A[i] + i + 1 || c + A[i] + n - i >= mn) {
+                ok = true;
+                break;
             }
-            if (cur_s >= mn.fi) used[mn.se] = true;
-        } else {
-            used[it->se] = false;
-            used[mn.se] = true;
         }
+
+        if (ok) cout << count(all(used), true) << '\n';
+        else cout << max<int>(0, count(all(used), true) - 1) << '\n';
+        return;
     }
-ans:
-    //rep(i, n) cout << used[i] << " \n"[i == n - 1];
     cout << count(all(used), true) << '\n';
 }
 
