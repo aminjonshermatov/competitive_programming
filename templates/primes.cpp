@@ -9,8 +9,8 @@ template<typename T> struct Primes {
     T n;
     vector<T> lp, pr;
 
-    using iterator          = vector<T>::iterator;
-    using const_iterator    = vector<T>::const_iterator;
+    using iterator          = typename vector<T>::iterator;
+    using const_iterator    = typename vector<T>::const_iterator;
 
     explicit Primes(T n_) : n(n_) { lp.assign(n + 1, T(0)); find_primes(); }
 
@@ -26,6 +26,10 @@ template<typename T> struct Primes {
             }
         }
     }
+
+    T  operator[](int idx) { return pr[idx]; }
+    T& operator[](int idx) const { return pr[idx]; }
+    [[nodiscard]] size_t size() const { return pr.size(); }
 
     iterator begin() { return pr.begin(); }
     [[nodiscard]] const_iterator begin() const { return pr.begin(); }
