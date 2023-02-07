@@ -21,7 +21,7 @@ add_executable(special codeforces/special/hello_2023/main.cpp)
 add_executable(codechef codechef/starters/73/main.cpp)
 
 #cses
-add_executable(cses cses/TreeAlgorithms/TreeMatching.cpp)
+add_executable(cses cses/TreeAlgorithms/TreeDiameter.cpp)
 
 #atcoder
 add_executable(atcoder_abc atcoder/abc/047/main.cpp)
