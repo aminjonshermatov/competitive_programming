@@ -24,7 +24,7 @@ add_executable(codechef codechef/starters/73/main.cpp)
 add_executable(cses cses/TreeAlgorithms/TreeDiameter.cpp)
 
 #atcoder
-add_executable(atcoder_abc atcoder/abc/052/main.cpp)
+add_executable(atcoder_abc atcoder/abc/053/main.cpp)
 add_executable(atcoder_arc atcoder/arc/058/main.cpp)
 
 #data structures
