@@ -6,14 +6,14 @@
 
 using namespace std;
 
-struct Node {
-    array<Node*, 26> go{};
+template<size_t N = 26> struct Node {
+    array<Node*, N> go{};
     int terminate_count;
 
     Node() : terminate_count(0) { fill(go.begin(), go.end(), nullptr); }
 };
 
-Node *root = new Node();
+auto *root = new Node();
 
 void add(string_view s) {
     auto cur = root;
