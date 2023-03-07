@@ -26,6 +26,7 @@ add_executable(cses cses/TreeAlgorithms/CompanyQueriesII.cpp)
 #atcoder
 add_executable(atcoder_abc atcoder/abc/292/main.cpp)
 add_executable(atcoder_arc atcoder/arc/058/main.cpp)
+add_executable(atcoder_dp atcoder/dp_contest/main.cpp)
 
 #data structures
 add_executable(templates templates/persistent_stack.cpp)
