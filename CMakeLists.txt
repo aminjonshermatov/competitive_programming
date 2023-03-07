@@ -46,3 +46,5 @@ add_executable(adventofcode adventofcode/2022/main.cpp)
 add_executable(eolymp "eolymp/0040[#3-wa].cpp")
 
 add_executable(yandex_algo yandex_algo_training/main.cpp)
+
+add_executable(timus timus/1133.cpp)
