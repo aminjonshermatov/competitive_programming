@@ -49,47 +49,73 @@ inline constexpr ld eps = 1e-6;
 
 mt19937 rnd(chrono::steady_clock::now().time_since_epoch().count());
 
+template<typename TWeight = int> struct Lca {
+    int n, LG;
+    vector<vector<pair<int, int>>> g;
+    vector<vector<int>> up;
+    int timer;
+    vector<int> tin, tout;
+    bool is_dfs_called;
+
+    explicit Lca(int n_) : n(n_), g(n), up(n), timer(0), tin(n, -1), tout(n, -1), is_dfs_called(false) {
+        LG = 31 - __builtin_clz(n);
+        for (auto &r : up) r.resize(LG + 1, -1);
+    }
+
+    void add_edge(int u, int v, TWeight w = TWeight(0)) {
+        g[u].emplace_back(v, w);
+        g[v].emplace_back(u, w);
+    }
+
+    void dfs(int v = 0, int p = 0) {
+        is_dfs_called = true;
+        up[v][0] = p;
+        for (int lg = 1; lg <= LG; ++lg) {
+            up[v][lg] = up[up[v][lg - 1]][lg - 1];
+        }
+
+        tin[v] = timer++;
+        for (auto [u, _] : g[v]) if (u != p) dfs(u, v);
+        tout[v] = timer++;
+    }
+
+    [[nodiscard]] inline bool is_accessor(int u, int v) const {
+        return tin[u] <= tin[v] && tout[v] <= tout[u];
+    }
+
+    [[nodiscard]] int operator()(int u, int v) const {
+        assert(is_dfs_called);
+        if (is_accessor(u, v)) return u;
+        if (is_accessor(v, u)) return v;
+        for (int lg = LG; ~lg; --lg) {
+            if (!is_accessor(up[u][lg], v)) u = up[u][lg];
+        }
+        return up[u][0];
+    }
+};
+
 void solve() {
     int n, q; cin >> n >> q;
-    vector<vector<int>> g(n);
 
+    Lca lca(n);
     rep(_, n - 1) {
         int u, v; cin >> u >> v, --u, --v;
         if (u == v) continue ;
-        g[u].eb(v);
-        g[v].eb(u);
+        lca.add_edge(u, v);
     }
+    lca.dfs();
 
-    const int L = 31 - __builtin_clz(n);
-    vector<vector<int>> up(n, vector<int>(L + 1, -1));
-    vector<int> tin(n), tout(n), dist(n, 0);
-    int timer = 0;
-    auto dfs = [&](auto f, int v, int p, int d) -> void {
-        up[v][0] = p;
-        for (int l = 1; l <= L && up[v][l - 1] != -1; ++l) {
-            up[v][l] = up[up[v][l - 1]][l - 1];
+    vector<int> dist(n, inf);
+    queue<int> Q;
+    Q.emplace(0);
+    dist[0] = 0;
+    while (!Q.empty()) {
+        auto v = Q.front(); Q.pop();
+        for (auto [u, _] : lca.g[v]) if (dist[v] + 1 < dist[u]) {
+            dist[u] = dist[v] + 1;
+            Q.emplace(u);
         }
-
-        dist[v] = d;
-        tin[v] = ++timer;
-        for (auto u : g[v]) if (u != p) f(f, u, v, d + 1);
-        tout[v] = ++timer;
-    };
-    dfs(dfs, 0, 0, 0);
-
-    auto is_accessor = [&](int u, int v) -> bool {
-        return tin[u] <= tin[v] && tout[v] <= tout[u];
-    };
-
-    auto lca = [&](int u, int v) -> int {
-        if (is_accessor(u, v)) return u;
-        if (is_accessor(v, u)) return v;
-        for (int l = L; l >= 0; --l) {
-            assert(up[u][l] != -1);
-            if (!is_accessor(up[u][l], v)) u = up[u][l];
-        }
-        return up[u][0];
-    };
+    }
 
     rep(_, q) {
         int u, v; cin >> u >> v, --u, --v;
