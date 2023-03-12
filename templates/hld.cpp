@@ -100,8 +100,8 @@ template<typename T = ::int32_t> struct Hld {
         op(treePos[u], treePos[v] + 1);
     }
 
-    void set(int v, const T &val) {
-        tree.modify(treePos[v], treePos[v] + 1, v);
+    void modify(int v, const T &val) {
+        modify(v, v, val);
     }
     void modify(int u, int v, const T &val) {
         processPath(u, v, [this, &val](int l, int r) { // [l, r)
