@@ -5,43 +5,53 @@
 
 using namespace std;
 
-template <typename T = int> struct fenwick_tree_point_update_range_query {
+template <typename T = int> struct FenwickTreePointUpdateRangeQuery {
     int n;
     vector<T> bit;
 
-    explicit fenwick_tree_point_update_range_query(int n_) : n(n_), bit(n_, T(0))  { }
-
-    template<typename U = T> explicit fenwick_tree_point_update_range_query(const vector<U> &A) : n(A.size()), bit(A.size(), T(0)) {
+    FenwickTreePointUpdateRangeQuery() = default;
+    explicit FenwickTreePointUpdateRangeQuery(int n_) : n(n_), bit(n_, T(0))  { }
+    template<typename U = T> explicit FenwickTreePointUpdateRangeQuery(const vector<U> &A) : n(A.size()), bit(A.size(), T(0)) {
         for (auto idx = 0u; idx < n; ++idx) modify(idx, A[idx]);
+    }
+
+    void init(int n_) {
+        n = n_;
+        bit.assign(n, T(0));
     }
 
     auto modify(int idx, T val) -> void {
         for (; idx < n; idx = idx | (idx + 1)) bit[idx] += val;
     }
 
-    [[nodiscard]] auto get(int idx) const -> T {
+    [[nodiscard]] auto query(int idx) const -> T {
         T ret = T(0);
         for (; idx >= 0; idx = (idx & (idx + 1)) - 1) ret += bit[idx];
         return ret;
     }
 
-    [[nodiscard]] auto get(int l, int r) const -> T { // [l, r)
-        return get(r - 1) - get(l - 1);
+    [[nodiscard]] auto query(int l, int r) const -> T { // [l, r)
+        return query(r - 1) - query(l - 1);
     }
 
 };
 
-template <typename T = int> struct fenwick_tree_range_update_point_query {
+template <typename T = int> struct FenwickTreeRangeUpdatePointQuery {
     int n;
     vector<T> bit;
 
-    explicit fenwick_tree_range_update_point_query(int n_) : n(n_), bit(n_, T(0))  { }
-
-    template<typename U = T> explicit fenwick_tree_range_update_point_query(const vector<U> &A) : n(A.size()) , bit(A.size(), T(0)) {
+    FenwickTreeRangeUpdatePointQuery() = default;
+    explicit FenwickTreeRangeUpdatePointQuery(int n_) : n(n_), bit(n_, T(0))  { }
+    template<typename U = T> explicit FenwickTreeRangeUpdatePointQuery(const vector<U> &A) : n(A.size()) , bit(A.size(), T(0)) {
         for (auto idx = 0u; idx < n; ++idx) modify(idx, idx + 1, A[idx]);
     }
 
-    auto add(int idx, T val) -> void {
+    void init(int n_) {
+        n = n_;
+        bit.assign(n, T(0));
+    }
+
+    auto modify(int idx, T val) -> void {
         for (; idx < n; idx = idx | (idx + 1)) bit[idx] += val;
     }
 
@@ -50,7 +60,7 @@ template <typename T = int> struct fenwick_tree_range_update_point_query {
         add(r, -val);
     }
 
-    [[nodiscard]] auto get(int idx) const -> T {
+    [[nodiscard]] auto query(int idx) const -> T {
         T ret = T(0);
         for (; idx >= 0; idx = (idx & (idx + 1)) - 1) ret += bit[idx];
         return ret;
@@ -58,17 +68,23 @@ template <typename T = int> struct fenwick_tree_range_update_point_query {
 
 };
 
-template <typename T = int> struct fenwick_tree_range_update_range_query {
+template <typename T = int> struct FenwickTreeRangeUpdateRangeQuery {
     int n;
     vector<T> bitA, bitB;
 
-    explicit fenwick_tree_range_update_range_query(int n_) : n(n_), bitA(n_, T(0)), bitB(n_, T(0))  { }
-
-    template<typename U = T> explicit fenwick_tree_range_update_range_query(const vector<U> &A) : n(A.size()) , bitA(A.size(), T(0)), bitB(A.size(), T(0)) {
+    FenwickTreeRangeUpdateRangeQuery() = default;
+    explicit FenwickTreeRangeUpdateRangeQuery(int n_) : n(n_), bitA(n_, T(0)), bitB(n_, T(0))  { }
+    template<typename U = T> explicit FenwickTreeRangeUpdateRangeQuery(const vector<U> &A) : n(A.size()) , bitA(A.size(), T(0)), bitB(A.size(), T(0)) {
         for (auto idx = 0u; idx < n; ++idx) modify(idx, idx + 1, A[idx]);
     }
 
-    auto add(vector<T> &bit, int idx, T val) -> void {
+    void init(int n_) {
+        n = n_;
+        bitA.assign(n, T(0));
+        bitB.assign(n, T(0));
+    }
+
+    auto modify(vector<T> &bit, int idx, T val) -> void {
         for (; idx < n; idx = idx | (idx + 1)) bit[idx] += val;
     }
 
@@ -79,32 +95,32 @@ template <typename T = int> struct fenwick_tree_range_update_range_query {
         add(bitB, r, -val * (r - 1));
     }
 
-    [[nodiscard]] auto get(const vector<T> &bit, int idx) const -> T {
+    [[nodiscard]] auto query(const vector<T> &bit, int idx) const -> T {
         T ret = T(0);
         for (; idx >= 0; idx = (idx & (idx + 1)) - 1) ret += bit[idx];
         return ret;
     }
 
-    [[nodiscard]] auto prefix_sum(int idx) const -> T {
+    [[nodiscard]] auto prefix_query(int idx) const -> T {
         return get(bitA, idx) * idx - get(bitB, idx);
     }
 
     [[nodiscard]] auto query(int l, int r) const -> T {
-        return prefix_sum(r - 1) - prefix_sum(l - 1);
+        return prefix_query(r - 1) - prefix_query(l - 1);
     }
     [[nodiscard]] auto query(int idx) const -> T {
-        return prefix_sum(idx) - prefix_sum(idx - 1);
+        return prefix_query(idx) - prefix_query(idx - 1);
     }
 
 };
 
-template <typename T = int> struct fenwick_tree_2d_point_update_range_query {
+template <typename T = int> struct FenwickTree2DPointUpdateRangeQuery {
     int n, m;
     vector<vector<T>> bit;
 
-    explicit fenwick_tree_2d_point_update_range_query(int n_, int m_) : n(n_), m(m_), bit(n_, vector<T>(m_, T(0)))  { }
-
-    template<typename U = T> explicit fenwick_tree_2d_point_update_range_query(const vector<vector<U>> &A) : n(A.size()), m(A[0].size()), bit(A.size(), vector<U>(A[0].size(), T(0))) {
+    FenwickTree2DPointUpdateRangeQuery() = default;
+    explicit FenwickTree2DPointUpdateRangeQuery(int n_, int m_) : n(n_), m(m_), bit(n_, vector<T>(m_, T(0)))  { }
+    template<typename U = T> explicit FenwickTree2DPointUpdateRangeQuery(const vector<vector<U>> &A) : n(A.size()), m(A[0].size()), bit(A.size(), vector<U>(A[0].size(), T(0))) {
         for (int i = 0; i < n; ++i) {
             for (int j = 0; j < m; ++j) {
                 add(i, j, A[i][j]);
@@ -112,7 +128,13 @@ template <typename T = int> struct fenwick_tree_2d_point_update_range_query {
         }
     }
 
-    auto add(int y, int x, T val) -> void {
+    void init(int n_, int m_) {
+        n = n_;
+        m = m_;
+        bit.assign(n, vector<T>(m, T(0)));
+    }
+
+    auto modify(int y, int x, T val) -> void {
         for (int i = y; i < n; i = i | (i + 1)) {
             for (int j = x; j < m; j = j | (j + 1)) {
                 bit[i][j] += val;
@@ -120,7 +142,7 @@ template <typename T = int> struct fenwick_tree_2d_point_update_range_query {
         }
     }
 
-    [[nodiscard]] auto get(int y, int x) const -> T {
+    [[nodiscard]] auto query(int y, int x) const -> T {
         T ret = T(0);
         for (int i = y; i >= 0; i = (i & (i + 1)) - 1) {
             for (int j = x; j >= 0; j = (j & (j + 1)) - 1) {
@@ -130,23 +152,23 @@ template <typename T = int> struct fenwick_tree_2d_point_update_range_query {
         return ret;
     }
 
-    [[nodiscard]] auto get(int y1, int x1, int y2, int x2) const -> T { // [l, r)
-        auto res = get(y2 - 1, x2 - 1);
-        if (y1 > 0) res -= get(y1 - 1, x2 - 1);
-        if (x1 > 0) res -= get(y2 - 1, x1 - 1);
-        if (y1 > 0 && x1 > 0) res += get(y1 - 1, x1 - 1);
+    [[nodiscard]] auto query(int y1, int x1, int y2, int x2) const -> T { // [l, r)
+        auto res = query(y2 - 1, x2 - 1);
+        if (y1 > 0) res -= query(y1 - 1, x2 - 1);
+        if (x1 > 0) res -= query(y2 - 1, x1 - 1);
+        if (y1 > 0 && x1 > 0) res += query(y1 - 1, x1 - 1);
         return res;
     }
 
 };
 
-template <typename T = int> struct fenwick_tree_2d_range_update_point_query {
+template <typename T = int> struct FenwickTree2DRangeUpdatePointQuery {
     int n, m;
     vector<vector<T>> bit;
 
-    explicit fenwick_tree_2d_range_update_point_query(int n_, int m_) : n(n_), m(m_), bit(n_, vector<T>(m_, T(0)))  { }
-
-    template<typename U = T> explicit fenwick_tree_2d_range_update_point_query(const vector<vector<U>> &A) : n(A.size()), m(A[0].size()), bit(A.size(), vector<U>(A[0].size(), T(0))) {
+    FenwickTree2DRangeUpdatePointQuery() = default;
+    explicit FenwickTree2DRangeUpdatePointQuery(int n_, int m_) : n(n_), m(m_), bit(n_, vector<T>(m_, T(0)))  { }
+    template<typename U = T> explicit FenwickTree2DRangeUpdatePointQuery(const vector<vector<U>> &A) : n(A.size()), m(A[0].size()), bit(A.size(), vector<U>(A[0].size(), T(0))) {
         for (int i = 0; i < n; ++i) {
             for (int j = 0; j < m; ++j) {
                 add(i, j, A[i][j]);
@@ -154,7 +176,13 @@ template <typename T = int> struct fenwick_tree_2d_range_update_point_query {
         }
     }
 
-    auto add(int y, int x, T val) -> void {
+    void init(int n_, int m_) {
+        n = n_;
+        m = m_;
+        bit.assign(n, vector<T>(m, T(0)));
+    }
+
+    auto modify(int y, int x, T val) -> void {
         for (int i = y; i < n; i = i | (i + 1)) {
             for (int j = x; j < m; j = j | (j + 1)) {
                 bit[i][j] += val;
@@ -169,7 +197,7 @@ template <typename T = int> struct fenwick_tree_2d_range_update_point_query {
         add(y2, x1, -val);
     }
 
-    [[nodiscard]] auto get(int y, int x) const -> T {
+    [[nodiscard]] auto query(int y, int x) const -> T {
         T ret = T(0);
         for (int i = y; i >= 0; i = (i & (i + 1)) - 1) {
             for (int j = x; j >= 0; j = (j & (j + 1)) - 1) {
