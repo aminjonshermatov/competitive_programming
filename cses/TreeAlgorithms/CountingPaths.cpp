@@ -49,156 +49,56 @@ inline constexpr ld eps = 1e-6;
 
 mt19937 rnd(chrono::steady_clock::now().time_since_epoch().count());
 
-template<typename T = int> struct SegmentTree {
+template <typename T = int> struct fenwick_tree_range_update_range_query {
+    int n;
+    vector<T> bitA, bitB;
 
-    static inline constexpr T DEFAULT_VALUE = T(0);
-    static inline constexpr T DEFAULT_LAZY = T(0);
+    fenwick_tree_range_update_range_query() = default;
+    explicit fenwick_tree_range_update_range_query(int n_) : n(n_), bitA(n_, T(0)), bitB(n_, T(0))  { }
 
-    template<typename U> struct Node {
-        U val;
-        U lazy;
-        int right;
-        bool has_lazy;
-
-        void apply([[maybe_unused]] int l, [[maybe_unused]] int r, U v) {
-            val += v;
-            lazy += v;
-            has_lazy = true;
-        }
-
-        template<typename V> static Node unite(const Node<V> &a, const Node<V> &b) {
-            return Node{
-                a.val + b.val,
-                DEFAULT_LAZY,
-                b.right,
-                false
-            };
-        }
-    };
-
-    static inline constexpr Node<T> NEUTRAL_ELEMENT = {DEFAULT_VALUE, DEFAULT_LAZY, -1, false};
-
-    int size;
-    vector<Node<T>> tree;
-private:
-    explicit SegmentTree(int n) {
-        size = 1;
-        while (size < n) size <<= 1;
-        tree.assign(2 * size - 1, NEUTRAL_ELEMENT);
-    }
-public:
-
-    template<typename U = T> explicit SegmentTree(vector<U> &A) : SegmentTree(A.size()) {
-        build(A, 0, 0, size);
+    template<typename U = T> explicit fenwick_tree_range_update_range_query(const vector<U> &A) : n(A.size()) , bitA(A.size(), T(0)), bitB(A.size(), T(0)) {
+        for (auto idx = 0u; idx < n; ++idx) modify(idx, idx + 1, A[idx]);
     }
 
-    SegmentTree() = default;
-    void init(int n) {
-        size = 1;
-        while (size < n) size <<= 1;
-        tree.resize(2 * size - 1);
-        build(0, 0, size);
+    void init(int n_) {
+        n = n_;
+        bitA.assign(n, T(0));
+        bitB.assign(n, T(0));
     }
 
-    inline void push(int x, int lx, int rx) {
-        if (rx - lx == 1 || !tree[x].has_lazy) return;
-
-        auto mid = lx + (rx - lx) / 2;
-        tree[2 * x + 1].apply(lx, mid, tree[x].lazy);
-        tree[2 * x + 2].apply(mid, rx, tree[x].lazy);
-        tree[x].lazy = DEFAULT_LAZY;
-        tree[x].has_lazy = false;
+    auto add(vector<T> &bit, int idx, T val) -> void {
+        for (; idx < n; idx = idx | (idx + 1)) bit[idx] += val;
     }
 
-    inline void pull(int x) {
-        tree[x] = Node<T>::unite(tree[2 * x + 1], tree[2 * x + 2]);
+    auto modify(int l, int r, T val) -> void { // [, r)
+        add(bitA, l, val);
+        add(bitA, r, -val);
+        add(bitB, l, val * (l - 1));
+        add(bitB, r, -val * (r - 1));
     }
 
-    void build(int x, int lx, int rx) {
-        if (rx - lx == 1) {
-            tree[x] = {DEFAULT_VALUE, DEFAULT_LAZY, lx, false};
-            return;
-        }
-
-        auto mid = lx + (rx - lx) / 2;
-        build(2 * x + 1, lx, mid);
-        build(2 * x + 2, mid, rx);
-        pull(x);
+    [[nodiscard]] auto get(const vector<T> &bit, int idx) const -> T {
+        T ret = T(0);
+        for (; idx >= 0; idx = (idx & (idx + 1)) - 1) ret += bit[idx];
+        return ret;
     }
 
-    template<typename U = T>
-    void build(vector<U> &A, int x, int lx, int rx) {
-        if (rx - lx == 1) {
-            if (lx < A.size()) tree[x] = {A[lx], DEFAULT_LAZY, lx, false};
-            return;
-        }
-
-        auto mid = lx + (rx - lx) / 2;
-        build(A, 2 * x + 1, lx, mid);
-        build(A, 2 * x + 2, mid, rx);
-        pull(x);
+    [[nodiscard]] auto prefix_sum(int idx) const -> T {
+        return get(bitA, idx) * idx - get(bitB, idx);
     }
 
-    void modify(int l, int r, T v, int x, int lx, int rx) {
-        push(x, lx, rx);
-        if (l >= rx || r <= lx) return;
-        if (l <= lx && rx <= r) {
-            tree[x].apply(lx, rx, v);
-            return;
-        }
-
-        auto mid = lx + (rx - lx) / 2;
-        modify(l, r, v, 2 * x + 1, lx, mid);
-        modify(l, r, v, 2 * x + 2, mid, rx);
-        pull(x);
+    [[nodiscard]] auto query(int l, int r) const -> T {
+        return prefix_sum(r - 1) - prefix_sum(l - 1);
+    }
+    [[nodiscard]] auto query(int idx) const -> T {
+        return prefix_sum(idx) - prefix_sum(idx - 1);
     }
 
-    void set(int idx, T v) { modify(idx, idx, v, 0, 0, size); }
-    void modify(int l, int r, T v) { modify(l, r, v, 0, 0, size); }
-
-    Node<T> get(int l, int r, int x, int lx, int rx) {
-        push(x, lx, rx);
-        if (l >= rx || r <= lx) return NEUTRAL_ELEMENT;
-        if (l <= lx && rx <= r) return tree[x];
-
-        auto mid = lx + (rx - lx) / 2;
-        auto res = Node<T>::unite(get(l, r, 2 * x + 1, lx, mid),
-                                  get(l, r, 2 * x + 2, mid, rx));
-        pull(x);
-        return res;
-    }
-
-    T get(int l, int r) { return get(l, r, 0, 0, size).val; }
-    T get(int idx) { return get(idx, idx + 1, 0, 0, size).val; }
-
-    template<typename Op> T get_first(T v, int i, int x, int lx, int rx, Op &op) {
-        if (!op(tree[x].val, v) || tree[x].right < i) return -1;
-        if (rx - lx == 1) return lx;
-
-        auto mid = lx + (rx - lx) / 2;
-        auto res = get_first(v, i, 2 * x + 1, lx, mid, op);
-        if (res == -1) res = get_first(v, i, 2 * x + 2, mid, rx, op);
-        return res;
-    }
-
-    template<typename Op> T get_first(T v, int i, Op &op) {
-        return get_first(v, i, 0, 0, size, op);
-    }
-
-    template<typename U>
-    friend ostream& operator<<(ostream &out, const SegmentTree<U> &st) {
-        for (auto i = 1u, j = 0u; j < st.tree.size(); i <<= 1) {
-            auto c = 0u;
-            while (c++ < i) out << st.tree[j].val << ',' << st.tree[j++].lazy << ' ';
-            out << '\n';
-        }
-        return out;
-    }
 };
 
 template<typename T = ::int32_t> struct Hld {
     vector<int> parent, root, depth, treePos, heavy;
-    SegmentTree<T> segmentTree;
+    fenwick_tree_range_update_range_query<T> tree;
 
     template<typename G> explicit Hld(const G &g) {
         const int n(g.size());
@@ -218,7 +118,7 @@ template<typename T = ::int32_t> struct Hld {
                 }
             }
         }
-        segmentTree.init(n);
+        tree.init(n);
     }
 
     template<typename G> int dfs(const G &g, int v) {
@@ -246,18 +146,18 @@ template<typename T = ::int32_t> struct Hld {
     }
 
     void set(int v, const T &val) {
-        segmentTree.modify(treePos[v], treePos[v] + 1, v);
+        tree.modify(treePos[v], treePos[v] + 1, v);
     }
     void modify(int u, int v, const T &val) {
         processPath(u, v, [this, &val](int l, int r) { // [l, r)
-            segmentTree.modify(l, r, val);
+            tree.modify(l, r, val);
         });
     }
 
     T query(int u, int v) {
         T res(0);
         processPath(u, v, [this, &res](int l, int r) { // [l, r)
-            res += segmentTree.get(l, r);
+            res += tree.query(l, r);
         });
         return res;
     }
@@ -282,7 +182,7 @@ void solve() {
     cout << '\n';
 }
 
-#define MEASURE_TIME
+//#define MEASURE_TIME
 bool is_multi = false;
 
 int main() {
