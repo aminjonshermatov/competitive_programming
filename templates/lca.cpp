@@ -5,63 +5,47 @@
 
 using namespace std;
 
-using ll = long long;
+template<typename TWeight = int> struct Lca {
+    int n, LG;
+    vector<vector<pair<int, int>>> g;
+    vector<vector<int>> up;
+    int timer;
+    vector<int> tin, tout;
+    bool is_dfs_called;
 
-ll timer = 0, L;
-vector<vector<ll>> G, up;
-vector<ll> tin, tout;
-
-void dfs(ll v, ll p) {
-    tin[v] = ++timer;
-    up[v][0] = p;
-    for (ll i = 1; i <= L; ++i) {
-        up[v][i] = up[up[v][i - 1]][i - 1];
+    explicit Lca(int n_) : n(n_), g(n), up(n), timer(0), tin(n, -1), tout(n, -1), is_dfs_called(false) {
+        LG = 31 - __builtin_clz(n);
+        for (auto &r : up) r.resize(LG + 1, -1);
     }
 
-    for (auto u : G[v]) if (u != p) {
-        dfs(u, v);
+    void add_edge(int u, int v, TWeight w = TWeight(0)) {
+        g[u].emplace_back(v, w);
+        g[v].emplace_back(u, w);
     }
 
-    tout[v] = ++timer;
-}
-
-bool is_accessor(ll u, ll v) {
-    return tin[u] <= tin[v] && tout[u] >= tout[v];
-}
-
-ll lca(ll u, ll v) {
-    if (is_accessor(u, v)) return u;
-    if (is_accessor(v, u)) return v;
-
-    for (ll i = L; i >= 0; --i) {
-        if (!is_accessor(up[u][i], v)) u = up[u][i];
-    }
-
-    return up[u][0];
-}
-
-int main() {
-    ll N, M;
-    cin >> N >> M;
-
-    G.resize(N + 1);
-    tin.resize(N + 1);
-    tout.resize(N + 1);
-    timer = 0;
-    L = ll(ceil(log2(N)));
-    up.assign(N + 1, vector<ll>(L + 1));
-
-    for (ll i = 0; i < M; ++i) {
-        ll p, q;
-        cin >> p >> q;
-        G[p].push_back(q);
-    }
-
-    dfs(1, 1);
-
-    for (ll p = 1; p <= N; ++p) {
-        for (ll q = 1; q <= N; ++q) {
-            cout << p << ' ' << q << '=' << lca(p, q) << '\n';
+    void dfs(int v = 0, int p = 0) {
+        is_dfs_called = true;
+        up[v][0] = p;
+        for (int lg = 1; lg <= LG; ++lg) {
+            up[v][lg] = up[up[v][lg - 1]][lg - 1];
         }
+
+        tin[v] = timer++;
+        for (auto [u, _] : g[v]) if (u != p) dfs(u, v);
+        tout[v] = timer++;
     }
-}
+
+    [[nodiscard]] inline bool is_accessor(int u, int v) const {
+        return tin[u] <= tin[v] && tout[v] <= tout[u];
+    }
+
+    [[nodiscard]] int operator()(int u, int v) const {
+        assert(is_dfs_called);
+        if (is_accessor(u, v)) return u;
+        if (is_accessor(v, u)) return v;
+        for (int lg = LG; ~lg; --lg) {
+            if (!is_accessor(up[u][lg], v)) u = up[u][lg];
+        }
+        return up[u][0];
+    }
+};
