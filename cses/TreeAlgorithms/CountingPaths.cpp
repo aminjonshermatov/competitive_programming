@@ -49,14 +49,13 @@ inline constexpr ld eps = 1e-6;
 
 mt19937 rnd(chrono::steady_clock::now().time_since_epoch().count());
 
-template <typename T = int> struct fenwick_tree_range_update_range_query {
+template <typename T = int> struct FenwickTreeRangeUpdateRangeQuery {
     int n;
     vector<T> bitA, bitB;
 
-    fenwick_tree_range_update_range_query() = default;
-    explicit fenwick_tree_range_update_range_query(int n_) : n(n_), bitA(n_, T(0)), bitB(n_, T(0))  { }
-
-    template<typename U = T> explicit fenwick_tree_range_update_range_query(const vector<U> &A) : n(A.size()) , bitA(A.size(), T(0)), bitB(A.size(), T(0)) {
+    FenwickTreeRangeUpdateRangeQuery() = default;
+    explicit FenwickTreeRangeUpdateRangeQuery(int n_) : n(n_), bitA(n_, T(0)), bitB(n_, T(0))  { }
+    template<typename U = T> explicit FenwickTreeRangeUpdateRangeQuery(const vector<U> &A) : n(A.size()) , bitA(A.size(), T(0)), bitB(A.size(), T(0)) {
         for (auto idx = 0u; idx < n; ++idx) modify(idx, idx + 1, A[idx]);
     }
 
@@ -66,39 +65,39 @@ template <typename T = int> struct fenwick_tree_range_update_range_query {
         bitB.assign(n, T(0));
     }
 
-    auto add(vector<T> &bit, int idx, T val) -> void {
+    auto modify(vector<T> &bit, int idx, T val) -> void {
         for (; idx < n; idx = idx | (idx + 1)) bit[idx] += val;
     }
 
     auto modify(int l, int r, T val) -> void { // [, r)
-        add(bitA, l, val);
-        add(bitA, r, -val);
-        add(bitB, l, val * (l - 1));
-        add(bitB, r, -val * (r - 1));
+        modify(bitA, l, val);
+        modify(bitA, r, -val);
+        modify(bitB, l, val * (l - 1));
+        modify(bitB, r, -val * (r - 1));
     }
 
-    [[nodiscard]] auto get(const vector<T> &bit, int idx) const -> T {
+    [[nodiscard]] auto query(const vector<T> &bit, int idx) const -> T {
         T ret = T(0);
         for (; idx >= 0; idx = (idx & (idx + 1)) - 1) ret += bit[idx];
         return ret;
     }
 
-    [[nodiscard]] auto prefix_sum(int idx) const -> T {
-        return get(bitA, idx) * idx - get(bitB, idx);
+    [[nodiscard]] auto prefix_query(int idx) const -> T {
+        return query(bitA, idx) * idx - query(bitB, idx);
     }
 
     [[nodiscard]] auto query(int l, int r) const -> T {
-        return prefix_sum(r - 1) - prefix_sum(l - 1);
+        return prefix_query(r - 1) - prefix_query(l - 1);
     }
     [[nodiscard]] auto query(int idx) const -> T {
-        return prefix_sum(idx) - prefix_sum(idx - 1);
+        return prefix_query(idx) - prefix_query(idx - 1);
     }
 
 };
 
 template<typename T = ::int32_t> struct Hld {
     vector<int> parent, root, depth, treePos, heavy;
-    fenwick_tree_range_update_range_query<T> tree;
+    FenwickTreeRangeUpdateRangeQuery<T> tree;
 
     template<typename G> explicit Hld(const G &g) {
         const int n(g.size());
