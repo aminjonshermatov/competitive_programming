@@ -56,8 +56,8 @@ template <typename T = int> struct FenwickTreeRangeUpdatePointQuery {
     }
 
     auto modify(int l, int r, T val) -> void { // [, r)
-        add(l, val);
-        add(r, -val);
+        modify(l, val);
+        modify(r, -val);
     }
 
     [[nodiscard]] auto query(int idx) const -> T {
@@ -89,10 +89,10 @@ template <typename T = int> struct FenwickTreeRangeUpdateRangeQuery {
     }
 
     auto modify(int l, int r, T val) -> void { // [, r)
-        add(bitA, l, val);
-        add(bitA, r, -val);
-        add(bitB, l, val * (l - 1));
-        add(bitB, r, -val * (r - 1));
+        modify(bitA, l, val);
+        modify(bitA, r, -val);
+        modify(bitB, l, val * (l - 1));
+        modify(bitB, r, -val * (r - 1));
     }
 
     [[nodiscard]] auto query(const vector<T> &bit, int idx) const -> T {
@@ -102,7 +102,7 @@ template <typename T = int> struct FenwickTreeRangeUpdateRangeQuery {
     }
 
     [[nodiscard]] auto prefix_query(int idx) const -> T {
-        return get(bitA, idx) * idx - get(bitB, idx);
+        return query(bitA, idx) * idx - query(bitB, idx);
     }
 
     [[nodiscard]] auto query(int l, int r) const -> T {
@@ -191,10 +191,10 @@ template <typename T = int> struct FenwickTree2DRangeUpdatePointQuery {
     }
 
     auto modify(int y1, int x1, int y2, int x2, T val) -> void { // [, r)
-        add(y2, x2, val);
-        add(y1, x1, val);
-        add(y1, x2, -val);
-        add(y2, x1, -val);
+        modify(y2, x2, val);
+        modify(y1, x1, val);
+        modify(y1, x2, -val);
+        modify(y2, x1, -val);
     }
 
     [[nodiscard]] auto query(int y, int x) const -> T {

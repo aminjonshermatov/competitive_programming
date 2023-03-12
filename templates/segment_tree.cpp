@@ -41,19 +41,21 @@ template<typename T = int> struct SegmentTree {
 
     int size;
     vector<Node<T>> tree;
-private:
+
+    SegmentTree() = default;
     explicit SegmentTree(int n) {
         size = 1;
         while (size < n) size <<= 1;
         tree.assign(2 * size - 1, NEUTRAL_ELEMENT);
+        build(0, 0, size);
     }
-public:
-
     template<typename U = T> explicit SegmentTree(vector<U> &A) : SegmentTree(A.size()) {
+        size = 1;
+        while (size < A.size()) size <<= 1;
+        tree.assign(2 * size - 1, NEUTRAL_ELEMENT);
         build(A, 0, 0, size);
     }
 
-    SegmentTree() = default;
     void init(int n) {
         size = 1;
         while (size < n) size <<= 1;
@@ -114,23 +116,23 @@ public:
         pull(x);
     }
 
-    void set(int idx, T v) { modify(idx, idx, v, 0, 0, size); }
+    void modify(int idx, T v) { modify(idx, idx, v, 0, 0, size); }
     void modify(int l, int r, T v) { modify(l, r, v, 0, 0, size); }
 
-    Node<T> get(int l, int r, int x, int lx, int rx) {
+    Node<T> query(int l, int r, int x, int lx, int rx) {
         push(x, lx, rx);
         if (l >= rx || r <= lx) return NEUTRAL_ELEMENT;
         if (l <= lx && rx <= r) return tree[x];
 
         auto mid = lx + (rx - lx) / 2;
-        auto res = Node<T>::unite(get(l, r, 2 * x + 1, lx, mid),
-                                  get(l, r, 2 * x + 2, mid, rx));
+        auto res = Node<T>::unite(query(l, r, 2 * x + 1, lx, mid),
+                                  query(l, r, 2 * x + 2, mid, rx));
         pull(x);
         return res;
     }
 
-    T get(int l, int r) { return get(l, r, 0, 0, size).val; }
-    T get(int idx) { return get(idx, idx + 1, 0, 0, size).val; }
+    T query(int l, int r) { return query(l, r, 0, 0, size).val; }
+    T query(int idx) { return query(idx, idx + 1, 0, 0, size).val; }
 
     template<typename Op> T get_first(T v, int i, int x, int lx, int rx, Op &op) {
         if (!op(tree[x].val, v) || tree[x].right < i) return -1;
