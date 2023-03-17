@@ -24,7 +24,7 @@ add_executable(codechef codechef/starters/80/main.cpp)
 add_executable(cses cses/TreeAlgorithms/PathQueriesII.cpp)
 
 #atcoder
-add_executable(atcoder_abc atcoder/abc/057/main.cpp)
+add_executable(atcoder_abc atcoder/abc/058/main.cpp)
 add_executable(atcoder_arc atcoder/arc/058/main.cpp)
 add_executable(atcoder_dp atcoder/dp_contest/main.cpp)
 
