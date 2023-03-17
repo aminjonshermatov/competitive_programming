@@ -5,7 +5,7 @@
 
 using namespace std;
 
-template <typename T = int> struct FenwickTreeRangeUpdateRangeQuery {
+template <typename T = ::int32_t> struct FenwickTreeRangeUpdateRangeQuery {
     int n;
     vector<T> bitA, bitB;
 
@@ -93,7 +93,7 @@ template<typename T = ::int32_t> struct Hld {
 
     template<typename BinaryOP> void processPath(int u, int v, BinaryOP op) {
         for (; root[u] != root[v]; v = parent[root[v]]) {
-            if (depth[root[u]] > depth[root[v]]) swap(u, v); // u closes to lca rather than v
+            if (depth[root[u]] > depth[root[v]]) swap(u, v); // u closer to lca rather than v
             op(treePos[root[v]], treePos[v] + 1);
         }
         if (depth[u] > depth[v]) swap(u, v);
@@ -103,13 +103,13 @@ template<typename T = ::int32_t> struct Hld {
     void modify(int v, const T &val) {
         modify(v, v, val);
     }
-    void modify(int u, int v, const T &val) {
+    void modify(int u, int v, const T &val) { // [u, v]
         processPath(u, v, [this, &val](int l, int r) { // [l, r)
             tree.modify(l, r, val);
         });
     }
 
-    T query(int u, int v) {
+    T query(int u, int v) { // [u, v]
         T res(0);
         processPath(u, v, [this, &res](int l, int r) { // [l, r)
             res += tree.query(l, r);
