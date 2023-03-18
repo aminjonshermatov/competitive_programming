@@ -21,7 +21,7 @@ add_executable(special codeforces/special/hello_2023/main.cpp)
 add_executable(codechef codechef/starters/80/main.cpp)
 
 #cses
-add_executable(cses cses/TreeAlgorithms/PathQueriesII.cpp)
+add_executable(cses cses/TreeAlgorithms/DistinctColors.cpp)
 
 #atcoder
 add_executable(atcoder_abc atcoder/abc/059/main.cpp)
