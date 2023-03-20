@@ -52,6 +52,26 @@ inline constexpr ld eps = 1e-6;
 mt19937 rnd(chrono::steady_clock::now().time_since_epoch().count());
 
 void solve() {
+  int n; cin >> n;
+  vector<int> A(n);
+  forr(a, A) cin >> a;
+  sort(all(A));
+
+  bitset<200200> dp;
+  dp[1] = true;
+  if (A.front() != 1) {
+    cout << "NO\n";
+    return ;
+  }
+  for (int i = 1; i < n; i++) {
+    if (dp[A[i]]) {
+      dp |= (dp << A[i]);
+    } else {
+      cout << "NO\n";
+      return ;
+    }
+  }
+  cout << "YES\n";
 }
 
 //#define MEASURE_TIME
