@@ -52,6 +52,24 @@ inline constexpr ld eps = 1e-6;
 mt19937 rnd(chrono::steady_clock::now().time_since_epoch().count());
 
 void solve() {
+  ll l;
+  int n1, n2;
+  cin >> l >> n1 >> n2;
+  vector<pair<int, ll>> A1(n1), A2(n2);
+  rep(i, n1) cin >> A1[i].fi >> A1[i].se;
+  rep(j, n2) cin >> A2[j].fi >> A2[j].se;
+  ll ans = 0;
+  int i = 0, j = 0;
+  while (i < n1 && j < n2) {
+    ll mn = min(A1[i].se, A2[j].se);
+    ans += mn * (A1[i].fi == A2[j].fi);
+    A1[i].se -= mn;
+    A2[j].se -= mn;
+    if (A1[i].se == 0) ++i;
+    if (A2[j].se == 0) ++j;
+  }
+
+  cout << ans << '\n';
 }
 
 //#define MEASURE_TIME
