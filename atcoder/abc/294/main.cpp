@@ -51,7 +51,105 @@ inline constexpr ld eps = 1e-6;
 
 mt19937 rnd(chrono::steady_clock::now().time_since_epoch().count());
 
+template <typename T = int> struct FenwickTreePointUpdateRangeQuery {
+  int n;
+  vector<T> bit;
+
+  FenwickTreePointUpdateRangeQuery() = default;
+  explicit FenwickTreePointUpdateRangeQuery(int n_) : n(n_), bit(n_, T(0))  { }
+  template<typename U = T> explicit FenwickTreePointUpdateRangeQuery(const vector<U> &A) : n(A.size()), bit(A.size(), T(0)) {
+    for (auto idx = 0u; idx < n; ++idx) modify(idx, A[idx]);
+  }
+
+  void init(int n_) {
+    n = n_;
+    bit.assign(n, T(0));
+  }
+
+  auto modify(int idx, T val) -> void {
+    for (; idx < n; idx = idx | (idx + 1)) bit[idx] += val;
+  }
+
+  [[nodiscard]] auto query(int idx) const -> T {
+    T ret = T(0);
+    for (; idx >= 0; idx = (idx & (idx + 1)) - 1) ret += bit[idx];
+    return ret;
+  }
+
+  [[nodiscard]] auto query(int l, int r) const -> T { // [l, r)
+    return query(r - 1) - query(l - 1);
+  }
+
+};
+
+const int LG = 20;
+
+struct Edge {
+  int from, to;
+  ll weight;
+};
+
 void solve() {
+  int n; cin >> n;
+  vector<Edge> edges(n - 1);
+  vector<vector<int>> g(n);
+  for (auto &[u, v, w] : edges) {
+    cin >> u >> v >> w;
+    --u, --v;
+    g[u].eb(v);
+  }
+
+  vector<int> tin_lca(n), tout_lca(n), tin_euler(n), tout_euler(n);
+  vector<vector<int>> up(n, vector<int>(LG + 1));
+  int timer_lca = 0, timer_euler = 0;
+  auto dfs = [&](auto f, int v, int p) -> void {
+    tin_lca[v] = timer_lca++;
+    tin_euler[v] = timer_euler++;
+    up[v][0] = p;
+    for (int l = 1; l <= LG && ~up[v][l - 1]; ++l) {
+      up[v][l] = up[up[v][l - 1]][l - 1];
+    }
+    for (auto u : g[v]) if (u != p) f(f, u, v);
+    tout_lca[v] = timer_lca++;
+    tout_euler[v] = timer_euler;
+  };
+  dfs(dfs, 0, 0);
+
+  auto is_accessor = [&](int u, int v) { return tin_lca[u] <= tin_lca[v] && tout_lca[v] <= tout_lca[u]; };
+  auto lca = [&](int u, int v) -> int {
+    if (is_accessor(u, v)) return u;
+    if (is_accessor(v, u)) return v;
+    for (int i = LG; ~i; --i) {
+      if (!is_accessor(up[u][i], v)) u = up[u][i];
+    }
+    return up[u][0];
+  };
+
+  FenwickTreePointUpdateRangeQuery<ll> ft(2 * n);
+  for (auto [u, v, w] : edges) {
+    if (up[u][0] == v) swap(u, v);
+    ft.modify(tin_euler[v], w);
+    ft.modify(tout_euler[v], -w);
+  }
+
+  int q; cin >> q;
+  rep(_, q) {
+    char cmd; cin >> cmd;
+    if (cmd == '1') {
+      int i;
+      ll w;
+      cin >> i >> w;
+      --i;
+      ft.modify(tin_euler[edges[i].to], w - edges[i].weight);
+      ft.modify(tout_euler[edges[i].to], edges[i].weight - w);
+      edges[i].weight = w;
+    } else if (cmd == '2') {
+      int u, v; cin >> u >> v;
+      --u, --v;
+      auto lca_ = lca(u, v);
+      cout << ft.query(tin_euler[u]) + ft.query(tin_euler[v]) - 2ll * ft.query(tin_euler[lca_]) << '\n';
+    }
+  }
 }
 
 //#define MEASURE_TIME
