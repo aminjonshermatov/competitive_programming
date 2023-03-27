@@ -38,7 +38,7 @@ add_executable(stepik stepik/199929/5/5.1.2.cpp)
 add_executable(temp temp.cpp)
 
 #acmp
-add_executable(acmp acmp/119.cpp)
+add_executable(acmp acmp/main.cpp)
 
 #adventofcode
 add_executable(adventofcode adventofcode/2022/main.cpp)
