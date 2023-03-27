@@ -32,19 +32,20 @@ void solve() {
     return true;
   };
 
-  vector<vector<i64>> dp(m + 1, vector<i64>(1 << n, 0));
-  fill(dp[0].begin(), dp[0].end(), 1);
-  for (int j = 0; j < m; ++j) {
+  vector<i64> dp(1 << n, 1);
+  for (int j = 1; j < m; ++j) {
+    vector<i64> ndp(1 << n, 0);
     for (int mask1 = 0; mask1 < (1 << n); ++mask1) {
       for (int mask2 = 0; mask2 < (1 << n); ++mask2) {
         if (check(mask1, mask2)) {
-          dp[j + 1][mask2] += dp[j][mask1];
+          ndp[mask2] += dp[mask1];
         }
       }
     }
+    ndp.swap(dp);
   }
 
-  cout << accumulate(dp[m - 1].begin(), dp[m - 1].end(), i64(0)) << '\n';
+  cout << accumulate(dp.begin(), dp.end(), i64(0)) << '\n';
 }
 
 //#define MEASURE_TIME
