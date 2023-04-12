@@ -21,7 +21,7 @@ add_executable(special codeforces/special/hello_2023/main.cpp)
 add_executable(codechef codechef/starters/80/main.cpp)
 
 #cses
-add_executable(cses cses/TreeAlgorithms/FindingACentroid.cpp)
+add_executable(cses cses/TreeAlgorithms/PathQueriesII.cpp)
 
 #atcoder
 add_executable(atcoder_abc atcoder/abc/297/main.cpp)
