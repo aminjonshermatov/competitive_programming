@@ -53,3 +53,5 @@ add_executable(timus timus/1133.cpp)
 add_executable(uva uva/12003.cpp)
 
 add_executable(rucode "rucode/6.0/d/main.cpp")
+
+add_executable(spoj spoj/main.cpp)
