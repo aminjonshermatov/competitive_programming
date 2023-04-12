@@ -158,3 +158,34 @@ template<typename T = int> struct SegmentTree {
         return out;
     }
 };
+
+struct SegmentTree {
+    int n;
+    vector<int> tree;
+
+    static inline constexpr auto neutral = numeric_limits<int>::min();
+
+    explicit SegmentTree(int n_) : n(n_), tree(2 * n_, neutral) { }
+
+    void set(int pos, int nval) {
+        pos += n;
+        tree[pos] = nval;
+        while (pos > 1) {
+            pos >>= 1;
+            tree[pos] = max(tree[pos << 1], tree[pos << 1 | 1]);
+        }
+    }
+
+    int query(int ql, int qr) {
+        ql += n; qr += n;
+        auto ans = ninf;
+        while (ql < qr) {
+            if (ql & 1) ans = max(ans, tree[ql++]);
+            if (qr & 1) ans = max(ans, tree[--qr]);
+            ql >>= 1;
+            qr >>= 1;
+        }
+        return ans;
+    }
+
+};
