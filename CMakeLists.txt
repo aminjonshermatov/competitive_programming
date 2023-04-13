@@ -55,3 +55,5 @@ add_executable(uva uva/12003.cpp)
 add_executable(rucode "rucode/6.0/d/main.cpp")
 
 add_executable(spoj spoj/main.cpp)
+
+add_subdirectory(${PROJECT_SOURCE_DIR}/stress)
