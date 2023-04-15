@@ -6,7 +6,7 @@
 
 using namespace std;
 
-bool is_ok() {
+bool check() {
   ifstream data(constants::DATA_IN);
   ifstream slow(constants::SLOW_OUT);
   ifstream fast(constants::FAST_OUT);
@@ -34,10 +34,8 @@ bool is_ok() {
 }
 
 int main() {
-  for (int i = 0; i < 100; ++i) {
-    ::system("./gen");
-    ::system("./slow");
-    ::system("./fast");
-    if (!is_ok()) break;
-  }
+  ::system("./gen");
+  ::system("./slow");
+  ::system("./fast");
+  check();
 }

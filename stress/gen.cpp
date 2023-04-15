@@ -7,7 +7,7 @@
 
 using namespace std;
 
-inline constexpr int N = 20;
+inline constexpr int N = 1000;
 
 int LG;
 vector<vector<int>> g, up;
@@ -38,7 +38,7 @@ int get_lca(int u, int v) {
 
 void gen(ofstream &out) {
   const int n = utils::random(5, N);
-  const int q = utils::random(5, N);
+  const int q = utils::random(N, 2 * N);
 
   LG = 31 - __builtin_clz(n);
 
@@ -68,6 +68,7 @@ void gen(ofstream &out) {
     auto v = utils::random(1, n);
     auto lca = get_lca(u, v);
     auto len = dist[u] + dist[v] - 2 * dist[lca];
+    if (len < 0) { --i; continue; }
     auto k = utils::random(1, len + 1);
     out << u << ' ' << v << ' ' << k << '\n';
   }
