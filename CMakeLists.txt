@@ -56,6 +56,6 @@ add_executable(rucode "rucode/6.0/d/main.cpp")
 
 add_executable(spoj spoj/main.cpp)
 
-add_executable(projecteuler projecteuler/SumSquareDifference.cpp)
+add_executable(projecteuler projecteuler/10001stPrime.cpp)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/stress)
