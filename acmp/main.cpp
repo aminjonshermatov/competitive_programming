@@ -9,26 +9,7 @@
 
 using namespace std;
 
-constexpr auto inf = numeric_limits<int>::max();
-
 void solve() {
-  int n; cin >> n;
-  vector<int> A(n);
-  for (auto &a : A) cin >> a;
-  sort(A.begin(), A.end());
-
-  vector<int> cache(n, -1);
-  auto dp = [&](auto &f, int i) -> int {
-    if (i >= n) return 0;
-    if (i + 1 == n) return inf;
-    if (~cache[i]) return cache[i];
-    int ans = inf;
-    for (int j = i + 1; j < n; ++j) {
-      ans = min(ans, max(A[j] - A[i], f(f, j + 1)));
-    }
-    return cache[i] = ans;
-  };
-  cout << dp(dp, 0) << '\n';
 }
 
 bool is_multi = false;
