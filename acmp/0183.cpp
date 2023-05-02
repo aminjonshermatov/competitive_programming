@@ -10,6 +10,16 @@
 using namespace std;
 
 void solve() {
+  int k, p;
+  cin >> k >> p;
+
+  vector<int> dp(k + 1, 0);
+  dp[2] = 1 % p;
+  for (int i = 2; i < k; ++i) {
+    if (i + 1 <= k) dp[i + 1] = (dp[i + 1] + dp[i]) % p;
+    if (2 * i <= k) dp[2 * i] = (dp[2 * i] + dp[i]) % p;
+  }
+  cout << dp[k] << '\n';
 }
 
 bool is_multi = false;
