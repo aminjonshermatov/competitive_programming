@@ -577,3 +577,16 @@ struct BigInt {
     return res / norm;
   }
 };
+
+using i64 = ::int64_t;
+
+BigInt power(BigInt a, i64 b, const BigInt& mod) {
+  BigInt ans = 1;
+  while (b > 0) {
+    auto [q, r] = lldiv(b, 2);
+    if (r != 0) ans = (ans * a) % mod;
+    a = (a * a) % mod;
+    b = q;
+  }
+  return ans;
+}
