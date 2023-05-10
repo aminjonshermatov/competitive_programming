@@ -10,6 +10,15 @@
 using namespace std;
 
 void solve() {
+  int n; cin >> n;
+  int ans = 0;
+  for (int d = 1; d * d <= n; ++d) {
+    auto [q, r] = div(n, d);
+    if (r == 0) {
+      ans += 1 + (q != d);
+    }
+  }
+  cout << ans << '\n';
 }
 
 bool is_multi = true;
