@@ -12,7 +12,7 @@ using namespace std;
 void solve() {
 }
 
-bool is_multi = true;
+bool is_multi = false;
 
 int main() {
   ios_base::sync_with_stdio(false);
