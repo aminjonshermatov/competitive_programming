@@ -1,8 +1,8 @@
-// #define _GLIBCXX_DEBUG
 #include <bits/stdc++.h>
 
 #ifdef LOCAL
 #include "debug.h"
+#define _GLIBCXX_DEBUG
 #else
 #define dbg(...) 42
 #endif
@@ -21,4 +21,5 @@ int main() {
   int T = 1;
   if (is_multi) cin >> T;
   for (int tc = 1; tc <= T; ++tc) solve();
+  return 0;
 }
