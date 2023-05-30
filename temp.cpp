@@ -1,24 +1,25 @@
 #include <bits/stdc++.h>
 
+#ifdef LOCAL
+#include "debug.h"
+#define _GLIBCXX_DEBUG
+#else
+#define dbg(...) 42
+#endif
+
 using namespace std;
 
+void solve() {
+}
+
+bool is_multi = false;
+
 int main() {
-  int n; cin >> n;
-  static int ans = 0;
-  struct __foo {
-    void operator()(int _1, int _2) {
-      ++ans;
-      if (_2 - _1 < 3) return;
-      auto _3 = (_2 - _1) / 3;
-      auto _l = _1 + _3;
-      auto _r = _2 - _3;
-      if (rand() & 1) {
-        __foo()(_l, _2);
-      } else {
-        __foo()(_1, _r);
-      }
-    }
-  };
-  __foo()(false + 1, n - false);
-  cout << ans << '\n';
+  ios_base::sync_with_stdio(false);
+  cin.tie(nullptr);
+  cout.tie(nullptr);
+  int T = 1;
+  if (is_multi) cin >> T;
+  for (int tc = 1; tc <= T; ++tc) solve();
+  return 0;
 }
