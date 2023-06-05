@@ -1,0 +1,41 @@
+#include <bits/stdc++.h>
+
+#ifdef LOCAL
+#include "debug.h"
+#define _GLIBCXX_DEBUG
+#else
+#define dbg(...) 42
+#endif
+
+using namespace std;
+
+using i64 = int64_t;
+constexpr i64 mod = 1e9 + 7;
+
+i64 power(i64 a, i64 b, i64 md) {
+  i64 ret = 1;
+  while (b > 0) {
+    if (b & 1) ret = (ret * a) % md;
+    a = (a * a) % md;
+    b >>= 1;
+  }
+  return ret;
+}
+
+void solve() {
+  i64 a, b, c;
+  cin >> a >> b >> c;
+  cout << power(a, power(b, c, mod - 1), mod) << '\n';
+}
+
+bool is_multi = true;
+
+int main() {
+  ios_base::sync_with_stdio(false);
+  cin.tie(nullptr);
+  cout.tie(nullptr);
+  int T = 1;
+  if (is_multi) cin >> T;
+  for (int tc = 1; tc <= T; ++tc) solve();
+  return 0;
+}
