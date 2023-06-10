@@ -9,10 +9,7 @@
 
 using namespace std;
 
-using i64 = int64_t;
-
 void solve() {
-
 }
 
 bool is_multi = false;
