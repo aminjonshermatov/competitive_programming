@@ -8,7 +8,7 @@ add_definitions(-DLOCAL)
 include_directories(.)
 
 #codeforces
-add_executable(codeforces_div2 codeforces/div2/876/main.cpp)
+add_executable(codeforces_div2 codeforces/div2/150/main.cpp)
 add_executable(codeforces_div3 codeforces/div3/878/main.cpp)
 add_executable(codeforces_div4 codeforces/div4/871/main.cpp)
 add_executable(virtual codeforces/archive/virtual/529/main.cpp)
