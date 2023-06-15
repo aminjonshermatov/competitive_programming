@@ -2,173 +2,275 @@
 // Created by aminjon on 4/13/23.
 //
 // #define _GLIBCXX_DEBUG
-#include <bits/stdc++.h>
 #include "constants.h"
+#include <bits/stdc++.h>
 
 using namespace std;
 
-const int N = 100010, Q = 100010, BLOCK_SIZE = 1000, LG = 21, BLOCK_BOUND = (N + BLOCK_SIZE - 1) / BLOCK_SIZE + 1;
+using ll = long long;
 
-struct Query {
-  int l, r, k, id, lca;
+template<class T>
+struct segtree_beats{
+  private:
+  static constexpr T INF=numeric_limits<T>::max();
+  struct S{
+    T sum=0,b1=0,s1=0,b2=-INF,s2=INF,b_cnt=1,s_cnt=1,add=0;
+    S(){}
+    S(const T&a):sum(a),b1(a),s1(a){}
+  };
+  vector<S>seq;
+  int size=1,idx=0;
+  void update(int k){
+    S&s=seq[k];
+    S&l=seq[2*k];
+    S&r=seq[2*k+1];
+    s.sum=l.sum+r.sum;
+    if(l.b1==r.b1){
+      s.b1=l.b1;
+      s.b2=max(l.b2,r.b2);
+      s.b_cnt=l.b_cnt+r.b_cnt;
+    }
+    else{
+      s.b1=max(l.b1,r.b1);
+      s.b2=max(l.b1>r.b1?l.b2:l.b1,l.b1>r.b1?r.b1:r.b2);
+      s.b_cnt=l.b1>r.b1?l.b_cnt:r.b_cnt;
+    }
+    if(l.s1==r.s1){
+      s.s1=l.s1;
+      s.s2=min(l.s2,r.s2);
+      s.s_cnt=l.s_cnt+r.s_cnt;
+    }
+    else{
+      s.s1=min(l.s1,r.s1);
+      s.s2=min(l.s1>r.s1?l.s1:l.s2,l.s1>r.s1?r.s2:r.s1);
+      s.s_cnt=l.s1>r.s1?r.s_cnt:l.s_cnt;
+    }
+  }
+  void eval_add(int k,T x){
+    S&s=seq[k];
+    s.sum+=x<<(idx+__builtin_clz(k)-31);
+    s.b1+=x,s.s1+=x;
+    if(s.b2!=-INF)s.b2+=x;
+    if(s.s2!=INF)s.s2+=x;
+    s.add+=x;
+  }
+  void eval_min(int k,T x){
+    S&s=seq[k];
+    s.sum+=(x-s.b1)*s.b_cnt;
+    if(s.s1==s.b1)s.s1=x;
+    if(s.s2==s.b1)s.s2=x;
+    s.b1=x;
+  }
+  void eval_max(int k,T x){
+    S&s=seq[k];
+    s.sum+=(x-s.s1)*s.s_cnt;
+    if(s.b1==s.s1)s.b1=x;
+    if(s.b2==s.s1)s.b2=x;
+    s.s1=x;
+  }
+  void eval(int k){
+    S&s=seq[k];
+    if(s.add!=0){
+      eval_add(k*2,s.add);
+      eval_add(k*2+1,s.add);
+      s.add=0;
+    }
+    if(s.b1<seq[2*k].b1)eval_min(2*k,s.b1);
+    if(s.s1>seq[2*k].s1)eval_max(2*k,s.s1);
+    if(s.b1<seq[2*k+1].b1)eval_min(2*k+1,s.b1);
+    if(s.s1>seq[2*k+1].s1)eval_max(2*k+1,s.s1);
+  }
+  void apply_min(int k,T x){
+    if(seq[k].b1<=x)return;
+    if(seq[k].b2<x){
+      eval_min(k,x);
+      return;
+    }
+    eval(k);
+    apply_min(2*k,x);
+    apply_min(2*k+1,x);
+    update(k);
+  }
+  void apply_max(int k,T x){
+    if(seq[k].s1>=x)return;
+    if(seq[k].s2>x){
+      eval_max(k,x);
+      return;
+    }
+    eval(k);
+    apply_max(2*k,x);
+    apply_max(2*k+1,x);
+    update(k);
+  }
+  void inner_chmin(int l,int r,T x){
+    if(l==r)return;
+    l+=size,r+=size;
+    for(int i=idx;i>=1;i--){
+      if(((l>>i)<<i)!=l)eval(l>>i);
+      if(((r>>i)<<i)!=r)eval(r>>i);
+    }
+    int l2=l,r2=r;
+    while(l<r){
+      if(l&1)apply_min(l++,x);
+      if(r&1)apply_min(--r,x);
+      l>>=1;
+      r>>=1;
+    }
+    l=l2,r=r2;
+    for(int i=1;i<=idx;i++){
+      if(((l>>i)<<i)!=l)update(l>>i);
+      if(((r>>i)<<i)!=r)update(r>>i);
+    }
+  }
+  void inner_chmax(int l,int r,T x){
+    if(l==r)return;
+    l+=size,r+=size;
+    for(int i=idx;i>=1;i--){
+      if(((l>>i)<<i)!=l)eval(l>>i);
+      if(((r>>i)<<i)!=r)eval(r>>i);
+    }
+    int l2=l,r2=r;
+    while(l<r){
+      if(l&1)apply_max(l++,x);
+      if(r&1)apply_max(--r,x);
+      l>>=1;
+      r>>=1;
+    }
+    l=l2,r=r2;
+    for(int i=1;i<=idx;i++){
+      if(((l>>i)<<i)!=l)update(l>>i);
+      if(((r>>i)<<i)!=r)update(r>>i);
+    }
+  }
+  void inner_add(int l,int r,T x){
+    if(l==r)return;
+    l+=size,r+=size;
+    for(int i=idx;i>=1;i--){
+      if(((l>>i)<<i)!=l)eval(l>>i);
+      if(((r>>i)<<i)!=r)eval(r>>i);
+    }
+    int l2=l,r2=r;
+    while(l<r){
+      if(l&1)eval_add(l++,x);
+      if(r&1)eval_add(--r,x);
+      l>>=1;
+      r>>=1;
+    }
+    l=l2,r=r2;
+    for(int i=1;i<=idx;i++){
+      if(((l>>i)<<i)!=l)update(l>>i);
+      if(((r>>i)<<i)!=r)update(r>>i);
+    }
+  }
+  void inner_update(int l,int r,T x){
+    if(l==r)return;
+    l+=size,r+=size;
+    for(int i=idx;i>=1;i--){
+      if(((l>>i)<<i)!=l)eval(l>>i);
+      if(((r>>i)<<i)!=r)eval(r>>i);
+    }
+    int l2=l,r2=r;
+    while(l<r){
+      if(l&1)apply_min(l++,x),apply_max(l,x);
+      if(r&1)apply_min(--r,x),apply_max(r,x);
+      l>>=1;
+      r>>=1;
+    }
+    l=l2,r=r2;
+    for(int i=1;i<=idx;i++){
+      if(((l>>i)<<i)!=l)update(l>>i);
+      if(((r>>i)<<i)!=r)update(r>>i);
+    }
+  }
+  T inner_min(int l,int r){
+    if(l==r)return INF;
+    T sml=INF,smr=INF;
+    l+=size,r+=size;
+    for(int i=idx;i>=1;i--){
+      if(((l>>i)<<i)!=l)eval(l>>i);
+      if(((r>>i)<<i)!=r)eval(r>>i);
+    }
+    while(l<r){
+      if(l&1)sml=min(sml,seq[l++].s1);
+      if(r&1)smr=min(seq[--r].s1,smr);
+      l>>=1,r>>=1;
+    }
+    return min(sml,smr);
+  }
+  T inner_max(int l,int r){
+    if(l==r)return -INF;
+    T sml=-INF,smr=-INF;
+    l+=size,r+=size;
+    for(int i=idx;i>=1;i--){
+      if(((l>>i)<<i)!=l)eval(l>>i);
+      if(((r>>i)<<i)!=r)eval(r>>i);
+    }
+    while(l<r){
+      if(l&1)sml=max(sml,seq[l++].b1);
+      if(r&1)smr=max(seq[--r].b1,smr);
+      l>>=1,r>>=1;
+    }
+    return max(sml,smr);
+  }
+  T inner_sum(int l,int r){
+    if(l==r)return 0;
+    T sml=0,smr=0;
+    l+=size,r+=size;
+    for(int i=idx;i>=1;i--){
+      if(((l>>i)<<i)!=l)eval(l>>i);
+      if(((r>>i)<<i)!=r)eval(r>>i);
+    }
+    while(l<r){
+      if(l&1)sml+=seq[l++].sum;
+      if(r&1)smr+=seq[--r].sum;
+      l>>=1,r>>=1;
+    }
+    return sml+smr;
+  }
+  public:
+  segtree_beats(){}
+  segtree_beats(int n):segtree_beats(vector<T>(n)){}
+  segtree_beats(const vector<T>&v){
+    const int n=v.size();
+    while(size<n)size<<=1,idx++;
+    seq.resize(2*size);
+    for(int i=0;i<n;i++)seq[i+size]=v[i];
+    for(int i=size-1;i;i--)update(i);
+  }
+  void range_chmin(int l,int r,T x){inner_chmin(l,r,x);}
+  void range_chmax(int l,int r,T x){inner_chmax(l,r,x);}
+  void range_add(int l,int r,T x){inner_add(l,r,x);}
+  void range_update(int l,int r,T x){inner_update(l,r,x);}
+  T range_min(int l,int r){return inner_min(l,r);}
+  T range_max(int l,int r){return inner_max(l,r);}
+  T range_sum(int l,int r){return inner_sum(l,r);}
 };
 
-vector<int> g[N];
-int up[N][LG];
-int val[N], tin[N], tout[N], time2v[2 * N], node_freq[N], cnt[N], blk_cnt[BLOCK_BOUND], ans[Q], sorted_id[N];
-pair<int, int> val_id_sorted[N];
-Query queries[Q];
-
-int timer;
-void dfs(int v, int p) {
-  up[v][0] = p;
-  tin[v] = timer;
-  time2v[timer] = v;
-  ++timer;
-
-  for (auto u : g[v]) {
-    if (u == p) continue ;
-    dfs(u, v);
-  }
-
-  tout[v] = timer;
-  time2v[timer] = v;
-  ++timer;
-}
-
-inline bool is_accessor(int u, int v) { return tin[u] <= tin[v] && tout[v] <= tout[u]; }
-int get_lca(int u, int v) {
-  if (is_accessor(u, v)) return u;
-  if (is_accessor(v, u)) return v;
-  for (int l = LG - 1; ~l; --l) {
-    if (up[u][l] == -1) continue ;
-    if (!is_accessor(up[u][l], v)) u = up[u][l];
-  }
-  return up[u][0];
-}
-
-bool cmp(const Query &lhs, const Query &rhs) {
-  auto lb = lhs.l / BLOCK_SIZE;
-  auto rb = rhs.l / BLOCK_SIZE;
-  if (lb != rb) return lb < rb;
-  return lhs.r < rhs.r;
-}
-
-void add(int pos) {
-  ++cnt[pos];
-  ++blk_cnt[pos / BLOCK_SIZE];
-}
-void remove(int pos) {
-  --cnt[pos];
-  --blk_cnt[pos / BLOCK_SIZE];
-}
-int kth(int k) {
-  int i = 0;
-  for (; i < BLOCK_BOUND; ++i) {
-    if (k - blk_cnt[i] <= 0) break ;
-    k -= blk_cnt[i];
-  }
-  i *= BLOCK_SIZE;
-  for (; i < N; ++i) {
-    if (k - cnt[i] <= 0) {
-      return i;
-    }
-    k -= cnt[i];
-  }
-  assert(false);
-}
-
-void add_mo(int time) {
-  auto v = time2v[time];
-  auto id = sorted_id[v];
-  // cout << "add " << v << ' ' << id << '\n';
-  if (++node_freq[v] == 2) remove(id);
-  else if (node_freq[v] == 1) add(id);
-  else assert(false);
-}
-void remove_mo(int time) {
-  auto v = time2v[time];
-  auto id = sorted_id[v];
-  // cout << "remove " << v << ' ' << id << '\n';
-  if (--node_freq[v] == 1) add(id);
-  else if (node_freq[v] == 0) remove(id);
-  else assert(false);
-}
-
-void solve(istream &cin, ostream &cout) {
-  ::memset(node_freq, 0, sizeof node_freq);
-  ::memset(cnt, 0, sizeof cnt);
-  ::memset(blk_cnt, 0, sizeof blk_cnt);
-  ::memset(up, -1, sizeof up);
-
-  int n, q; cin >> n >> q;
-  for (int v = 0; v < n; ++v) {
-    cin >> val[v];
-    val_id_sorted[v] = make_pair(val[v], v);
-  }
-  sort(val_id_sorted, val_id_sorted + n);
-
-  for (int i = 0; i < n; ++i) {
-    sorted_id[val_id_sorted[i].second] = i;
-  }
-
-  for (int i = 0; i + 1 < n; ++i) {
-    int u, v; cin >> u >> v;
-    --u, --v;
-    g[u].emplace_back(v);
-    g[v].emplace_back(u);
-  }
-
-  timer = 0;
-  dfs(0, -1);
-  for (int v = 0; v < n; ++v) {
-    for (int l = 1; l < LG && ~up[v][l - 1]; ++l) {
-      up[v][l] = up[up[v][l - 1]][l - 1];
-    }
-  }
-
-  // for (int v = 0; v < n; ++v) cout << v + 1 << ' ' << tin[v] << ' ' << tout[v] << '\n';
-
-  for (int i = 0; i < q; ++i) {
-    int u, v;
-    cin >> u >> v >> queries[i].k;
-    --u, --v;
-    queries[i].id = i;
-    if (tin[u] > tin[v]) swap(u, v);
-
-    auto lca = get_lca(u, v);
-    if (lca == u) {
-      queries[i].l = tin[u];
-      queries[i].lca = -1;
+void solve(istream &cin, ostream &cout, int n, int q) {
+  vector<long long> a(n, 0);
+  segtree_beats<ll>seg(a);
+  while (q--) {
+    char cmd;
+    int l, r;
+    cin >> cmd >> l >> r;
+    --l;
+    if (cmd == '?') {
+      auto sm = seg.range_sum(l,r);
+      ll cnt = r - l;
+      auto g = gcd(sm, cnt);
+      sm /= g;
+      cnt /= g;
+      if (cnt != 1 && sm != 0) {
+        cout << sm << '/' << cnt << '\n';
+      } else {
+        cout << sm << '\n';
+      }
+    } else if (cmd == '^') {
+      int64_t x; cin >> x;
+      seg.range_chmax(l,r,x);
     } else {
-      queries[i].l = tout[u];
-      queries[i].lca = lca;
+      assert(false);
     }
-    queries[i].r = tin[v];
-  }
-  sort(queries, queries + q, cmp);
-
-  int cur_l = 0, cur_r = -1;
-  for (int i = 0; i < q; ++i) {
-    auto l = queries[i].l;
-    auto r = queries[i].r;
-    auto k = queries[i].k;
-    auto id = queries[i].id;
-    auto lca = queries[i].lca;
-
-    while (cur_l > l) add_mo(--cur_l);
-    while (cur_r < r) add_mo(++cur_r);
-    while (cur_l < l) remove_mo(cur_l++);
-    while (cur_r > r) remove_mo(cur_r--);
-
-    if (~lca) add(sorted_id[lca]);
-    // for (int j = 0; j < n; ++j) cout << cnt[j] << " \n"[j + 1 == n];
-    ans[id] = val_id_sorted[kth(k)].first;
-    if (~lca) remove(sorted_id[lca]);
-  }
-
-  for (int i = 0; i < q; ++i) {
-    cout << ans[i] << '\n';
   }
 }
 
@@ -176,5 +278,11 @@ int main() {
   ifstream in(constants::DATA_IN);
   ofstream out(constants::FAST_OUT);
 
-  solve(in, out);
+  int n, q;
+  while (in >> n >> q) {
+    if (n == 0 && q == 0) break;
+    solve(in, out, n, q);
+  }
+
+  return 0;
 }

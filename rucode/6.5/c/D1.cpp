@@ -1,5 +1,11 @@
 #include <bits/stdc++.h>
-#include "constants.h"
+
+#ifdef LOCAL
+#include "debug.h"
+#define _GLIBCXX_DEBUG
+#else
+#define dbg(...) 42
+#endif
 
 using namespace std;
 
@@ -26,7 +32,7 @@ struct Block {
   }
 };
 
-void solve(istream &cin, ostream &cout, int n, int q) {
+void solve(int n, int q) {
   // ^ l, r, x -> a[i] = max(a[i], x), i := l..r
   // ? l, r    -> s / (l - r + 1), s += a[i], i := l..r
 
@@ -42,6 +48,7 @@ void solve(istream &cin, ostream &cout, int n, int q) {
     auto lb = l / B;
     auto rb = r / B;
 
+    dbg(l+1, r+1, lb, rb);
     if (cmd == '^') {
       int x; cin >> x;
 
@@ -165,19 +172,22 @@ void solve(istream &cin, ostream &cout, int n, int q) {
         cout << sm << '\n';
       }
     }
+    dbg(as);
+    dbg(blocks);
   }
 }
 
 bool is_multi = false;
 
 int main() {
-  ifstream in(constants::DATA_IN);
-  ofstream out(constants::SLOW_OUT);
+  ios_base::sync_with_stdio(false);
+  cin.tie(nullptr);
+  cout.tie(nullptr);
 
   int n, q;
-  while (in >> n >> q) {
+  while (cin >> n >> q) {
     if (n == 0 && q == 0) break;
-    solve(in, out, n, q);
+    solve(n, q);
   }
 
   return 0;
