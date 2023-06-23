@@ -3,6 +3,8 @@ project(competitive_programming)
 
 set(CMAKE_CXX_STANDARD 20)
 
+find_package(nlohmann_json 3.2.0 REQUIRED)
+
 add_definitions(-DLOCAL)
 
 include_directories(.)
@@ -57,5 +59,6 @@ add_executable(rucode "rucode/6.5/c/main.cpp")
 add_executable(spoj spoj/main.cpp)
 
 add_executable(projecteuler projecteuler/main.cpp)
+# target_link_libraries(projecteuler PRIVATE nlohmann_json::nlohmann_json)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/stress)
