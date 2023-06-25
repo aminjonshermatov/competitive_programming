@@ -36,7 +36,7 @@ void solve() {
         c = ++cnt[A[idx]];
         cur += c * (c - 1) * (c - 2) / 6;
     };
-    auto remove = [&](i64 idx) -> void {
+    auto rmv = [&](i64 idx) -> void {
         auto c = cnt[A[idx]];
         cur -= c * (c - 1) * (c - 2) / 6;
         c = --cnt[A[idx]];
@@ -46,22 +46,10 @@ void solve() {
     vector<i64> ans(q);
     int cur_l = 0, cur_r = -1;
     for (auto [l, r, idx] : queries) {
-        while (cur_l > l) {
-            cur_l--;
-            add(cur_l);
-        }
-        while (cur_r < r) {
-            cur_r++;
-            add(cur_r);
-        }
-        while (cur_l < l) {
-            remove(cur_l);
-            cur_l++;
-        }
-        while (cur_r > r) {
-            remove(cur_r);
-            cur_r--;
-        }
+        while (cur_l > l) add(--cur_l);
+        while (cur_r < r) add(++cur_r);
+        while (cur_l < l) rmv(cur_l++);
+        while (cur_r > r) rmv(cur_r--);
         ans[idx] = cur;
     }
 
