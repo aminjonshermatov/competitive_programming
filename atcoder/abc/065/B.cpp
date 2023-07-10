@@ -1,0 +1,36 @@
+#include <bits/stdc++.h>
+
+#ifdef LOCAL
+#include "debug.h"
+#define _GLIBCXX_DEBUG
+#else
+#define dbg(...) 42
+#endif
+
+using namespace std;
+
+void solve() {
+  int n; cin >> n;
+  vector<int> as(n);
+  for (auto &a : as) cin >> a, --a;
+
+  vector<int> dist(n, -1);
+  dist[0] = 0;
+  for (auto i = 0; dist[as[i]] == -1; ) {
+    dist[as[i]] = dist[i] + 1;
+    i = as[i];
+  }
+  cout << dist[1] << '\n';
+}
+
+bool is_multi = false;
+
+int main() {
+  ios_base::sync_with_stdio(false);
+  cin.tie(nullptr);
+  cout.tie(nullptr);
+  int T = 1;
+  if (is_multi) cin >> T;
+  for (int tc = 1; tc <= T; ++tc) solve();
+  return 0;
+}
