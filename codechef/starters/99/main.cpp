@@ -1,0 +1,46 @@
+#include <bits/stdc++.h>
+
+#ifdef LOCAL
+#include "debug.h"
+#define _GLIBCXX_DEBUG
+#else
+#define dbg(...) 42
+#endif
+
+using namespace std;
+
+using i64 = int64_t;
+
+void solve() {
+  int n; cin >> n;
+  string s; cin >> s;
+
+  struct Node {
+    char val;
+    Node *nxt;
+  };
+
+  string ns(n, '#');
+  auto dp = [&](auto &f, char prv, int i) -> pair<int, Node*> {
+    if (i + 2 == n) {
+      if (prv != s[i + 1] && s[i] == '0') {
+        return {1, new Node('1', nullptr)};
+      }
+      return {0, new Node('0', nullptr)};
+    }
+    auto [cl, nl] = dp()
+  };
+
+}
+
+bool is_multi = true;
+
+int main() {
+  ios_base::sync_with_stdio(false);
+  cin.tie(nullptr);
+  cout.tie(nullptr);
+  int T = 1;
+  if (is_multi) cin >> T;
+  for (int tc = 1; tc <= T; ++tc) solve();
+  return 0;
+}
