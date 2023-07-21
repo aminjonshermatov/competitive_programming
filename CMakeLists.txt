@@ -12,7 +12,7 @@ include_directories(.)
 #codeforces
 add_executable(codeforces_div2 codeforces/div2/884/main.cpp)
 add_executable(codeforces_div3 codeforces/div3/881/main.cpp)
-add_executable(codeforces_div4 codeforces/div4/871/main.cpp)
+add_executable(codeforces_div4 codeforces/div4/886/main.cpp)
 add_executable(virtual codeforces/archive/virtual/529/main.cpp)
 add_executable(probelmset codeforces/archive/problemset/161D.cpp)
 add_executable(edu cf_edu/itmo/dsu/1/C.cpp)
