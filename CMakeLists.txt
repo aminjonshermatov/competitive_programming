@@ -26,7 +26,7 @@ add_executable(codechef codechef/starters/99/main.cpp)
 add_executable(cses cses/Mathematics/main.cpp)
 
 #atcoder
-add_executable(atcoder_abc atcoder/abc/310/main.cpp)
+add_executable(atcoder_abc atcoder/abc/311/main.cpp)
 add_executable(atcoder_arc atcoder/arc/058/main.cpp)
 add_executable(atcoder_dp atcoder/dp_contest/main.cpp)
 

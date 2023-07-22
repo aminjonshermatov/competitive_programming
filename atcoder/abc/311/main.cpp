@@ -8,7 +8,27 @@
 
 using namespace std;
 
+using i64 = int64_t;
+
 void solve() {
+  int n, m; cin >> n >> m;
+  vector<vector<int>> g(n, vector<int>(m));
+  for (auto &r : g) {
+    for (auto &x : r) {
+      cin >> x;
+    }
+  }
+
+  i64 ans = 0;
+  for (int l1 = 0; l1 < n; +l1) {
+    for (int l2 = l1; l2 < n; ++l2) {
+
+      for (int i = 0; i < n; ++i) {
+
+      }
+    }
+  }
+  cout << ans << '\n';
 }
 
 bool is_multi = false;

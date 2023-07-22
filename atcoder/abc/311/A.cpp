@@ -9,6 +9,17 @@
 using namespace std;
 
 void solve() {
+  int n; cin >> n;
+  string s; cin >> s;
+  array<int, 3> cnt{};
+  for (int i = 0; i < n; ++i) {
+    ++cnt[s[i] - 'A'];
+    if (all_of(cnt.begin(), cnt.end(), [](auto x) { return x > 0; })) {
+      cout << i + 1 << '\n';
+      return;
+    }
+  }
+  assert(false);
 }
 
 bool is_multi = false;
