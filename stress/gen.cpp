@@ -7,25 +7,22 @@
 
 using namespace std;
 
-constexpr int N = 100;
-
 void gen(ofstream &out) {
-  for (int k = 0; k < N; ++k) {
-    const int n = utils::random(1, N);
-    const int q = utils::random(N, 2 * N);
-
-    out << n << ' ' << q << '\n';
-    for (int i = 0; i < q; ++i) {
-      int l = utils::random(1, n);
-      int r = utils::random(l, n);
-      if (utils::random(0, 1) == 0) {
-        out << '^' << ' ' << l << ' ' << r << ' ' << utils::random(1, 1e9) << '\n';
-      } else {
-        out << '?' << ' ' << l << ' ' << r << '\n';
-      }
-    }
+  const auto n = utils::random(3, 10), q = utils::random(3, 10);
+  out << n << '\n';
+  vector<string> ws(n);
+  for (int i = 0; i < n; ++i) {
+    ws[i] = utils::random_string(utils::random(5, 8));
+    out << ws[i] << '\n';
   }
-  out << "0 0\n";
+  out << q * 4 << '\n';
+  for (int i = 0; i < q; ++i) {
+    for (int _ = 0; _ < 3; ++_) {
+      auto x = utils::random(0, n - 1);
+      out << ws[x].substr(0, utils::random(1, 4)) << ' ' << utils::random(1, 4) << '\n';
+    }
+    out << utils::random_string(utils::random(1, 5)) << ' ' << utils::random(1, 5) << '\n';
+  }
 }
 
 int main() {

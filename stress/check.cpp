@@ -12,29 +12,27 @@ bool check() {
   ifstream fast(constants::FAST_OUT);
 
   int n, q;
-
-  while (data >> n >> q) {
-    if (n == 0 && q == 0) break;
-    for (int i = 0; i < q; ++i) {
-      char cmd;
-      int l, r;
-      data >> cmd >> l >> r;
-      if (cmd == '?') {
-        string actual, expected;
-        getline(slow, expected);
-        slow >> expected;
-        getline(fast, actual);
-        fast >> actual;
-        if (actual != expected) {
-          cerr << "FAIL, tc:" << i << " !!! " << n << ' ' << q << ", l=" << l << ", r=" << r << endl;
-          cerr << "sg: " << actual << " sqrt: " << expected << endl;
-          return false;
-        }
-      } else if (cmd == '^') {
-        int x; data >> x;
-      } else {
-        assert(false);
+  data >> n;
+  vector<string> ws(n);
+  for (auto &w : ws) {
+    data >> w;
+  }
+  data >> q;
+  for (int i = 0; i < q; ++i) {
+    string qs;
+    int k;
+    data >> qs >> k;
+    int s, f;
+    slow >> s;
+    fast >> f;
+    if (s != f) {
+      cerr << "FAIL" << '\n';
+      for (auto &w : ws) {
+        cerr << w << '\n';
       }
+      cerr << qs << ' ' << k << '\n';
+      cerr << "slow: " << s << " fast: " << f << '\n';
+      return false;
     }
   }
 
@@ -42,8 +40,12 @@ bool check() {
 }
 
 int main() {
-  ::system("./gen");
-  ::system("./slow");
-  ::system("./fast");
-  check();
+  for (int i = 0; i < 1000; ++i) {
+    ::system("./gen");
+    ::system("./slow");
+    ::system("./fast");
+    if (!check()) break;
+    this_thread::sleep_for(300ms);
+    cout << "done " << i << endl;
+  }
 }
