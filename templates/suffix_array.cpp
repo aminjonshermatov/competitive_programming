@@ -5,9 +5,10 @@
 
 using namespace std;
 
-template <size_t ALPHA = 26, char MIN_ALPHA = 'a'>
+template <size_t ALPHA = 27, char MIN_ALPHA = 'a' - 1>
 vector<int> suffix_array(string_view s) {
   assert(all_of(s.begin(), s.end(), [](char ch) { return clamp<char>(ch, MIN_ALPHA, MIN_ALPHA + ALPHA - 1) == ch; }));
+  assert(s.back() == MIN_ALPHA);
 
   const auto n = static_cast<int>(s.size());
   const auto nn = max<int>(ALPHA, n) + 1;
@@ -51,4 +52,27 @@ vector<int> suffix_array(string_view s) {
   }
 
   return p;
+}
+
+template <size_t ALPHA = 27, char MIN_ALPHA = 'a' - 1>
+vector<int> lcp_array(string_view s) {
+  assert(s.back() == MIN_ALPHA);
+
+  const auto n = static_cast<int>(s.size());
+  const auto sa = suffix_array<ALPHA, MIN_ALPHA>(s);
+  vector<int> pos(n);
+  for (int i = 0; i < n; ++i) {
+    pos[sa[i]] = i;
+  }
+  vector<int> lcp(n, 0); // lcp(s[sa[i]], s[sa[i + 1]])
+  int k = 0;
+  for (int i = 0; i < n; ++i) {
+    k = max(k - 1, 0);
+    if (pos[i] == n - 1) continue;
+    auto j = sa[pos[i] + 1];
+    while (s[i + k] == s[j + k]) ++k;
+    lcp[pos[i]] = k;
+  }
+
+  return lcp;
 }
