@@ -15,9 +15,10 @@ template <typename T, typename Op> struct SparseTable {
   vector<vector<T>> table;
   vector<int> lg;
 
-  template<typename U = T> auto build(const vector<U> &A) -> void {
+  template<typename U = T> auto build(const vector<U> &A, Op &op_) -> void {
+    op = op_;
     table.assign(A.size(), {});
-    lg.assign(A.size() + 1);
+    lg.resize(A.size() + 1);
     lg[0] = -1;
     for (int i = 1; i <= A.size(); ++i) {
       lg[i] = 31 - __builtin_clz(i);
@@ -31,8 +32,7 @@ template <typename T, typename Op> struct SparseTable {
   }
 
   SparseTable() = default;
-  template<typename U = T> explicit SparseTable(const vector<U> &A) { build(A); }
-  template<typename U = T> SparseTable(const vector<U> &A, Op &op_) : op(op_) { build(A); }
+  template<typename U = T> explicit SparseTable(const vector<U> &A, Op &op_) : op(op_) { build(A); }
 
   [[nodiscard]] auto query(int l, int r) const -> int {
     assert(l < r);
