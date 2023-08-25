@@ -9,6 +9,7 @@
 using namespace std;
 
 void solve() {
+
 }
 
 bool is_multi = false;
