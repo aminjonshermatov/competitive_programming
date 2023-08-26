@@ -8,7 +8,19 @@
 
 using namespace std;
 
+using i64 = int64_t;
+
 void solve() {
+  int n, m; cin >> n >> m;
+  vector<vector<int>> g(n, vector<int>(m));
+  for (int i = 0; i < n; ++i) {
+    for (int j = 0; j < m; ++j) {
+      cin >> g[i][j];
+    }
+  }
+
+  using Bs = bitset<100>;
+  vector<vector<Bs>>
 }
 
 bool is_multi = false;

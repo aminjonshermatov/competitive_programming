@@ -9,6 +9,19 @@
 using namespace std;
 
 void solve() {
+  int n, h, x;
+  cin >> n >> h >> x;
+
+  vector<int> ps(n);
+  for (auto &p : ps) cin >> p;
+
+  for (int i = 0; i < n; ++i) {
+    if ((h + ps[i]) >= x) {
+      cout << i + 1 << '\n';
+      return;
+    }
+  }
+  assert(false);
 }
 
 bool is_multi = false;
