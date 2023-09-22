@@ -11,29 +11,18 @@ bool check() {
   ifstream slow(constants::SLOW_OUT);
   ifstream fast(constants::FAST_OUT);
 
-  int n, q;
-  data >> n;
-  vector<string> ws(n);
-  for (auto &w : ws) {
-    data >> w;
-  }
-  data >> q;
-  for (int i = 0; i < q; ++i) {
-    string qs;
-    int k;
-    data >> qs >> k;
-    int s, f;
-    slow >> s;
-    fast >> f;
-    if (s != f) {
-      cerr << "FAIL" << '\n';
-      for (auto &w : ws) {
-        cerr << w << '\n';
-      }
-      cerr << qs << ' ' << k << '\n';
-      cerr << "slow: " << s << " fast: " << f << '\n';
-      return false;
-    }
+  string a, b;
+  int k;
+  data >> a >> b >> k;
+
+  string f, s;
+  slow >> s;
+  fast >> f;
+  if (s != f) {
+    cerr << "FAIL" << '\n';
+    cerr << a << ' ' << b << ' ' << k << '\n';
+    cerr << "slow: " << s << " fast: " << f << '\n';
+    return false;
   }
 
   return true;

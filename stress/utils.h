@@ -19,11 +19,11 @@ int random(int lo, int hi) { // [lo, hi]
   return lo + std::abs(static_cast<int>(rnd())) % (hi - lo + 1);
 }
 
-std::string random_string(int len, bool is_lower = true) {
+std::string random_string(int len, char fst, int alpha_len) {
   assert(len > 0);
   std::string s(len, '#');
   for (auto &ch : s) {
-    ch = char((is_lower ? 'a' : 'A') + random(0, 25));
+    ch = char(fst + random(0, alpha_len - 1));
   }
   return s;
 }

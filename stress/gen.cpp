@@ -8,21 +8,34 @@
 using namespace std;
 
 void gen(ofstream &out) {
-  const auto n = utils::random(3, 10), q = utils::random(3, 10);
-  out << n << '\n';
-  vector<string> ws(n);
-  for (int i = 0; i < n; ++i) {
-    ws[i] = utils::random_string(utils::random(5, 8));
-    out << ws[i] << '\n';
-  }
-  out << q * 4 << '\n';
-  for (int i = 0; i < q; ++i) {
-    for (int _ = 0; _ < 3; ++_) {
-      auto x = utils::random(0, n - 1);
-      out << ws[x].substr(0, utils::random(1, 4)) << ' ' << utils::random(1, 4) << '\n';
+  string a, b;
+  vector<string> un;
+
+  do {
+    a = utils::random_string(utils::random(5, 15), '0', 2);
+    b = utils::random_string(utils::random(5, 15), '0', 2);
+    set<string> aa, bb;
+    for (int i = 0; i < a.size(); ++i) {
+      for (int j = i; j < a.size(); ++j) {
+        aa.emplace(a.substr(i, j - i + 1));
+      }
     }
-    out << utils::random_string(utils::random(1, 5)) << ' ' << utils::random(1, 5) << '\n';
-  }
+    for (int i = 0; i < b.size(); ++i) {
+      for (int j = i; j < b.size(); ++j) {
+        bb.emplace(b.substr(i, j - i + 1));
+      }
+    }
+    for (auto &aaa : aa) {
+      if (bb.contains(aaa)) {
+        un.emplace_back(aaa);
+      }
+    }
+  } while (un.empty());
+
+  assert(!un.empty());
+  out << a << '\n';
+  out << b << '\n';
+  out << utils::random(1, int(un.size())) << '\n';
 }
 
 int main() {
