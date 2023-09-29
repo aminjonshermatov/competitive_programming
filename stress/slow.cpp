@@ -4,28 +4,37 @@
 using namespace std;
 
 void solve(istream &in, ostream &out) {
-  string a, b;
-  int k;
-  in >> a >> b >> k;
-  set<string> aa, bb;
-  for (int i = 0; i < a.size(); ++i) {
-    for (int j = i; j < a.size(); ++j) {
-      aa.emplace(a.substr(i, j - i + 1));
+  using i64 = int64_t;
+
+  int n, m;
+  in >> n >> m;
+  string s(n, '#');
+  for (auto &c : s) {
+    int x;
+    in >> x;
+    assert(x > 0);
+    c = char('a' + x);
+  }
+
+  map<string, i64> cnt{};
+  i64 ans = 0;
+  string refren;
+  for (int i = 0; i < n; ++i) {
+    for (int j = i; j < n; ++j) {
+      auto ns = s.substr(i, j - i + 1);
+      ++cnt[ns];
+      if (ans < cnt[ns] * ns.size()) {
+        ans = cnt[ns] * ns.size();
+        refren = ns;
+      }
     }
   }
-  for (int i = 0; i < b.size(); ++i) {
-    for (int j = i; j < b.size(); ++j) {
-      bb.emplace(b.substr(i, j - i + 1));
-    }
+  out << ans << '\n';
+  out << refren.size() << '\n';
+  for (auto c : refren) {
+    out << c - 'a' << ' ';
   }
-  vector<string> un;
-  for (auto &aaa : aa) {
-    if (bb.contains(aaa)) {
-      un.emplace_back(aaa);
-    }
-  }
-  assert(0 < k && k <= un.size());
-  out << un[k - 1] << '\n';
+  out << '\n';
 }
 
 bool is_multi = false;

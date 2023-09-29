@@ -3,7 +3,7 @@
 //
 #ifdef LOCAL
 #include "constants.h"
-#include "debug.h"
+//#include "debug.h"
 #else
 #define dbg(...) 42
 #endif
@@ -84,91 +84,101 @@ decltype(auto) lcp_array(string_view s) {
   return tuple{lcp, sa};
 }
 
-constexpr int P = 223, mod = 1000003643;
-inline int add(int a, int b) { return (a + 0ll + b) % mod; }
-inline int mul(int a, int b) { return (a * 1ll * b) % mod; }
-inline int sub(int a, int b) { return (a + 0ll + mod - b) % mod; }
+constexpr auto inf = numeric_limits<int>::max();
+
+struct SegmentTree {
+    struct Node { int mn, l, r; };
+    const Node neutral = {inf, -1, inf};
+    static Node unite(Node a, Node b) { return Node{min(a.mn, b.mn), a.l, b.r}; }
+    int n;
+    vector<Node> tree;
+    explicit SegmentTree(const vector<int> &as) {
+      n = 1;
+      while (n < as.size()) n <<= 1;
+      tree.assign(2 * n - 1, neutral);
+      auto build = [&](auto &f, int x, int lx, int rx) -> void {
+          if (rx - lx == 1) {
+            if (lx < as.size()) {
+              tree[x] = {as[lx], lx, lx};
+            }
+            return;
+          }
+          auto mid = lx + (rx - lx) / 2;
+          f(f, 2 * x + 1, lx, mid);
+          f(f, 2 * x + 2, mid, rx);
+          tree[x] = unite(tree[2 * x + 1], tree[2 * x + 2]);
+      };
+      build(build, 0, 0, n);
+    }
+    int next_less(int pos, int val, int x, int lx, int rx) const {
+      if (tree[x].mn >= val || tree[x].r < pos) return -1;
+      if (rx - lx == 1) return lx;
+      auto mid = lx + (rx - lx) / 2;
+      auto res = next_less(pos, val, 2 * x + 1, lx, mid);
+      if (res == -1) {
+        res = next_less(pos, val, 2 * x + 2, mid, rx);
+      }
+      return res;
+    }
+    int next_less(int pos, int val) const {
+      return next_less(pos, val, 0, 0, n);
+    }
+    int prev_less(int pos, int val, int x, int lx, int rx) const {
+      if (tree[x].mn >= val || tree[x].l > pos) return -1;
+      if (rx - lx == 1) return lx;
+      auto mid = lx + (rx - lx) / 2;
+      auto res = prev_less(pos, val, 2 * x + 2, mid, rx);
+      if (res == -1) {
+        res = prev_less(pos, val, 2 * x + 1, lx, mid);
+      }
+      return res;
+    }
+    int prev_less(int pos, int val) const {
+      return prev_less(pos, val, 0, 0, n);
+    }
+};
+
+using i64 = int64_t;
 
 void solve(istream &in, ostream &out) {
-  string a, b;
-  int k;
-  in >> a >> b >> k;
+  int n, m;
+  in >> n >> m;
+  string s(n, '#');
 
-  a.push_back('0' - 1);
-  b.push_back('0' - 1);
-
-  const auto na = int(a.size());
-  const auto nb = int(b.size());
-
-  const auto [lcpA, saA] = lcp_array<3, '0' - 1>(a);
-  const auto [lcpB, saB] = lcp_array<3, '0' - 1>(b);
-
-  dbg(saA);
-  dbg(lcpA);
-  dbg(saB);
-  dbg(lcpB);
-
-  const auto nmx = max(na, nb);
-  vector<int> pw(nmx + 1);
-  pw[0] = 1;
-  for (int i = 1; i <= nmx; ++i) {
-    pw[i] = mul(pw[i - 1], P);
+  for (auto &c : s) {
+    int x;
+    in >> x;
+    assert(x > 0);
+    c = char('a' + x);
   }
+  s.push_back('a');
 
-  vector<int> hA(na);
-  for (int i = 0; i < na; ++i) {
-    hA[i] = add(mul(i > 0 ? hA[i - 1] : 0, P), a[i] - '0' + 1);
-  }
-  vector<int> hB(nb);
-  for (int i = 0; i < nb; ++i) {
-    hB[i] = add(mul(i > 0 ? hB[i - 1] : 0, P), b[i] - '0' + 1);
-  }
+  n = int(s.size());
 
-  const auto get_hash = [&](vector<int> &hs, int l, int r) -> int {
-    assert(0 <= l && l <= r && r < hs.size());
-    return sub(hs[r], l > 0 ? mul(hs[l - 1], pw[r - l + 1]) : 0);
-  };
+  const auto [lcp, sa] = lcp_array<15, 'a'>(s);
 
-  const auto is_less = [&](int a_i, int a_len, int b_i, int b_len) -> bool {
-    int lo = 0, hi = min(a_len, b_len) + 1;
-    while (hi - lo > 1) {
-      auto mid = lo + (hi - lo) / 2;
-      (sub(get_hash(hA, a_i, a_i + mid - 1), get_hash(hB, b_i, b_i + mid - 1)) == 0 ? lo : hi) = mid;
+  const auto sg = SegmentTree(lcp);
+
+  i64 tot = n - 1;
+  int start = 0, len = n - 1;
+  for (int i = 0; i < n; ++i) {
+    auto prv = sg.prev_less(i, lcp[i]);
+    auto nxt = sg.next_less(i, lcp[i]);
+    if (nxt == -1) nxt = n;
+    i64 cur_len = nxt - prv;
+    if (tot < cur_len * lcp[i]) {
+      tot = cur_len * lcp[i];
+      start = sa[prv + 1];
+      len = lcp[i];
     }
-    if (lo >= a_len && lo >= b_len) return false;
-    if (lo >= a_len) return false;
-    if (lo >= b_len) return true;
-    return a[a_i + lo] < b[b_i + lo];
-  };
-
-  const auto get_common = [&](int i, int j) -> int {
-    assert(clamp(i, 0, na - 1) == i);
-    assert(clamp(j, 0, nb - 1) == j);
-    int lo = 0, hi = min(na - i - 1, nb - j - 1) + 1;
-    while (hi - lo > 1) {
-      auto mid = lo + (hi - lo) / 2;
-      (sub(get_hash(hA, i, i + mid - 1), get_hash(hB, j, j + mid - 1)) == 0 ? lo : hi) = mid;
-    }
-    return lo;
-  };
-
-  int ptr_a = 1, ptr_b = 1;
-  int offset = 0;
-  for (; ptr_a < na && ptr_b < nb && k > 0;) {
-    const auto common = get_common(saA[ptr_a], saB[ptr_b]);
-
-    auto d = common - offset;
-    dbg(ptr_a, ptr_b, saA[ptr_a], saB[ptr_b], k, common, offset, d);
-    if (k <= d) {
-      out << a.substr(saA[ptr_a], offset + k) << '\n';
-      return;
-    }
-    k -= max(d, 0);
-    offset = common;
-    // assert(a.substr(saA[ptr_a], na - saA[ptr_a]) < b.substr(saB[ptr_b], nb - saB[ptr_b]) == is_less(saA[ptr_a], na - saA[ptr_a], saB[ptr_b], nb - saB[ptr_b]));
-    ++(is_less(saA[ptr_a], na - saA[ptr_a], saB[ptr_b], nb - saB[ptr_b]) ? ptr_a : ptr_b);
   }
-  out << "???? i'm wrong\n";
+  assert(start != -1);
+  out << tot << '\n';
+  out << len << '\n';
+  for (int i = 0; i < len; ++i) {
+    out << s[start + i] - 'a' << ' ';
+  }
+  out << '\n';
 }
 
 int main() {

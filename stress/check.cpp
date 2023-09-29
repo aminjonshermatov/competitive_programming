@@ -11,17 +11,32 @@ bool check() {
   ifstream slow(constants::SLOW_OUT);
   ifstream fast(constants::FAST_OUT);
 
-  string a, b;
-  int k;
-  data >> a >> b >> k;
+  int n, m;
+  data >> n >> m;
+  string s(n, '#');
+  for (auto &c : s) {
+    int x;
+    data >> x;
+    c = char('a' + x);
+  }
 
-  string f, s;
-  slow >> s;
-  fast >> f;
-  if (s != f) {
+  const auto parse = [&](ifstream &in) -> pair<int, vector<int>> {
+    int ans;
+    in >> ans;
+    int len;
+    in >> len;
+    vector<int> subs(len);
+    for (auto &x : subs) {
+      in >> x;
+    }
+    return {ans, subs};
+  };
+  auto [sx, sy] = parse(slow);
+  auto [fx, fy] = parse(fast);
+  if (sx != fx) {
     cerr << "FAIL" << '\n';
-    cerr << a << ' ' << b << ' ' << k << '\n';
-    cerr << "slow: " << s << " fast: " << f << '\n';
+    cerr << n << ' ' << m << '\n' << s << '\n';
+    cerr << sx << ' ' << fx << '\n';
     return false;
   }
 
