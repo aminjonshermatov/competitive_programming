@@ -9,7 +9,12 @@
 using namespace std;
 
 void solve() {
-  cout << "test";
+  int n;
+  cin >> n;
+  string s;
+  cin >> s;
+  auto id = s.find("ABC");
+  cout << (id == -1 ? id : id + 1);
 }
 
 bool is_multi = false;

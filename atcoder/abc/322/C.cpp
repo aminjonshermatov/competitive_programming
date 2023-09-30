@@ -9,7 +9,16 @@
 using namespace std;
 
 void solve() {
-  cout << "test";
+  int n, m;
+  cin >> n >> m;
+  vector<int> as(m);
+  for (auto &a : as) {
+    cin >> a;
+  }
+  for (int i = 1; i <= n; ++i) {
+    cout << *lower_bound(as.begin(), as.end(), i) - i << ' ';
+  }
+  cout << '\n';
 }
 
 bool is_multi = false;

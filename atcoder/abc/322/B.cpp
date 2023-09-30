@@ -9,7 +9,19 @@
 using namespace std;
 
 void solve() {
-  cout << "test";
+  int n, m;
+  cin >> n >> m;
+  string s, t;
+  cin >> s >> t;
+  if (t.starts_with(s) && t.ends_with(s)) {
+    cout << 0;
+  } else if (t.starts_with(s)) {
+    cout << 1;
+  } else if (t.ends_with(s)) {
+    cout << 2;
+  } else {
+    cout << 3;
+  }
 }
 
 bool is_multi = false;
