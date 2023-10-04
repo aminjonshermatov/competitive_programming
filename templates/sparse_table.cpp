@@ -32,7 +32,7 @@ template <typename T, typename Op> struct SparseTable {
   }
 
   SparseTable() = default;
-  template<typename U = T> explicit SparseTable(const vector<U> &A, Op &op_) : op(op_) { build(A); }
+  template<typename U = T> explicit SparseTable(const vector<U> &A, Op &op_) : op(op_) { build(A, op); }
 
   [[nodiscard]] auto query(int l, int r) const -> int {
     assert(l < r);
