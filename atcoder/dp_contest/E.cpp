@@ -11,26 +11,33 @@ using namespace std;
 using i64 = int64_t;
 
 void solve() {
-  int n;
-  i64 w;
+  i64 n, w;
   cin >> n >> w;
-  vector<int> ws(n);
-  vector<i64> vs(n);
+  vector<i64> ws(n), vs(n);
   for (int i = 0; i < n; ++i) {
     cin >> ws[i] >> vs[i];
   }
 
+  constexpr auto  inf = numeric_limits<i64>::max();
   constexpr auto ninf = numeric_limits<i64>::min();
-  vector<i64> dp(w + 1, ninf);
+  auto ans = ninf;
+  const auto maxProfit = accumulate(vs.begin(), vs.end(), i64(0));
+  vector dp(maxProfit + 1, inf);
   dp[0] = 0;
   for (int i = 0; i < n; ++i) {
-    decltype(dp) ndp = dp;
-    for (int j = ws[i]; j <= w; ++j) {
-      ndp[j] = max(ndp[j], dp[j - ws[i]] + vs[i]);
+    auto ndp = dp;
+    for (auto j = vs[i]; j <= maxProfit; ++j) {
+      if (dp[j - vs[i]] == inf || dp[j - vs[i]] + ws[i] > w) continue;
+      ndp[j] = min(ndp[j], dp[j - vs[i]] + ws[i]);
     }
     dp.swap(ndp);
+    for (i64 j = 0; j <= maxProfit; ++j) {
+      if (dp[j] != inf) {
+        ans = max(ans, j);
+      }
+    }
   }
-  cout << *max_element(dp.begin(), dp.end()) << '\n';
+  cout << ans << '\n';
 }
 
 bool is_multi = false;
