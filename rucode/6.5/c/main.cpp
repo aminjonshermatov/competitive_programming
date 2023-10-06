@@ -2,7 +2,6 @@
 
 #ifdef LOCAL
 #include "debug.h"
-#define _GLIBCXX_DEBUG
 #else
 #define dbg(...) 42
 #endif
