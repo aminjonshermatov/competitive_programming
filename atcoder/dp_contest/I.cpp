@@ -2,7 +2,6 @@
 
 #ifdef LOCAL
 #include "debug.h"
-#define _GLIBCXX_DEBUG
 #else
 #define dbg(...) 42
 #endif
@@ -12,25 +11,29 @@ using namespace std;
 using ld = long double;
 
 void solve() {
-  int n; cin >> n;
-  vector<ld> P(n);
-  for (auto &p : P) cin >> p;
+  int n;
+  cin >> n;
+  vector<ld> ps(n);
+  for (auto &p : ps) {
+    cin >> p;
+  }
 
-  vector<vector<ld>> dp(n, vector<ld>(n + 1));
-  dp[0][0] = 1 - P[0];
-  dp[0][1] = P[0];
+  vector dp(n + 1, ld(0));
+  dp[0] = 1 - ps[0];
+  dp[1] = ps[0];
   for (int i = 1; i < n; ++i) {
-    for (int j = 0; j <= i; ++j) {
-      dp[i][j] += dp[i - 1][j] * (1 - P[i]);
-      dp[i][j + 1] += dp[i - 1][j] * P[i];
+    vector ndp(n + 1, ld(0));
+    for (int j = 0; j < n; ++j) {
+      ndp[j] += dp[j] * (1 - ps[i]);
+      ndp[j + 1] += dp[j] * ps[i];
     }
+    dp.swap(ndp);
   }
-
-  ld ans = 0;
-  for (int i = n / 2 + (n & 1); i <= n; ++i) {
-    ans += dp[n - 1][i];
+  ld tot = 0;
+  for (int j = n / 2 + 1; j <= n; ++j) {
+    tot += dp[j];
   }
-  cout << fixed << setprecision(10) << ans << '\n';
+  cout << fixed << setprecision(10) << tot << '\n';
 }
 
 bool is_multi = false;
