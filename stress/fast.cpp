@@ -3,7 +3,6 @@
 //
 #ifdef LOCAL
 #include "constants.h"
-//#include "debug.h"
 #else
 #define dbg(...) 42
 #endif
@@ -11,174 +10,210 @@
 
 using namespace std;
 
-template <size_t ALPHA = 27, char MIN_ALPHA = 'a' - 1>
-vector<int> suffix_array(string_view s) {
-  assert(all_of(s.begin(), s.end(), [](char ch) { return clamp<char>(ch, MIN_ALPHA, MIN_ALPHA + ALPHA - 1) == ch; }));
-  assert(s.back() == MIN_ALPHA);
-
-  const auto n = static_cast<int>(s.size());
-  const auto nn = max<int>(ALPHA, n) + 1;
-  vector<int> p(n), c(n), cnt(nn, 0);
-  for (auto ch : s) {
-    ++cnt[ch - MIN_ALPHA];
-  }
-  for (int i = 1; i < nn; ++i) {
-    cnt[i] += cnt[i - 1];
-  }
-  for (int i = 0; i < n; ++i) {
-    p[--cnt[s[i] - MIN_ALPHA]] = i;
-  }
-  c[p[0]] = 0;
-  for (int i = 1; i < n; ++i) {
-    c[p[i]] = c[p[i - 1]] + (s[p[i - 1]] != s[p[i]]);
-  }
-
-  vector<int> np(n), nc(n);
-  for (int k = 1; k < n; k <<= 1) {
-    for (int i = 0; i < n; ++i) {
-      np[i] = (p[i] + n - k) % n;
+template <typename T>
+T inverse(T a, T m) {
+    T u = 0, v = 1;
+    while (a != 0) {
+        T t = m / a;
+        m -= t * a; swap(a, m);
+        u -= t * v; swap(u, v);
     }
-    fill(cnt.begin(), cnt.end(), 0);
-    for (int i = 0; i < n; ++i) {
-      ++cnt[c[np[i]]];
-    }
-    for (int i = 1; i < nn; ++i) {
-      cnt[i] += cnt[i - 1];
-    }
-    for (int i = n - 1; i >= 0; --i) {
-      p[--cnt[c[np[i]]]] = np[i];
-    }
-    nc[p[0]] = 0;
-    for (int i = 1; i < n; ++i) {
-      auto cur = pair(c[p[i]], c[(p[i] + k) % n]);
-      auto prv = pair(c[p[i - 1]], c[(p[i - 1] + k) % n]);
-      nc[p[i]] = nc[p[i - 1]] + (cur != prv);
-    }
-    nc.swap(c);
-  }
-
-  return p;
+    assert(m == 1);
+    return u;
 }
 
-template <size_t ALPHA = 27, char MIN_ALPHA = 'a' - 1>
-decltype(auto) lcp_array(string_view s) {
-  assert(s.back() == MIN_ALPHA);
+template <typename T>
+class Modular {
+public:
+    using Type = typename decay<decltype(T::value)>::type;
 
-  const auto n = static_cast<int>(s.size());
-  const auto sa = suffix_array<ALPHA, MIN_ALPHA>(s);
-  vector<int> pos(n);
-  for (int i = 0; i < n; ++i) {
-    pos[sa[i]] = i;
-  }
-  vector<int> lcp(n, 0); // lcp(s[sa[i]], s[sa[i + 1]])
-  int k = 0;
-  for (int i = 0; i < n; ++i) {
-    k = max(k - 1, 0);
-    if (pos[i] == n - 1) continue;
-    auto j = sa[pos[i] + 1];
-    while (s[i + k] == s[j + k]) ++k;
-    lcp[pos[i]] = k;
-  }
+    constexpr Modular() : value() {}
+    template <typename U>
+    Modular(const U& x) {
+        value = normalize(x);
+    }
 
-  --lcp.back();
-  return tuple{lcp, sa};
-}
+    template <typename U>
+    static Type normalize(const U& x) {
+        Type v;
+        if (-mod() <= x && x < mod()) v = static_cast<Type>(x);
+        else v = static_cast<Type>(x % mod());
+        if (v < 0) v += mod();
+        return v;
+    }
 
-constexpr auto inf = numeric_limits<int>::max();
+    const Type& operator()() const { return value; }
+    template <typename U>
+    explicit operator U() const { return static_cast<U>(value); }
+    constexpr static Type mod() { return T::value; }
 
-struct SegmentTree {
-    struct Node { int mn, l, r; };
-    const Node neutral = {inf, -1, inf};
-    static Node unite(Node a, Node b) { return Node{min(a.mn, b.mn), a.l, b.r}; }
-    int n;
-    vector<Node> tree;
-    explicit SegmentTree(const vector<int> &as) {
-      n = 1;
-      while (n < as.size()) n <<= 1;
-      tree.assign(2 * n - 1, neutral);
-      auto build = [&](auto &f, int x, int lx, int rx) -> void {
-          if (rx - lx == 1) {
-            if (lx < as.size()) {
-              tree[x] = {as[lx], lx, lx};
-            }
-            return;
-          }
-          auto mid = lx + (rx - lx) / 2;
-          f(f, 2 * x + 1, lx, mid);
-          f(f, 2 * x + 2, mid, rx);
-          tree[x] = unite(tree[2 * x + 1], tree[2 * x + 2]);
-      };
-      build(build, 0, 0, n);
+    Modular& operator+=(const Modular& other) { if ((value += other.value) >= mod()) value -= mod(); return *this; }
+    Modular& operator-=(const Modular& other) { if ((value -= other.value) < 0) value += mod(); return *this; }
+    template <typename U> Modular& operator+=(const U& other) { return *this += Modular(other); }
+    template <typename U> Modular& operator-=(const U& other) { return *this -= Modular(other); }
+    Modular& operator++() { return *this += 1; }
+    Modular& operator--() { return *this -= 1; }
+    Modular operator++(int) { Modular result(*this); *this += 1; return result; }
+    Modular operator--(int) { Modular result(*this); *this -= 1; return result; }
+    Modular operator-() const { return Modular(-value); }
+
+    template <typename U = T>
+    typename enable_if<is_same<typename Modular<U>::Type, int>::value, Modular>::type& operator*=(const Modular& rhs) {
+#ifdef _WIN32
+        uint64_t x = static_cast<int64_t>(value) * static_cast<int64_t>(rhs.value);
+    uint32_t xh = static_cast<uint32_t>(x >> 32), xl = static_cast<uint32_t>(x), d, m;
+    asm(
+      "divl %4; \n\t"
+      : "=a" (d), "=d" (m)
+      : "d" (xh), "a" (xl), "r" (mod())
+    );
+    value = m;
+#else
+        value = normalize(static_cast<int64_t>(value) * static_cast<int64_t>(rhs.value));
+#endif
+        return *this;
     }
-    int next_less(int pos, int val, int x, int lx, int rx) const {
-      if (tree[x].mn >= val || tree[x].r < pos) return -1;
-      if (rx - lx == 1) return lx;
-      auto mid = lx + (rx - lx) / 2;
-      auto res = next_less(pos, val, 2 * x + 1, lx, mid);
-      if (res == -1) {
-        res = next_less(pos, val, 2 * x + 2, mid, rx);
-      }
-      return res;
+    template <typename U = T>
+    typename enable_if<is_same<typename Modular<U>::Type, long long>::value, Modular>::type& operator*=(const Modular& rhs) {
+        long long q = static_cast<long long>(static_cast<long double>(value) * rhs.value / mod());
+        value = normalize(value * rhs.value - q * mod());
+        return *this;
     }
-    int next_less(int pos, int val) const {
-      return next_less(pos, val, 0, 0, n);
+    template <typename U = T>
+    typename enable_if<!is_integral<typename Modular<U>::Type>::value, Modular>::type& operator*=(const Modular& rhs) {
+        value = normalize(value * rhs.value);
+        return *this;
     }
-    int prev_less(int pos, int val, int x, int lx, int rx) const {
-      if (tree[x].mn >= val || tree[x].l > pos) return -1;
-      if (rx - lx == 1) return lx;
-      auto mid = lx + (rx - lx) / 2;
-      auto res = prev_less(pos, val, 2 * x + 2, mid, rx);
-      if (res == -1) {
-        res = prev_less(pos, val, 2 * x + 1, lx, mid);
-      }
-      return res;
-    }
-    int prev_less(int pos, int val) const {
-      return prev_less(pos, val, 0, 0, n);
-    }
+
+    Modular& operator/=(const Modular& other) { return *this *= Modular(inverse(other.value, mod())); }
+
+    friend const Type& abs(const Modular& x) { return x.value; }
+
+    template <typename U>
+    friend bool operator==(const Modular<U>& lhs, const Modular<U>& rhs);
+
+    template <typename U>
+    friend bool operator<(const Modular<U>& lhs, const Modular<U>& rhs);
+
+    template <typename V, typename U>
+    friend V& operator>>(V& stream, Modular<U>& number);
+
+private:
+    Type value;
 };
 
-using i64 = int64_t;
+template <typename T> bool operator==(const Modular<T>& lhs, const Modular<T>& rhs) { return lhs.value == rhs.value; }
+template <typename T, typename U> bool operator==(const Modular<T>& lhs, U rhs) { return lhs == Modular<T>(rhs); }
+template <typename T, typename U> bool operator==(U lhs, const Modular<T>& rhs) { return Modular<T>(lhs) == rhs; }
+
+template <typename T> bool operator!=(const Modular<T>& lhs, const Modular<T>& rhs) { return !(lhs == rhs); }
+template <typename T, typename U> bool operator!=(const Modular<T>& lhs, U rhs) { return !(lhs == rhs); }
+template <typename T, typename U> bool operator!=(U lhs, const Modular<T>& rhs) { return !(lhs == rhs); }
+
+template <typename T> bool operator<(const Modular<T>& lhs, const Modular<T>& rhs) { return lhs.value < rhs.value; }
+
+template <typename T> Modular<T> operator+(const Modular<T>& lhs, const Modular<T>& rhs) { return Modular<T>(lhs) += rhs; }
+template <typename T, typename U> Modular<T> operator+(const Modular<T>& lhs, U rhs) { return Modular<T>(lhs) += rhs; }
+template <typename T, typename U> Modular<T> operator+(U lhs, const Modular<T>& rhs) { return Modular<T>(lhs) += rhs; }
+
+template <typename T> Modular<T> operator-(const Modular<T>& lhs, const Modular<T>& rhs) { return Modular<T>(lhs) -= rhs; }
+template <typename T, typename U> Modular<T> operator-(const Modular<T>& lhs, U rhs) { return Modular<T>(lhs) -= rhs; }
+template <typename T, typename U> Modular<T> operator-(U lhs, const Modular<T>& rhs) { return Modular<T>(lhs) -= rhs; }
+
+template <typename T> Modular<T> operator*(const Modular<T>& lhs, const Modular<T>& rhs) { return Modular<T>(lhs) *= rhs; }
+template <typename T, typename U> Modular<T> operator*(const Modular<T>& lhs, U rhs) { return Modular<T>(lhs) *= rhs; }
+template <typename T, typename U> Modular<T> operator*(U lhs, const Modular<T>& rhs) { return Modular<T>(lhs) *= rhs; }
+
+template <typename T> Modular<T> operator/(const Modular<T>& lhs, const Modular<T>& rhs) { return Modular<T>(lhs) /= rhs; }
+template <typename T, typename U> Modular<T> operator/(const Modular<T>& lhs, U rhs) { return Modular<T>(lhs) /= rhs; }
+template <typename T, typename U> Modular<T> operator/(U lhs, const Modular<T>& rhs) { return Modular<T>(lhs) /= rhs; }
+
+template<typename T, typename U>
+Modular<T> power(const Modular<T>& a, const U& b) {
+    assert(b >= 0);
+    Modular<T> x = a, res = 1;
+    U p = b;
+    while (p > 0) {
+        if (p & 1) res *= x;
+        x *= x;
+        p >>= 1;
+    }
+    return res;
+}
+
+template <typename T>
+bool IsZero(const Modular<T>& number) {
+    return number() == 0;
+}
+
+template <typename T>
+string to_string(const Modular<T>& number) {
+    return to_string(number());
+}
+
+// U == std::ostream? but done this way because of fastoutput
+template <typename U, typename T>
+U& operator<<(U& stream, const Modular<T>& number) {
+    return stream << number();
+}
+
+// U == std::istream? but done this way because of fastinput
+template <typename U, typename T>
+U& operator>>(U& stream, Modular<T>& number) {
+    typename common_type<typename Modular<T>::Type, long long>::type x;
+    stream >> x;
+    number.value = Modular<T>::normalize(x);
+    return stream;
+}
+
+/*
+using ModType = int;
+
+struct VarMod { static ModType value; };
+ModType VarMod::value;
+ModType& md = VarMod::value;
+using Mint = Modular<VarMod>;
+*/
+
+constexpr int md = 1e9 + 7;
+using Mint = Modular<std::integral_constant<decay<decltype(md)>::type, md>>;
+
+vector<Mint> fact(1, 1);
+vector<Mint> tcaf(1, 1);
+
+Mint C(int n, int k) {
+    if (k < 0 || k > n) return 0;
+    while ((int) fact.size() < n + 1) {
+        fact.push_back(fact.back() * (int) fact.size());
+        tcaf.push_back(1 / fact.back());
+    }
+    return fact[n] * tcaf[k] * tcaf[n - k];
+}
 
 void solve(istream &in, ostream &out) {
-  int n, m;
-  in >> n >> m;
-  string s(n, '#');
-
-  for (auto &c : s) {
-    int x;
-    in >> x;
-    assert(x > 0);
-    c = char('a' + x);
+  int n, m, k;
+  in >> n >> m >> k;
+  vector<array<int, 2>> cs(k + 1);
+  cs[0] = array{n, m};
+  for (int i = 1; i <= k; ++i) {
+    in >> cs[i][0] >> cs[i][1];
   }
-  s.push_back('a');
-
-  n = int(s.size());
-
-  const auto [lcp, sa] = lcp_array<15, 'a'>(s);
-
-  const auto sg = SegmentTree(lcp);
-
-  i64 tot = n - 1;
-  int start = 0, len = n - 1;
-  for (int i = 0; i < n; ++i) {
-    auto prv = sg.prev_less(i, lcp[i]);
-    auto nxt = sg.next_less(i, lcp[i]);
-    if (nxt == -1) nxt = n;
-    i64 cur_len = nxt - prv;
-    if (tot < cur_len * lcp[i]) {
-      tot = cur_len * lcp[i];
-      start = sa[prv + 1];
-      len = lcp[i];
+  assert(set(cs.begin(), cs.end()).size() == cs.size());
+  sort(cs.begin(), cs.end(), [](const auto &lhs, const auto &rhs) {
+      return accumulate(lhs.begin(), lhs.end(), 0) < accumulate(rhs.begin(), rhs.end(), 0);
+  });
+  vector<Mint> dp(k + 1);
+  for (int i = 0; i <= k; ++i) {
+    auto [x, y] = cs[i];
+    dp[i] = C(x + y - 2, x - 1);
+    for (int j = 0; j <= k; ++j) {
+      if (i == j) continue;
+      auto [nx, ny] = cs[j];
+      if (nx > x || ny > y) continue;
+      dp[i] -= dp[j] * C(x - nx + y - ny, x - nx);
     }
   }
-  assert(start != -1);
-  out << tot << '\n';
-  out << len << '\n';
-  for (int i = 0; i < len; ++i) {
-    out << s[start + i] - 'a' << ' ';
-  }
-  out << '\n';
+  out << dp.back() << '\n';
 }
 
 int main() {
