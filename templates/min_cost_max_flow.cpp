@@ -61,7 +61,7 @@ struct MinCostMaxFlow {
 
     decltype(auto) flow(int S, int T) {
       fill(pot.begin(), pot.end(), 0);
-      bool any;
+      bool any = true;
       for (int _ = 0; _ < n && any; ++_) {
         any = false;
         for (const auto &edge : edges) {
