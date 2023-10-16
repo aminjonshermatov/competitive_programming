@@ -19,7 +19,7 @@ struct MaxFlow {
     int n;
     vector<int> level, ptr;
 
-    MaxFlow(int n_) : n(n_) {
+    explicit MaxFlow(int n_) : n(n_) {
       g.resize(n);
       level.resize(n);
       ptr.resize(n);
