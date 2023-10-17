@@ -20,6 +20,15 @@ string to_string(pair<A, B> p) {
     return "(" + to_string(p.first) + ", " + to_string(p.second) + ")";
 }
 
+string to_string(vector<bool> a) {
+  string s;
+  s.reserve(a.size());
+  for (auto f : a) {
+    s.push_back(char('0' + f));
+  }
+  return s;
+}
+
 template <typename A>
 string to_string(A v) {
     bool first = true;
