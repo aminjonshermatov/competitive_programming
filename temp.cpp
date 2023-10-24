@@ -6,20 +6,15 @@
 #define dbg(...) 42
 #endif
 
-using namespace std;
-
 void solve() {
-  cout << "test";
 }
 
 bool is_multi = false;
 
 int main() {
-  ios_base::sync_with_stdio(false);
-  cin.tie(nullptr);
-  cout.tie(nullptr);
-  int T = 1;
-  if (is_multi) cin >> T;
-  for (int tc = 1; tc <= T; ++tc) solve();
-  return 0;
+  std::ios_base::sync_with_stdio(false);
+  std::cin.tie(nullptr);
+  std::cout.tie(nullptr);
+
+  solve();
 }
