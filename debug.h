@@ -1,53 +1,142 @@
 #include <bits/stdc++.h>
 
-// https://codeforces.com/contest/1037/submission/42390789
-std::string to_string(std::string s) {
-  return '"' + s + '"';
-}
+namespace debug {
 
-std::string to_string(const char* s) {
-  return to_string((std::string) s);
-}
-
-std::string to_string(bool b) {
-  return (b ? "true" : "false");
-}
-
-template <typename A, typename B>
-std::string to_string(std::pair<A, B> p) {
-  return "(" + to_string(p.first) + ", " + to_string(p.second) + ")";
-}
-
-std::string to_string(std::vector<bool> a) {
-  std::string s;
-  s.reserve(a.size());
-  for (auto f : a) {
-    s.push_back(char('0' + f));
+  std::ostream& operator<<(std::ostream &out, bool flag) {
+    return out << (flag ? "True" : "False");
   }
-  return s;
-}
 
-template <typename A>
-std::string to_string(A v) {
-  bool first = true;
-  std::string res = "{";
-  for (const auto &x : v) {
-    if (!first) {
-        res += ", ";
+  template<class Tuple, size_t... I> void print_tuple_helper(std::ostream &out, const Tuple& tuple, std::index_sequence<I...>) {
+    out << '(';
+    (..., (operator<<(out, I == 0 ? "" : ", "), operator<<(out, std::get<I>(tuple))));
+    out << ')';
+  }
+  template<class... T> std::ostream& operator<<(std::ostream &out, const std::tuple<T...>& tuple) {
+    print_tuple_helper(out, tuple, std::make_index_sequence<sizeof...(T)>());
+    return out;
+  }
+
+  template <typename T, typename U> std::ostream& operator<<(std::ostream &out, const std::pair<T, U> &pair) {
+    return out << '(' << pair.first << ", " << pair.second << ')';
+  }
+
+  std::ostream& operator<<(std::ostream &out, const std::vector<bool> &vector) {
+    out << '[';
+    bool is_first = true;
+    for (auto flag : vector) {
+      if (!is_first) {
+        out << ", ";
+      }
+      out << (flag ? '1' : '0');
+      is_first = false;
     }
-    first = false;
-    res += to_string(x);
+    return out << ']';
   }
-  res += "}";
-  return res;
+  template<typename T> std::ostream& operator<<(std::ostream &out, const std::vector<T> &vector) {
+    out << '[';
+    bool is_first = true;
+    for (auto element : vector) {
+      if (!is_first) {
+        out << ", ";
+      }
+      out << element;
+      is_first = false;
+    }
+    return out << ']';
+  }
+  template<typename T, std::size_t N> std::ostream& operator<<(std::ostream &out, const std::array<T, N> &array) {
+    out << '[';
+    bool is_first = true;
+    for (auto element : array) {
+      if (!is_first) {
+        out << ", ";
+      }
+      out << element;
+      is_first = false;
+    }
+    return out << ']';
+  }
+
+  template <typename T> std::ostream& operator<<(std::ostream &out, const std::set<T> &set) {
+    out << '{';
+    bool is_first = true;
+    for (auto x : set) {
+      if (!is_first) {
+        out << ", ";
+      }
+      out << x;
+      is_first = false;
+    }
+    return out << '}';
+  }
+  template <typename T> std::ostream& operator<<(std::ostream &out, const std::multiset<T> &multiset) {
+    out << '{';
+    bool is_first = true;
+    for (auto x : multiset) {
+      if (!is_first) {
+        out << ", ";
+      }
+      out << x;
+      is_first = false;
+    }
+    return out << '}';
+  }
+  template <typename T> std::ostream& operator<<(std::ostream &out, const std::unordered_set<T> &unordered_set) {
+    out << '{';
+    bool is_first = true;
+    for (auto x : unordered_set) {
+      if (!is_first) {
+        out << ", ";
+      }
+      out << x;
+      is_first = false;
+    }
+    return out << '}';
+  }
+
+  template <typename T, typename U> std::ostream& operator<<(std::ostream &out, const std::map<T, U> &map) {
+    out << '{';
+    bool is_first = true;
+    for (auto &kv : map) {
+      if (!is_first) {
+        out << ", ";
+      }
+      out << kv;
+      is_first = false;
+    }
+    return out << '}';
+  }
+  template <typename T, typename U> std::ostream& operator<<(std::ostream &out, const std::unordered_map<T, U> &unordered_map) {
+    out << '{';
+    bool is_first = true;
+    for (auto &kv : unordered_map) {
+      if (!is_first) {
+        out << ", ";
+      }
+      out << kv;
+      is_first = false;
+    }
+    return out << '}';
+  }
+  template <typename T, typename U> std::ostream& operator<<(std::ostream &out, const std::multimap<T, U> &multimap) {
+    out << '{';
+    bool is_first = true;
+    for (auto &kv : multimap) {
+      if (!is_first) {
+        out << ", ";
+      }
+      out << kv;
+      is_first = false;
+    }
+    return out << '}';
+  }
+
+  void print() { std::cerr << std::endl; }
+  template <typename Head, typename... Tail> void print(Head H, Tail... T) {
+    std::cerr << ' ';
+    operator<<(std::cerr, H);
+    print(T...);
+  }
 }
 
-void debug_out() { std::cerr << std::endl; }
-
-template <typename Head, typename... Tail>
-void debug_out(Head H, Tail... T) {
-    std::cerr << " " << to_string(H);
-    debug_out(T...);
-}
-
-#define dbg(...) cerr << "[" << #__VA_ARGS__ << "]:", debug_out(__VA_ARGS__)
+#define dbg(...) std::cerr << "[" << #__VA_ARGS__ << "]:", debug::print(__VA_ARGS__)
