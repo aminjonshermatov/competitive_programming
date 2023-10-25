@@ -3,28 +3,25 @@
 //
 #include <bits/stdc++.h>
 
-using namespace std;
-
-template <size_t ALPHA = 26, char MIN_ALPHA = 'a'>
-struct AhoCorasick {
+template <size_t ALPHA = 26, char MIN_ALPHA = 'a'> struct AhoCorasick {
   struct Node {
     int suf_link, term_suf_link;
-    vector<int> ids;
-    array<int, ALPHA> next{}, go{};
+    std::vector<int> ids;
+    std::array<int, ALPHA> next{}, go{};
     Node() : suf_link(-1), term_suf_link(-1) {
       next.fill(-1);
       go.fill(-1);
     }
   };
 
-  vector<Node> t;
+  std::vector<Node> t;
   static constexpr int ROOT = 0;
   AhoCorasick() {
     t.emplace_back();
   }
 
-  void add(string_view s, int idx = -1) {
-    assert(all_of(s.begin(), s.end(), [](char ch) { return clamp<char>(ch, MIN_ALPHA, MIN_ALPHA + ALPHA - 1) == ch; }));
+  void add(std::string_view s, int idx = -1) {
+    assert(all_of(s.begin(), s.end(), [](char ch) { return std::clamp<char>(ch, MIN_ALPHA, MIN_ALPHA + ALPHA - 1) == ch; }));
 
     int v = ROOT;
     for (auto ch : s) {
@@ -48,7 +45,7 @@ struct AhoCorasick {
       }
     }
 
-    queue<int> q;
+    std::queue<int> q;
     for (q.push(0); !q.empty(); q.pop()) {
       auto v = q.front();
       for (int ch = 0; ch < ALPHA; ++ch) {
