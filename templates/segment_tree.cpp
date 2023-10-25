@@ -151,33 +151,107 @@ struct NodeSetOperationSumQuery {
   }
 };
 
-struct SegmentTree {
+template <typename Node> struct SegmentTree {
   int n;
-  vector<int> tree;
+  std::vector<Node> nodes;
 
-  static inline constexpr auto neutral = numeric_limits<int>::min();
+  explicit SegmentTree(int n_) {
+    for (n = 1; n < n_; n <<= 1) { }
+    nodes.assign(2 * n - 1, Node());
+  }
+  void modify(int pos, Node node, int x, int lx, int rx) {
+    if (rx - lx == 1) {
+      nodes[x] = node;
+      return;
+    }
+    auto mid = lx + (rx - lx) / 2;
+    if (pos < mid) {
+      modify(pos, node, 2 * x + 1, lx, mid);
+    } else {
+      modify(pos, node, 2 * x + 2, mid, rx);
+    }
+    nodes[x] = Node::unite(nodes[2 * x + 1], nodes[2 * x + 2]);
+  }
+  void modify(int pos, Node node) {
+    modify(pos, node, 0, 0, n);
+  }
+  Node query(int ql, int qr, int x, int lx, int rx) {
+    if (ql >= rx || qr <= lx) return Node();
+    if (ql <= lx && rx <= qr) return nodes[x];
+    auto mid = lx + (rx - lx) / 2;
+    return Node::unite(query(ql, qr, 2 * x + 1, lx, mid), query(ql, qr, 2 * x + 2, mid, rx));
+  }
+  Node query(int ql, int qr) {
+    return query(ql, qr, 0, 0, n);
+  }
+  template<typename F> int findFirst(int ql, int qr, F pred, int x, int lx, int rx) {
+    if (lx >= qr || rx <= ql || !pred(nodes[x])) {
+      return -1;
+    }
+    if (rx - lx == 1) {
+      return lx;
+    }
+    auto mid = lx + (rx - lx) / 2;
+    auto res = findFirst(ql, qr, pred, 2 * x + 1, lx, mid);
+    if (res == -1) {
+      res = findFirst(ql, qr, pred, 2 * x + 2, mid, rx);
+    }
+    return res;
+  }
+  template<typename F> int findFirst(int ql, int qr, F pred) {
+    return findFirst(ql, qr, pred, 0, 0, n);
+  }
+  template<typename F> int findLast(int ql, int qr, F pred, int x, int lx, int rx) {
+    if (lx >= qr || rx <= ql || !pred(nodes[x])) {
+      return -1;
+    }
+    if (rx - lx == 1) {
+      return lx;
+    }
+    auto mid = lx + (rx - lx) / 2;
+    auto res = findLast(ql, qr, pred, 2 * x + 2, mid, rx);
+    if (res == -1) {
+      res = findLast(ql, qr, pred, 2 * x + 1, lx, mid);
+    }
+    return res;
+  }
+  template<typename F> int findLast(int ql, int qr, F pred) {
+    return findLast(ql, qr, pred, 0, 0, n);
+  }
+};
 
-  explicit SegmentTree(int n_) : n(n_), tree(2 * n_, neutral) { }
+// bottom-up segment tree
+template <typename Node> struct SegmentTree {
+  int n;
+  std::vector<Node> nodes;
 
-  void set(int pos, int nval) {
+  explicit SegmentTree(int n_) : n(n_), tree(2 * n_, Node()) { }
+
+  void modify(int pos, Node val) {
     pos += n;
-    tree[pos] = nval;
+    nodes[pos] = val;
     while (pos > 1) {
       pos >>= 1;
-      tree[pos] = max(tree[pos << 1], tree[pos << 1 | 1]);
+      nodes[pos] = Node::unite(nodes[pos << 1], nodes[pos << 1 | 1]);
     }
   }
 
-  int query(int ql, int qr) {
+  Node query(int ql, int qr) {
     ql += n; qr += n;
-    auto ans = neutral;
+    auto ans = Node();
     while (ql < qr) {
-      if (ql & 1) ans = max(ans, tree[ql++]);
-      if (qr & 1) ans = max(ans, tree[--qr]);
+      if (ql & 1) ans = Node::unite(ans, nodes[ql++]);
+      if (qr & 1) ans = Node::unite(ans, nodes[--qr]);
       ql >>= 1;
       qr >>= 1;
     }
     return ans;
   }
+};
 
+struct Node {
+  int64_t val = 0;
+  static Node unite(Node a, Node b) {
+    return Node{a.val + b.val};
+  }
 };
