@@ -2,10 +2,6 @@
 
 namespace debug {
 
-  std::ostream& operator<<(std::ostream &out, bool flag) {
-    return out << (flag ? "True" : "False");
-  }
-
   template<class Tuple, size_t... I> void print_tuple_helper(std::ostream &out, const Tuple& tuple, std::index_sequence<I...>) {
     out << '(';
     (..., (operator<<(out, I == 0 ? "" : ", "), operator<<(out, std::get<I>(tuple))));
@@ -131,9 +127,14 @@ namespace debug {
     return out << '}';
   }
 
+  std::ostream& operator<<(std::ostream &out, bool flag) { return out << (flag ? "True" : "False"); }
+  std::ostream& operator<<(std::ostream &out, const char *s) { return out << (std::string)s; }
+  template<typename T> concept Printable = requires(T t) { { std::cout << t } -> std::same_as<std::ostream&>; };
+  template <Printable T> std::ostream& operator<<(std::ostream &out, const T &unknown) { return out << unknown; }
+
   void print() { std::cerr << std::endl; }
   template <typename Head, typename... Tail> void print(Head H, Tail... T) {
-    std::cerr << ' ';
+    std::cerr << " ";
     operator<<(std::cerr, H);
     print(T...);
   }
