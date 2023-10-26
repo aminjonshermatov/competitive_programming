@@ -10,210 +10,101 @@
 
 using namespace std;
 
-template <typename T>
-T inverse(T a, T m) {
-    T u = 0, v = 1;
-    while (a != 0) {
-        T t = m / a;
-        m -= t * a; swap(a, m);
-        u -= t * v; swap(u, v);
+using i64 = int64_t;
+
+struct Node {
+  Node *l = nullptr, *r = nullptr;
+  int cnt = 0;
+  i64 sum = 0;
+  Node() = default;
+  explicit Node(int cnt_, i64 sum_) : l(nullptr), r(nullptr), cnt(cnt_), sum(sum_) { }
+  Node(Node *l, Node *r) : l(l), r(r), cnt(0),  sum(0) {
+    if (l != nullptr) {
+      cnt += l->cnt;
+      sum += l->sum;
     }
-    assert(m == 1);
-    return u;
-}
-
-template <typename T>
-class Modular {
-public:
-    using Type = typename decay<decltype(T::value)>::type;
-
-    constexpr Modular() : value() {}
-    template <typename U>
-    Modular(const U& x) {
-        value = normalize(x);
+    if (r != nullptr) {
+      cnt += r->cnt;
+      sum += r->sum;
     }
-
-    template <typename U>
-    static Type normalize(const U& x) {
-        Type v;
-        if (-mod() <= x && x < mod()) v = static_cast<Type>(x);
-        else v = static_cast<Type>(x % mod());
-        if (v < 0) v += mod();
-        return v;
-    }
-
-    const Type& operator()() const { return value; }
-    template <typename U>
-    explicit operator U() const { return static_cast<U>(value); }
-    constexpr static Type mod() { return T::value; }
-
-    Modular& operator+=(const Modular& other) { if ((value += other.value) >= mod()) value -= mod(); return *this; }
-    Modular& operator-=(const Modular& other) { if ((value -= other.value) < 0) value += mod(); return *this; }
-    template <typename U> Modular& operator+=(const U& other) { return *this += Modular(other); }
-    template <typename U> Modular& operator-=(const U& other) { return *this -= Modular(other); }
-    Modular& operator++() { return *this += 1; }
-    Modular& operator--() { return *this -= 1; }
-    Modular operator++(int) { Modular result(*this); *this += 1; return result; }
-    Modular operator--(int) { Modular result(*this); *this -= 1; return result; }
-    Modular operator-() const { return Modular(-value); }
-
-    template <typename U = T>
-    typename enable_if<is_same<typename Modular<U>::Type, int>::value, Modular>::type& operator*=(const Modular& rhs) {
-#ifdef _WIN32
-        uint64_t x = static_cast<int64_t>(value) * static_cast<int64_t>(rhs.value);
-    uint32_t xh = static_cast<uint32_t>(x >> 32), xl = static_cast<uint32_t>(x), d, m;
-    asm(
-      "divl %4; \n\t"
-      : "=a" (d), "=d" (m)
-      : "d" (xh), "a" (xl), "r" (mod())
-    );
-    value = m;
-#else
-        value = normalize(static_cast<int64_t>(value) * static_cast<int64_t>(rhs.value));
-#endif
-        return *this;
-    }
-    template <typename U = T>
-    typename enable_if<is_same<typename Modular<U>::Type, long long>::value, Modular>::type& operator*=(const Modular& rhs) {
-        long long q = static_cast<long long>(static_cast<long double>(value) * rhs.value / mod());
-        value = normalize(value * rhs.value - q * mod());
-        return *this;
-    }
-    template <typename U = T>
-    typename enable_if<!is_integral<typename Modular<U>::Type>::value, Modular>::type& operator*=(const Modular& rhs) {
-        value = normalize(value * rhs.value);
-        return *this;
-    }
-
-    Modular& operator/=(const Modular& other) { return *this *= Modular(inverse(other.value, mod())); }
-
-    friend const Type& abs(const Modular& x) { return x.value; }
-
-    template <typename U>
-    friend bool operator==(const Modular<U>& lhs, const Modular<U>& rhs);
-
-    template <typename U>
-    friend bool operator<(const Modular<U>& lhs, const Modular<U>& rhs);
-
-    template <typename V, typename U>
-    friend V& operator>>(V& stream, Modular<U>& number);
-
-private:
-    Type value;
+  }
 };
 
-template <typename T> bool operator==(const Modular<T>& lhs, const Modular<T>& rhs) { return lhs.value == rhs.value; }
-template <typename T, typename U> bool operator==(const Modular<T>& lhs, U rhs) { return lhs == Modular<T>(rhs); }
-template <typename T, typename U> bool operator==(U lhs, const Modular<T>& rhs) { return Modular<T>(lhs) == rhs; }
+inline i64 sum(Node *node) { return node == nullptr ? 0 : node->sum; }
+inline int cnt(Node *node) { return node == nullptr ? 0 : node->cnt; }
 
-template <typename T> bool operator!=(const Modular<T>& lhs, const Modular<T>& rhs) { return !(lhs == rhs); }
-template <typename T, typename U> bool operator!=(const Modular<T>& lhs, U rhs) { return !(lhs == rhs); }
-template <typename T, typename U> bool operator!=(U lhs, const Modular<T>& rhs) { return !(lhs == rhs); }
-
-template <typename T> bool operator<(const Modular<T>& lhs, const Modular<T>& rhs) { return lhs.value < rhs.value; }
-
-template <typename T> Modular<T> operator+(const Modular<T>& lhs, const Modular<T>& rhs) { return Modular<T>(lhs) += rhs; }
-template <typename T, typename U> Modular<T> operator+(const Modular<T>& lhs, U rhs) { return Modular<T>(lhs) += rhs; }
-template <typename T, typename U> Modular<T> operator+(U lhs, const Modular<T>& rhs) { return Modular<T>(lhs) += rhs; }
-
-template <typename T> Modular<T> operator-(const Modular<T>& lhs, const Modular<T>& rhs) { return Modular<T>(lhs) -= rhs; }
-template <typename T, typename U> Modular<T> operator-(const Modular<T>& lhs, U rhs) { return Modular<T>(lhs) -= rhs; }
-template <typename T, typename U> Modular<T> operator-(U lhs, const Modular<T>& rhs) { return Modular<T>(lhs) -= rhs; }
-
-template <typename T> Modular<T> operator*(const Modular<T>& lhs, const Modular<T>& rhs) { return Modular<T>(lhs) *= rhs; }
-template <typename T, typename U> Modular<T> operator*(const Modular<T>& lhs, U rhs) { return Modular<T>(lhs) *= rhs; }
-template <typename T, typename U> Modular<T> operator*(U lhs, const Modular<T>& rhs) { return Modular<T>(lhs) *= rhs; }
-
-template <typename T> Modular<T> operator/(const Modular<T>& lhs, const Modular<T>& rhs) { return Modular<T>(lhs) /= rhs; }
-template <typename T, typename U> Modular<T> operator/(const Modular<T>& lhs, U rhs) { return Modular<T>(lhs) /= rhs; }
-template <typename T, typename U> Modular<T> operator/(U lhs, const Modular<T>& rhs) { return Modular<T>(lhs) /= rhs; }
-
-template<typename T, typename U>
-Modular<T> power(const Modular<T>& a, const U& b) {
-    assert(b >= 0);
-    Modular<T> x = a, res = 1;
-    U p = b;
-    while (p > 0) {
-        if (p & 1) res *= x;
-        x *= x;
-        p >>= 1;
-    }
-    return res;
+Node* build(int lx, int rx) {
+  if (rx - lx == 1) {
+    return new Node();
+  }
+  auto mid = lx + (rx - lx) / 2;
+  return new Node(build(lx, mid), build(mid, rx));
 }
 
-template <typename T>
-bool IsZero(const Modular<T>& number) {
-    return number() == 0;
+Node* modify(int pos, int val, Node *node, int lx, int rx) {
+  assert(node != nullptr);
+  if (rx - lx == 1) {
+    return new Node(cnt(node) + 1, sum(node) + val);
+  }
+  auto mid = lx + (rx - lx) / 2;
+  if (pos < mid) {
+    return new Node(modify(pos, val, node->l, lx, mid), node->r);
+  } else {
+    return new Node(node->l, modify(pos, val, node->r, mid, rx));
+  }
 }
 
-template <typename T>
-string to_string(const Modular<T>& number) {
-    return to_string(number());
+inline std::pair<int, i64> unite(std::pair<int, i64> a, std::pair<int, i64> b) {
+  return std::pair(a.first + b.first, a.second + b.second);
 }
 
-// U == std::ostream? but done this way because of fastoutput
-template <typename U, typename T>
-U& operator<<(U& stream, const Modular<T>& number) {
-    return stream << number();
-}
-
-// U == std::istream? but done this way because of fastinput
-template <typename U, typename T>
-U& operator>>(U& stream, Modular<T>& number) {
-    typename common_type<typename Modular<T>::Type, long long>::type x;
-    stream >> x;
-    number.value = Modular<T>::normalize(x);
-    return stream;
-}
-
-/*
-using ModType = int;
-
-struct VarMod { static ModType value; };
-ModType VarMod::value;
-ModType& md = VarMod::value;
-using Mint = Modular<VarMod>;
-*/
-
-constexpr int md = 1e9 + 7;
-using Mint = Modular<std::integral_constant<decay<decltype(md)>::type, md>>;
-
-vector<Mint> fact(1, 1);
-vector<Mint> tcaf(1, 1);
-
-Mint C(int n, int k) {
-    if (k < 0 || k > n) return 0;
-    while ((int) fact.size() < n + 1) {
-        fact.push_back(fact.back() * (int) fact.size());
-        tcaf.push_back(1 / fact.back());
-    }
-    return fact[n] * tcaf[k] * tcaf[n - k];
+std::pair<int, i64> query(int ql, int qr, Node *a, Node *b, int lx, int rx) {
+  if (ql >= rx || qr <= lx) return std::pair(0, 0);
+  if (ql <= lx && rx <= qr) return std::pair(cnt(b) - cnt(a), sum(b) - sum(a));
+  auto mid = lx + (rx - lx) / 2;
+  return unite(query(ql, qr, a->l, b->l, lx, mid), query(ql, qr, a->r, b->r, mid, rx));
 }
 
 void solve(istream &in, ostream &out) {
-  int n, m, k;
-  in >> n >> m >> k;
-  vector<array<int, 2>> cs(k + 1);
-  cs[0] = array{n, m};
-  for (int i = 1; i <= k; ++i) {
-    in >> cs[i][0] >> cs[i][1];
+  int n, q;
+  in >> n >> q;
+  std::vector<int> as(n);
+  for (int i = 0; i < n; ++i) {
+    in >> as[i];
   }
-  assert(set(cs.begin(), cs.end()).size() == cs.size());
-  sort(cs.begin(), cs.end(), [](const auto &lhs, const auto &rhs) {
-      return accumulate(lhs.begin(), lhs.end(), 0) < accumulate(rhs.begin(), rhs.end(), 0);
-  });
-  vector<Mint> dp(k + 1);
-  for (int i = 0; i <= k; ++i) {
-    auto [x, y] = cs[i];
-    dp[i] = C(x + y - 2, x - 1);
-    for (int j = 0; j <= k; ++j) {
-      if (i == j) continue;
-      auto [nx, ny] = cs[j];
-      if (nx > x || ny > y) continue;
-      dp[i] -= dp[j] * C(x - nx + y - ny, x - nx);
+  auto sorted = as;
+  std::sort(sorted.begin(), sorted.end());
+  sorted.erase(std::unique(sorted.begin(), sorted.end()), sorted.end());
+
+  auto pos = as;
+  for (auto &p : pos) {
+    p = int(std::lower_bound(sorted.begin(), sorted.end(), p) - sorted.begin());
+  }
+  const auto m = int(sorted.size());
+
+  std::vector<Node*> roots(n + 1);
+  roots[0] = build(0, m);
+  for (int i = 0; i < n; ++i) {
+    roots[i + 1] = modify(pos[i], as[i], roots[i], 0, m);
+  }
+
+  while (q-- > 0) {
+    int l1, r1, l2, r2;
+    in >> l1 >> r1 >> l2 >> r2;
+    int tot_cnt = r1 - l1 + 1 + r2 - l2 + 1;
+
+    int lo = -1, hi = m - 1;
+    while (hi - lo > 1) {
+      auto mid = lo + (hi - lo) / 2;
+      auto [c1, s1] = query(0, mid + 1, roots[l1 - 1], roots[r1], 0, m);
+      auto [c2, s2] = query(0, mid + 1, roots[l2 - 1], roots[r2], 0, m);
+      ((c1 + c2) * 2 > tot_cnt ? hi : lo) = mid;
     }
+    auto [c1, s1] = query(hi, m, roots[l1 - 1], roots[r1], 0, m);
+    auto [c2, s2] = query(0, hi + 1, roots[l2 - 1], roots[r2], 0, m);
+    i64 v = sorted[hi];
+    out << s1 - v * c1 + v * c2 - s2 << '\n';
   }
-  out << dp.back() << '\n';
 }
 
 int main() {

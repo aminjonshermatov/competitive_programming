@@ -11,24 +11,34 @@ bool check() {
   ifstream slow(constants::SLOW_OUT);
   ifstream fast(constants::FAST_OUT);
 
-  int n, m, k;
-  data >> n >> m >> k;
-  vector<pair<int, int>> cs(k);
-  for (auto &[i, j] : cs) {
-    data >> i >> j;
+  int n, q;
+  data >> n >> q;
+  vector<int> as(n);
+  for (auto &a : as) {
+    data >> a;
+  }
+  vector<tuple<int, int, int, int>> qs(q);
+  for (auto &[l1, r1, l2, r2] : qs) {
+    data >> l1 >> r1 >> l2 >> r2;
   }
 
-  int s, f;
-  slow >> s;
-  fast >> f;
-  if (s != f) {
-    cerr << "FAIL" << '\n';
-    cerr << n << ' ' << m << ' ' << k << '\n';
-    for (auto [i, j] : cs) {
-      cerr << i << ' ' << j << '\n';
+  for (int i = 0; i < q; ++i) {
+    int s, f;
+    slow >> s;
+    fast >> f;
+    if (s != f) {
+      cerr << "FAIL " << i << '\n';
+      cerr << n << ' ' << q << '\n';
+      for (auto a : as) {
+        cerr << a << ' ';
+      }
+      cerr << '\n';
+      for (auto &[l1, r1, l2, r2] : qs) {
+        cerr << l1 << ' ' << r1 << ' ' << l2 << ' ' << r2 << '\n';
+      }
+      cerr << "! " << s << ' ' << f << '\n';
+      return false;
     }
-    cerr << "! " << s << ' ' << f << '\n';
-    return false;
   }
 
   return true;

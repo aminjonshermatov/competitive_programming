@@ -8,27 +8,23 @@
 using namespace std;
 
 void gen(ofstream &out) {
-  const auto n = utils::random(5, 1000);
-  const auto m = utils::random(5, 1000);
-  const auto k = utils::random(1, max(n, m));
-  vector<pair<int, int>> cs(k);
-  set<pair<int, int>> seen;
-  for (auto &[i, j] : cs) {
-    do {
-      i = utils::random(1, n);
-      if (i == 1) {
-        j = utils::random(2, m);
-      } else if (i == n) {
-        j = utils::random(1, m - 1);
-      } else {
-        j = utils::random(1, m);
-      }
-    } while (seen.contains(pair(i, j)));
-    seen.emplace(i, j);
+  const auto n = utils::random(2, 400);
+  const auto q = utils::random(2, 400);
+  out << n << ' ' << q << '\n';
+  vector<int> as(n);
+  for (auto &a : as) {
+    a = utils::random(1, 1000000000);
   }
-  out << n << ' ' << m << ' ' << k << '\n';
-  for (auto [i, j] : cs) {
-    out << i << ' ' << j << '\n';
+  for (auto a : as) {
+    out << a << ' ';
+  }
+  out << '\n';
+  for (int i = 0; i < q; ++i) {
+    auto l1 = utils::random(1, n / 2);
+    auto r1 = utils::random(l1, n / 2);
+    auto l2 = utils::random(r1 + 1, n);
+    auto r2 = utils::random(l2, n);
+    out << l1 << ' ' << r1 << ' ' << l2 << ' ' << r2 << '\n';
   }
 }
 
