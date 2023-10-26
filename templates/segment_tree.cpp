@@ -225,7 +225,7 @@ template <typename Node> struct SegmentTree {
   int n;
   std::vector<Node> nodes;
 
-  explicit SegmentTree(int n_) : n(n_), tree(2 * n_, Node()) { }
+  explicit SegmentTree(int n_) : n(n_), nodes(2 * n_, Node()) { }
 
   void modify(int pos, Node val) {
     pos += n;
