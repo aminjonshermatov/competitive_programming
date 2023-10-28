@@ -4,38 +4,32 @@
 
 #include <bits/stdc++.h>
 
-using namespace std;
-
-auto Min = []<typename T>(const T &lhs, const T &rhs) -> T { return lhs < rhs ? lhs : rhs; };
-auto Max = []<typename T>(const T &lhs, const T &rhs) -> T { return lhs > rhs ? lhs : rhs; };
-
-template <typename T, typename Op> struct SparseTable {
-  using value_type = T;
+template <typename T, typename Op = std::function<T(const T, const T)>> struct SparseTable {
   Op op;
-  vector<vector<T>> table;
-  vector<int> lg;
+  std::vector<std::vector<T>> table;
+  std::vector<int> lg;
 
-  template<typename U = T> auto build(const vector<U> &A, Op &op_) -> void {
-    op = op_;
-    table.assign(A.size(), {});
-    lg.resize(A.size() + 1);
+  template<typename U> auto init(const std::vector<U> &init_) -> void {
+    table.assign(init_.size(), {});
+    lg.resize(init_.size() + 1);
     lg[0] = -1;
-    for (int i = 1; i <= A.size(); ++i) {
+    for (int i = 1; i <= init_.size(); ++i) {
       lg[i] = 31 - __builtin_clz(i);
     }
-    for (auto i = 0u; i < A.size(); ++i) table[i] = {A[i]};
-    for (auto l = 1u, j = 0u; 2 * l <= A.size(); ++j, l <<= 1) {
-      for (auto i = 0u; i + 2 * l <= A.size(); ++i) {
+    for (auto i = 0u; i < init_.size(); ++i) {
+      table[i] = {init_[i]};
+    }
+    for (auto l = 1u, j = 0u; 2 * l <= init_.size(); ++j, l <<= 1) {
+      for (auto i = 0u; i + 2 * l <= init_.size(); ++i) {
         table[i].emplace_back(op(table[i][j], table[i + l][j]));
       }
     }
   }
 
-  SparseTable() = default;
-  template<typename U = T> explicit SparseTable(const vector<U> &A, Op &op_) : op(op_) { build(A, op); }
+  template<typename U> explicit SparseTable(const std::vector<U> &init_, Op &&op_) : op(op_) { init(init_); }
 
   [[nodiscard]] auto query(int l, int r) const -> int {
-    assert(l < r);
+    assert(0 <= l && l < r && r <= table.size());
     const auto b = lg[r - l];
     return op(table[l][b], table[r - (1 << b)][b]);
   }
