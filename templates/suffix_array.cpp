@@ -3,8 +3,6 @@
 //
 #include <bits/stdc++.h>
 
-using namespace std;
-
 template <size_t ALPHA = 27, char MIN_ALPHA = 'a' - 1>
 std::vector<int> suffix_array(std::string_view s) {
   assert(std::all_of(s.begin(), s.end(), [](char ch) { return std::clamp<char>(ch, MIN_ALPHA, MIN_ALPHA + ALPHA - 1) == ch; }));
