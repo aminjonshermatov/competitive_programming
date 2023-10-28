@@ -31,8 +31,7 @@ add_executable(atcoder_arc atcoder/arc/058/main.cpp)
 add_executable(atcoder_dp atcoder/dp_contest/main.cpp)
 
 #data structures
-add_executable(templates templates/persistent_stack.cpp
-        templates/pollard_rho.cpp)
+add_executable(templates templates/pollard_rho.cpp)
 
 #stepik
 add_executable(stepik stepik/199929/5/5.1.2.cpp)
