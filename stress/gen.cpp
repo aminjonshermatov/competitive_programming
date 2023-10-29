@@ -5,30 +5,28 @@
 #include "utils.h"
 #include "constants.h"
 
-using namespace std;
-
-void gen(ofstream &out) {
-  const auto n = utils::random(2, 400);
-  const auto q = utils::random(2, 400);
-  out << n << ' ' << q << '\n';
-  vector<int> as(n);
-  for (auto &a : as) {
-    a = utils::random(1, 1000000000);
-  }
-  for (auto a : as) {
-    out << a << ' ';
+void gen(std::ofstream &out) {
+  const auto n = utils::random(2e5, 5e5);
+  std::vector<int> ps(n);
+  std::iota(ps.begin(), ps.end(), 0);
+  std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());
+  std::shuffle(ps.begin(), ps.end(), rng);
+  out << n << '\n';
+  for (auto p : ps) {
+    out << p << ' ';
   }
   out << '\n';
-  for (int i = 0; i < q; ++i) {
-    auto l1 = utils::random(1, n / 2);
-    auto r1 = utils::random(l1, n / 2);
-    auto l2 = utils::random(r1 + 1, n);
-    auto r2 = utils::random(l2, n);
-    out << l1 << ' ' << r1 << ' ' << l2 << ' ' << r2 << '\n';
+
+  auto q = utils::random(2e5, 5e5);
+  out << q << '\n';
+  while (q-- > 0) {
+    auto l = utils::random(0, n - 1);
+    auto r = utils::random(l, n - 1);
+    out << l << ' ' << r << '\n';
   }
 }
 
 int main() {
-  ofstream out(constants::DATA_IN);
+  std::ofstream out(constants::DATA_IN);
   gen(out);
 }

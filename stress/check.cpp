@@ -4,39 +4,37 @@
 #include <bits/stdc++.h>
 #include "constants.h"
 
-using namespace std;
-
 bool check() {
-  ifstream data(constants::DATA_IN);
-  ifstream slow(constants::SLOW_OUT);
-  ifstream fast(constants::FAST_OUT);
+  std::ifstream data(constants::DATA_IN);
+  std::ifstream slow(constants::SLOW_OUT);
+  std::ifstream fast(constants::FAST_OUT);
 
-  int n, q;
-  data >> n >> q;
-  vector<int> as(n);
-  for (auto &a : as) {
-    data >> a;
+  int n;
+  data >> n;
+  std::vector<int> ps(n);
+  for (auto &p : ps) {
+    data >> p;
   }
-  vector<tuple<int, int, int, int>> qs(q);
-  for (auto &[l1, r1, l2, r2] : qs) {
-    data >> l1 >> r1 >> l2 >> r2;
-  }
+
+  int q;
+  data >> q;
 
   for (int i = 0; i < q; ++i) {
+    int l, r;
+    data >> l >> r;
+
     int s, f;
     slow >> s;
     fast >> f;
     if (s != f) {
-      cerr << "FAIL " << i << '\n';
-      cerr << n << ' ' << q << '\n';
-      for (auto a : as) {
-        cerr << a << ' ';
+      std::cerr << "FAIL " << i << '\n';
+      std::cerr << n << '\n';
+      for (auto p : ps) {
+        std::cerr << p << ' ';
       }
-      cerr << '\n';
-      for (auto &[l1, r1, l2, r2] : qs) {
-        cerr << l1 << ' ' << r1 << ' ' << l2 << ' ' << r2 << '\n';
-      }
-      cerr << "! " << s << ' ' << f << '\n';
+      std::cerr << '\n';
+      std::cerr << l << ' ' << r << '\n';
+      std::cerr << "! " << s << ' ' << f << '\n';
       return false;
     }
   }
@@ -46,11 +44,12 @@ bool check() {
 
 int main() {
   for (int i = 0; i < 1000; ++i) {
-    ::system("./gen");
-    ::system("./slow");
-    ::system("./fast");
+    std::system("./gen");
+    std::system("./slow");
+    std::system("./fast");
     if (!check()) break;
-    this_thread::sleep_for(300ms);
-    cout << "done " << i << endl;
+    using namespace std::literals::chrono_literals;
+    std::this_thread::sleep_for(300ms);
+    std::cout << "done " << i << std::endl;
   }
 }

@@ -1,52 +1,51 @@
 #include <bits/stdc++.h>
 #include "constants.h"
 
-using namespace std;
-
-void solve(istream &in, ostream &out) {
-  int n, q;
-  in >> n >> q;
-
-  vector<int64_t> as(n);
-  for (auto &a : as) {
-    in >> a;
+void solve(std::istream &in, std::ostream &out) {
+  int n;
+  in >> n;
+  std::vector<int> ps(n);
+  for (auto &v : ps) {
+    in >> v;
   }
-  while (q-- > 0) {
-    int l1, r1, l2, r2;
-    in >> l1 >> r1 >> l2 >> r2;
-    --l1, --l2;
-    vector<int64_t> na;
-    for (int i = l1; i < r1; ++i) {
-      na.emplace_back(as[i]);
-    }
-    for (int i = l2; i < r2; ++i) {
-      na.emplace_back(as[i]);
-    }
-    sort(na.begin(), na.end());
-    auto k = r1 - l1 + r2 - l2;
-    int64_t s1 = 0, c1 = 0;
-    for (int i = l1; i < r1; ++i) {
-      if (as[i] >= na[k / 2]) {
-        ++c1;
-        s1 += as[i];
+
+  int q;
+  in >> q;
+  while (q--) {
+    int l, r;
+    in >> l >> r;
+    std::vector<int> cnt(n, 0);
+    std::vector<bool> used(n, false);
+    auto dfs = [&](auto &f, int v) -> void {
+      used[v] = true;
+      ++cnt[v];
+      if (!used[ps[v]]) {
+        f(f, ps[v]);
+      }
+    };
+    for (int i = l; i <= r; ++i) {
+      if (!used[i]) {
+        dfs(dfs, i);
       }
     }
-    int64_t s2 = 0, c2 = 0;
-    for (int i = l2; i < r2; ++i) {
-      if (as[i] <= na[k / 2]) {
-        ++c2;
-        s2 += as[i];
+    int mex = -1;
+    for (int i = 0; i < n && mex == -1; ++i) {
+      if (cnt[i] == 0) {
+        mex = i;
       }
     }
-    out << s1 - c1 * na[k / 2] + c2 * na[k / 2] - s2 << '\n';
+    if (mex == -1) {
+      mex = n;
+    }
+    out << mex << '\n';
   }
 }
 
 bool is_multi = false;
 
 int main() {
-  ifstream in(constants::DATA_IN);
-  ofstream out(constants::SLOW_OUT);
+  std::ifstream in(constants::DATA_IN);
+  std::ofstream out(constants::SLOW_OUT);
 
   solve(in, out);
 
