@@ -33,7 +33,7 @@ struct Dsu {
     }
     parent[pu] = pv;
     rank[pv] += rank[pv] == rank[pu];
-    return pv;
+    return true;
   }
 
   inline bool is_same(int u, int v) {
