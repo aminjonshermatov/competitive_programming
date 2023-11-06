@@ -27,7 +27,7 @@ add_executable(cses cses/AdvancedTechniques/main.cpp)
 
 #atcoder
 add_executable(atcoder_abc atcoder/abc/327/main.cpp)
-add_executable(atcoder_arc atcoder/arc/058/main.cpp)
+add_executable(atcoder_arc atcoder/arc/104/main.cpp)
 add_executable(atcoder_dp atcoder/dp_contest/main.cpp)
 
 #data structures
