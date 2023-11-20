@@ -4,71 +4,43 @@
 #include <bits/stdc++.h>
 #include "constants.h"
 
-struct Segment {
-  int l, r, id;
-  bool operator<(const Segment &other) const {
-    return l != other.l ? l < other.l : r < other.r;
-  }
-  friend std::ostream& operator<<(std::ostream &out, const Segment &seg) {
-    return out << '{' << seg.l << ',' << seg.r << ',' << seg.id << '}';
-  }
-};
-
 bool check() {
   std::ifstream data(constants::DATA_IN);
   std::ifstream slow(constants::SLOW_OUT);
   std::ifstream fast(constants::FAST_OUT);
 
-  int n, m;
-  data >> n >> m;
-  std::vector<Segment> segs(m);
-  for (int i = 0; auto &[l, r, id] : segs) {
-    data >> l >> r;
-    id = i++;
+  using i64 = int64_t;
+
+  int n, q;
+  data >> n >> q;
+  std::vector<std::tuple<char, i64, i64>> evs(n);
+  for (auto &[op, t, k] : evs) {
+    data >> op >> t >> k;
   }
+  std::vector<i64> init(q);
+  for (int i = 0; i < q; ++i) {
+    data >> init[i];
+  }
+  for (int i = 0; i < q; ++i) {
+    i64 s;
+    slow >> s;
+    i64 f;
+    fast >> f;
 
-  for (int i = 0; i < m; ++i) {
-    bool ss;
-    slow >> ss;
-    int s_len;
-    slow >> s_len;
-    std::vector<int> s_ids(s_len);
-    for (auto &id : s_ids) {
-      slow >> id;
-    }
-
-    bool ff;
-    fast >> ff;
-    int f_len;
-    fast >> f_len;
-    std::vector<int> f_ids(f_len);
-    for (auto &id : f_ids) {
-      fast >> id;
-    }
-
-    if (ss != ff || s_ids != f_ids) {
-      std::cerr << n << ' ' << m << '\n';
-      for (auto &seg : segs) {
-        std::cerr << seg << ' ';
+    if (s != f) {
+      std::cerr << n << ' ' << q << '\n';
+      for (auto [op, t, k] : evs) {
+        std::cerr << op << ' ' << t << ' ' << k << '\n';
+      }
+      for (auto x : init) {
+        std::cerr << x << ' ';
       }
       std::cerr << '\n';
-
-      std::cerr << "ith: " << i << '\n';
-
-      std::cerr << ss << ' ';
-      for (auto id : s_ids) {
-        std::cerr << id << ' ';
-      }
-      std::cerr << '\n';
-
-      std::cerr << ff << ' ';
-      for (auto id : f_ids) {
-        std::cerr << id << ' ';
-      }
-      std::cerr << '\n';
+      std::cerr << "bad: " << i << ' ' << s << ' ' << f << '\n';
       return false;
     }
   }
+
   return true;
 }
 
