@@ -9,36 +9,23 @@ bool check() {
   std::ifstream slow(constants::SLOW_OUT);
   std::ifstream fast(constants::FAST_OUT);
 
-  using i64 = int64_t;
-
-  int n, q;
-  data >> n >> q;
-  std::vector<std::tuple<char, i64, i64>> evs(n);
-  for (auto &[op, t, k] : evs) {
-    data >> op >> t >> k;
+  int n;
+  data >> n;
+  std::vector<std::string> ss(n);
+  for (auto &s : ss) {
+    data >> s;
   }
-  std::vector<i64> init(q);
-  for (int i = 0; i < q; ++i) {
-    data >> init[i];
-  }
-  for (int i = 0; i < q; ++i) {
-    i64 s;
-    slow >> s;
-    i64 f;
-    fast >> f;
 
-    if (s != f) {
-      std::cerr << n << ' ' << q << '\n';
-      for (auto [op, t, k] : evs) {
-        std::cerr << op << ' ' << t << ' ' << k << '\n';
-      }
-      for (auto x : init) {
-        std::cerr << x << ' ';
-      }
-      std::cerr << '\n';
-      std::cerr << "bad: " << i << ' ' << s << ' ' << f << '\n';
-      return false;
+  std::string s, f;
+  slow >> s;
+  fast >> f;
+  if (s != f) {
+    std::cerr << n << '\n';
+    for (auto &w : ss) {
+      std::cerr << w << '\n';
     }
+    std::cerr << "bad: " << s << ' ' << f << '\n';
+    return false;
   }
 
   return true;
