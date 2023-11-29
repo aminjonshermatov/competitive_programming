@@ -89,33 +89,33 @@ struct LazySegmentTree {
   Node query(int ql, int qr) { return query(ql, qr, 0, 0, n); }
   Node query(int pos) { return query(pos, pos + 1, 0, 0, n); }
 
-  template<typename F> int findFirst(int ql, int qr, F pred, int x, int lx, int rx) {
+  template <typename F> int findFirst(int ql, int qr, F&& pred, int x, int lx, int rx) {
     if (lx >= qr || rx <= ql || !pred(nodes[x])) return -1;
     if (rx - lx == 1) return lx;
     push(x);
     auto mid = lx + (rx - lx) / 2;
-    auto res = findFirst(ql, qr, pred, 2 * x + 1, lx, mid);
+    auto res = findFirst(ql, qr, std::forward<F>(pred), 2 * x + 1, lx, mid);
     if (res == -1) {
-      res = findFirst(ql, qr, pred, 2 * x + 2, mid, rx);
+      res = findFirst(ql, qr, std::forward<F>(pred), 2 * x + 2, mid, rx);
     }
     return res;
   }
-  template<typename F> int findFirst(int ql, int qr, F pred) {
-    return findFirst(ql, qr, pred, 0, 0, n);
+  template <typename F> int findFirst(int ql, int qr, F&& pred) {
+    return findFirst(ql, qr, std::forward<F>(pred), 0, 0, n);
   }
-  template<typename F> int findLast(int ql, int qr, F pred, int x, int lx, int rx) {
+  template <typename F> int findLast(int ql, int qr, F&& pred, int x, int lx, int rx) {
     if (lx >= qr || rx <= ql || !pred(nodes[x])) return -1;
     if (rx - lx == 1) return lx;
     push(x);
     auto mid = lx + (rx - lx) / 2;
-    auto res = findLast(ql, qr, pred, 2 * x + 2, mid, rx);
+    auto res = findLast(ql, qr, std::forward<F>(pred), 2 * x + 2, mid, rx);
     if (res == -1) {
-      res = findLast(ql, qr, pred, 2 * x + 1, lx, mid);
+      res = findLast(ql, qr, std::forward<F>(pred), 2 * x + 1, lx, mid);
     }
     return res;
   }
-  template<typename F> int findLast(int ql, int qr, F pred) {
-    return findLast(ql, qr, pred, 0, 0, n);
+  template <typename F> int findLast(int ql, int qr, F&& pred) {
+    return findLast(ql, qr, std::forward<F>(pred), 0, 0, n);
   }
 };
 
@@ -187,31 +187,29 @@ template <typename Node> struct SegmentTree {
   }
   Node query(int ql, int qr) { return query(ql, qr, 0, 0, n); }
   Node query(int pos) { return query(pos, pos + 1, 0, 0, n); }
-  template<typename F> int findFirst(int ql, int qr, F pred, int x, int lx, int rx) {
+  template <typename F> int findFirst(int ql, int qr, F&& pred, int x, int lx, int rx) {
     if (lx >= qr || rx <= ql || !pred(nodes[x])) return -1;
     if (rx - lx == 1) return lx;
     auto mid = lx + (rx - lx) / 2;
-    auto res = findFirst(ql, qr, pred, 2 * x + 1, lx, mid);
+    auto res = findFirst(ql, qr, std::forward<F>(pred), 2 * x + 1, lx, mid);
     if (res == -1) {
-      res = findFirst(ql, qr, pred, 2 * x + 2, mid, rx);
+      res = findFirst(ql, qr, std::forward<F>(pred), 2 * x + 2, mid, rx);
     }
     return res;
   }
-  template<typename F> int findFirst(int ql, int qr, F pred) {
-    return findFirst(ql, qr, pred, 0, 0, n);
+  template <typename F> int findFirst(int ql, int qr, F&& pred) {
+    return findFirst(ql, qr, std::forward<F>(pred), 0, 0, n);
   }
-  template<typename F> int findLast(int ql, int qr, F pred, int x, int lx, int rx) {
+  template <typename F> int findLast(int ql, int qr, F&& pred, int x, int lx, int rx) {
     if (lx >= qr || rx <= ql || !pred(nodes[x])) return -1;
     if (rx - lx == 1) return lx;
     auto mid = lx + (rx - lx) / 2;
-    auto res = findLast(ql, qr, pred, 2 * x + 2, mid, rx);
-    if (res == -1) {
-      res = findLast(ql, qr, pred, 2 * x + 1, lx, mid);
-    }
+    auto res = findLast(ql, qr, std::forward<F>(pred), 2 * x + 2, mid, rx);
+    if (res == -1) res = findLast(ql, qr, std::forward<F>(pred), 2 * x + 1, lx, mid);
     return res;
   }
-  template<typename F> int findLast(int ql, int qr, F pred) {
-    return findLast(ql, qr, pred, 0, 0, n);
+  template <typename F> int findLast(int ql, int qr, F&& pred) {
+    return findLast(ql, qr, std::forward<F>(pred), 0, 0, n);
   }
 };
 
