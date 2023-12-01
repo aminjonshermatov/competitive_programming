@@ -43,7 +43,7 @@ add_executable(temp temp.cpp)
 add_executable(acmp acmp/main.cpp)
 
 #adventofcode
-add_executable(adventofcode adventofcode/2022/main.cpp)
+add_executable(adventofcode adventofcode/y2022/main.cpp)
 
 #eolymp
 add_executable(eolymp "eolymp/0040[#3-wa].cpp")
