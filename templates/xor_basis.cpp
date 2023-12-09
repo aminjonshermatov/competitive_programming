@@ -1,5 +1,5 @@
 //
-// Created by Aminjon Shermatov !Yandex on 09.12.2023.
+// Created by Aminjon Shermatov on 09.12.2023.
 //
 #include <bits/stdc++.h>
 
