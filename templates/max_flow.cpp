@@ -1,15 +1,15 @@
 #include <bits/stdc++.h>
 
 // Dinic's algorithm
+template <typename FlowUnit = int64_t, bool DoDecompose = false>
 struct MaxFlow {
-  using i64 = int64_t;
-  static constexpr auto inf = std::numeric_limits<i64>::max();
+  static constexpr auto inf = std::numeric_limits<FlowUnit>::max();
 
   struct FlowEdge {
     int u, v;
-    i64 cap, flow;
+    FlowUnit cap, flow;
     int id;
-    FlowEdge(int u_, int v_, i64 cap_, int id_) : u(u_), v(v_), cap(cap_), flow(0), id(id_) { }
+    FlowEdge(int u_, int v_, FlowUnit cap_, int id_) : u(u_), v(v_), cap(cap_), flow(0), id(id_) { }
   };
 
   std::vector<FlowEdge> edges;
@@ -22,7 +22,7 @@ struct MaxFlow {
     level.resize(n);
     ptr.resize(n);
   }
-  void add_edge(int u, int v, i64 cap, int id) {
+  void addEdge(int u, int v, FlowUnit cap, int id = -1) {
     g[u].emplace_back(edges.size());
     edges.emplace_back(u, v, cap, id);
     g[v].emplace_back(edges.size());
@@ -30,7 +30,7 @@ struct MaxFlow {
   }
   bool bfs(int S, int T) {
     std::queue<int> q;
-    fill(level.begin(), level.end(), -1);
+    std::fill(level.begin(), level.end(), -1);
     level[S] = 0;
     q.emplace(S);
     while (!q.empty()) {
@@ -46,7 +46,7 @@ struct MaxFlow {
     }
     return level[T] != -1;
   }
-  i64 dfs(int u, int T, i64 pushed) {
+  FlowUnit dfs(int u, int T, FlowUnit pushed) {
     if (pushed == 0 || u == T) {
       return pushed;
     }
@@ -64,22 +64,23 @@ struct MaxFlow {
   }
 
   decltype(auto) flow(int S, int T) {
-    i64 f = 0;
-    for (;;) {
-      if (!bfs(S, T)) {
-        break;
-      }
-      fill(ptr.begin(), ptr.end(), 0);
+    FlowUnit flow = 0;
+    while (bfs(S, T)) {
+      std::fill(ptr.begin(), ptr.end(), 0);
       while (auto pushed = dfs(S, T, inf)) {
-        f += pushed;
+        flow += pushed;
       }
     }
-    std::map<int, i64> fall_through;
-    for (const auto &edge : edges) {
-      if (edge.id >= 0 && edge.flow > 0) {
-        fall_through[edge.id] = edge.flow;
+    if constexpr (DoDecompose) {
+      std::map<int, FlowUnit> fall_through;
+      for (const auto &edge : edges) {
+        if (edge.id >= 0 && edge.flow > 0) {
+          fall_through[edge.id] = edge.flow;
+        }
       }
+      return std::tuple{flow, fall_through};
+    } else {
+      return flow;
     }
-    return std::tuple{f, fall_through};
   }
 };
