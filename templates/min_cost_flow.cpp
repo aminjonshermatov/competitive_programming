@@ -101,7 +101,8 @@ struct MinCostFlow {
         }
       }
       return std::tuple{flow, cost, std::move(fall_through)};
+    } else {
+      return std::tuple{flow, cost};
     }
-    return std::tuple{flow, cost};
   }
 };
