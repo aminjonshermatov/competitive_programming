@@ -3,29 +3,29 @@
 //
 #include <bits/stdc++.h>
 
-struct MinCostMaxFlow {
-  using i64 = int64_t;
-  static constexpr auto inf = std::numeric_limits<i64>::max();
+template <typename FlowUnit = int64_t, bool DoDecompose = false>
+struct MinCostFlow {
+  static constexpr auto inf = std::numeric_limits<FlowUnit>::max();
 
   struct FlowEdge {
     int u, v;
-    i64 cap, flow, cost;
+    FlowUnit cap, flow, cost;
     int id;
-    FlowEdge(int u_, int v_, i64 cap_, i64 cost_, int id_) : u(u_), v(v_), cap(cap_), flow(0), cost(cost_), id(id_) { }
+    FlowEdge(int u_, int v_, FlowUnit cap_, FlowUnit cost_, int id_) : u(u_), v(v_), cap(cap_), flow(0), cost(cost_), id(id_) { }
   };
 
   int n;
   std::vector<std::vector<int>> g;
   std::vector<FlowEdge> edges;
-  std::vector<i64> pot, dist;
+  std::vector<FlowUnit> pot, dist;
   std::vector<int> pre;
-  explicit MinCostMaxFlow(int n_) : n(n_) {
+  explicit MinCostFlow(int n_) : n(n_) {
     g.resize(n);
     pot.resize(n);
     dist.resize(n);
     pre.resize(n);
   }
-  void add_edge(int u, int v, i64 cap, i64 cost, int id) {
+  void addEdge(int u, int v, FlowUnit cap, FlowUnit cost, int id = -1) {
     g[u].emplace_back(edges.size());
     edges.emplace_back(u, v, cap, cost, id);
     g[v].emplace_back(edges.size());
@@ -36,7 +36,7 @@ struct MinCostMaxFlow {
     dist.assign(n, inf);
     pre.assign(n, -1);
 
-    using U = std::pair<i64, int>;
+    using U = std::pair<FlowUnit, int>;
     std::priority_queue<U, std::vector<U>, std::greater<>> pq;
     pq.emplace(dist[S] = 0, S);
     while (!pq.empty()) {
@@ -57,8 +57,8 @@ struct MinCostMaxFlow {
     return dist[T] != inf;
   }
 
-  decltype(auto) flow(int S, int T) {
-    fill(pot.begin(), pot.end(), 0);
+  decltype(auto) flow(int S, int T, const FlowUnit flowLimit = inf) {
+    std::fill(pot.begin(), pot.end(), 0);
     bool any = true;
     for (int _ = 0; _ < n && any; ++_) {
       any = false;
@@ -73,12 +73,12 @@ struct MinCostMaxFlow {
     }
     assert(!any); // cycle of negative weight
 
-    i64 flow = 0, cost = 0;
-    while (dijkstra(S, T)) {
+    FlowUnit flow = 0, cost = 0;
+    while (dijkstra(S, T) && flow < flowLimit) {
       for (int v = 0; v < n; ++v) {
         pot[v] += dist[v];
       }
-      auto nf = inf;
+      auto nf = flowLimit - flow;
       for (int v = T; v != S; v = edges[pre[v]].u) {
         nf = std::min(nf, edges[pre[v]].cap - edges[pre[v]].flow);
       }
@@ -89,16 +89,19 @@ struct MinCostMaxFlow {
         edges[pre[v] ^ 1].flow -= nf;
       }
     }
-    const auto mx_id = max_element(edges.begin(), edges.end(), [](const FlowEdge &lhs, const FlowEdge &rhs) {
-      return lhs.id < rhs.id;
-    })->id;
-    std::vector<i64> fall_through(mx_id + 1, 0);
-    //std::map<int, i64> fall_through;
-    for (const auto &edge : edges) {
-      if (edge.id != -1 && edge.flow > 0) {
-        fall_through[edge.id] = edge.flow;
+    if constexpr (DoDecompose) {
+      //const auto mx_id = max_element(edges.begin(), edges.end(), [](const FlowEdge &lhs, const FlowEdge &rhs) {
+      //  return lhs.id < rhs.id;
+      //})->id;
+      //std::vector<FlowUnit> fall_through(mx_id + 1, 0);
+      std::map<int, FlowUnit> fall_through;
+      for (const auto &edge : edges) {
+        if (edge.id != -1 && edge.flow > 0) {
+          fall_through[edge.id] = edge.flow;
+        }
       }
+      return std::tuple{flow, cost, std::move(fall_through)};
     }
-    return std::tuple{flow, cost, std::move(fall_through)};
+    return std::tuple{flow, cost};
   }
 };
