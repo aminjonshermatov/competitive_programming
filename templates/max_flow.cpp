@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 
 // Dinic's algorithm
-template <typename FlowUnit = int64_t, bool DoDecompose = false>
+template <std::integral FlowUnit = int64_t, bool DoDecompose = false>
 struct MaxFlow {
   static constexpr auto inf = std::numeric_limits<FlowUnit>::max();
 
