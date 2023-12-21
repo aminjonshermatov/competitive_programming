@@ -3,7 +3,7 @@
 //
 #include <bits/stdc++.h>
 
-template <typename FlowUnit = int64_t, bool DoDecompose = false>
+template <std::integral FlowUnit = int64_t, bool DoDecompose = false>
 struct MinCostFlow {
   static constexpr auto inf = std::numeric_limits<FlowUnit>::max();
 
