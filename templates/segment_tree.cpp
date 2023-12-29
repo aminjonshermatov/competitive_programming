@@ -238,21 +238,16 @@ template <typename Node> struct BottomUpSegmentTree {
   }
 
   void modify(int pos, Node val) {
-    pos += n;
-    nodes[pos] = val;
-    while (pos > 1) {
+    for (nodes[pos += n] = val; pos > 1;) {
       pos >>= 1;
       nodes[pos] = Node::unite(nodes[pos << 1], nodes[pos << 1 | 1]);
     }
   }
-  Node query(int ql, int qr) {
-    ql += n; qr += n;
+  Node query(int l, int r) {
     auto ans = Node();
-    while (ql < qr) {
-      if (ql & 1) ans = Node::unite(ans, nodes[ql++]);
-      if (qr & 1) ans = Node::unite(ans, nodes[--qr]);
-      ql >>= 1;
-      qr >>= 1;
+    for (l += n, r += n; l < r; l >>= 1, r >>= 1) {
+      if (l & 1) ans = Node::unite(ans, nodes[l++]);
+      if (r & 1) ans = Node::unite(ans, nodes[--r]);
     }
     return ans;
   }
