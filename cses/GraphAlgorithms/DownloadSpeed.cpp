@@ -1,119 +1,111 @@
-// #define _GLIBCXX_DEBUG
 #include <bits/stdc++.h>
-#include <ext/pb_ds/assoc_container.hpp>
-#include <ext/pb_ds/tree_policy.hpp>
 
-#pragma GCC optimize("Ofast")
-#pragma GCC optimize("unroll-loops")
-#pragma GCC optimize("fast-math")
-#pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx,avx,tune=native")
+#ifdef LOCAL
+#include "debug.h"
+#else
+#define dbg(...) 42
+#endif
 
-using namespace std;
-using namespace __gnu_pbds;
+// Dinic's algorithm
+template <std::integral FlowUnit = int64_t, bool DoDecompose = false>
+struct MaxFlow {
+  static constexpr auto inf = std::numeric_limits<FlowUnit>::max();
 
-typedef long long           ll;
-typedef long double         ld;
-typedef pair<ll, ll>        pll;
-typedef pair<int, int>      pii;
-typedef pair<ll, int>       pli;
-typedef pair<int, ll>       pil;
-typedef unsigned long long  ull;
+  struct FlowEdge {
+    int u, v;
+    FlowUnit cap, flow;
+    int id;
+    FlowEdge(int u_, int v_, FlowUnit cap_, int id_) : u(u_), v(v_), cap(cap_), flow(0), id(id_) { }
+  };
 
-#define fi      first
-#define se      second
-#define P       pair
-#define mp      make_pair
-#define pb      push_back
-#define eb      emplace_back
-#define all(x)  (x).begin(), (x).end()
-#define rall(x) (x).rbegin(), (x).rend()
-#define sz(x)   (ll)((x).size())
+  std::vector<FlowEdge> edges;
+  std::vector<std::vector<int>> g;
+  int n;
+  std::vector<int> level, ptr;
 
-#define rep(i, b)       for (auto i = 0; (i) < (b); ++(i))
-#define forr(el, cont)  for (auto &(el) : (cont))
-
-template<typename T>             using ordered_set = tree<T, null_type, less_equal<T>, rb_tree_tag, tree_order_statistics_node_update>;
-template<typename K, typename V> using gp_ht = gp_hash_table<K, V, hash<K>, equal_to<K>, direct_mask_range_hashing<>, linear_probe_fn<>, hash_standard_resize_policy<hash_exponential_size_policy<>, hash_load_check_resize_trigger<>, true>>;
-
-const ll inf = 1e18;
-const ll MOD = 1e9 + 7;
-const ld pi = atan2(0, -1);
-const ld eps = 1e-6;
-
-struct max_flow_edmond_karp {
-    vector<vector<ll>> &adj;
-    vector<int> pa;
-    vector<bool> used;
-    int n;
-
-    max_flow_edmond_karp(int n_, vector<vector<ll>> &adj_)
-            : n(n_) , adj(adj_){ }
-
-    bool bfs(int s, int t) {
-        fill(all(used), false);
-        used[s] = true;
-        queue<int> q;
-        q.push(s);
-        while (!q.empty()) {
-            auto v = q.front(); q.pop();
-            rep(u, n) if (!used[u] && adj[v][u] > 0) {
-                pa[u] = v;
-                used[u] = true;
-                q.push(u);
-            }
-        }
-        return used[t];
+  explicit MaxFlow(int n_) : n(n_) {
+    g.resize(n);
+    level.resize(n);
+    ptr.resize(n);
+  }
+  void addEdge(int u, int v, FlowUnit cap, int id = -1) {
+    g[u].emplace_back(edges.size());
+    edges.emplace_back(u, v, cap, id);
+    g[v].emplace_back(edges.size());
+    edges.emplace_back(v, u, 0, -1);
+  }
+  bool bfs(int S, int T) {
+    std::queue<int> q;
+    std::fill(level.begin(), level.end(), -1);
+    level[S] = 0;
+    q.emplace(S);
+    while (!q.empty()) {
+      auto u = q.front();
+      q.pop();
+      for (auto i : g[u]) {
+        if (edges[i].cap - edges[i].flow < 1) continue;
+        auto v = edges[i].v;
+        if (level[v] != -1) continue;
+        level[v] = level[u] + 1;
+        q.emplace(v);
+      }
     }
-
-    ll max_flow(int s, int t) {
-        ll flow = 0;
-        pa.resize(n);
-        used.resize(n);
-
-        while (bfs(s, t)) {
-            ll cur_f = inf;
-            for (int v = t; v != s; v = pa[v]) {
-                int u = pa[v];
-                cur_f = min(cur_f, adj[u][v]);
-            }
-            flow += cur_f;
-            for (int v = t; v != s; v = pa[v]) {
-                int u = pa[v];
-                adj[u][v] -= cur_f;
-                adj[v][u] += cur_f;
-            }
-        }
-
-        return flow;
+    return level[T] != -1;
+  }
+  FlowUnit dfs(int u, int T, FlowUnit pushed) {
+    if (pushed == 0 || u == T) {
+      return pushed;
     }
+    for (auto &pid = ptr[u]; pid < g[u].size(); ++pid) {
+      auto i = g[u][pid];
+      auto v = edges[i].v;
+      if (level[u] + 1 != level[v] || edges[i].cap - edges[i].flow < 1) continue;
+      auto f = dfs(v, T, std::min(pushed, edges[i].cap - edges[i].flow));
+      if (f == 0) continue;
+      edges[i].flow += f;
+      edges[i ^ 1].flow -= f;
+      return f;
+    }
+    return 0;
+  }
+
+  decltype(auto) flow(int S, int T) {
+    FlowUnit flow = 0;
+    while (bfs(S, T)) {
+      std::fill(ptr.begin(), ptr.end(), 0);
+      while (auto pushed = dfs(S, T, inf)) {
+        flow += pushed;
+      }
+    }
+    if constexpr (DoDecompose) {
+      std::map<int, FlowUnit> fall_through;
+      for (const auto &edge : edges) {
+        if (edge.id >= 0 && edge.flow > 0) {
+          fall_through[edge.id] = edge.flow;
+        }
+      }
+      return std::tuple{flow, fall_through};
+    } else {
+      return flow;
+    }
+  }
 };
 
 void solve() {
-    int n, m; cin >> n >> m;
-
-    vector<vector<ll>> adj(n, vector<ll>(n, 0));
-    rep(_, m) {
-        int a, b, c; cin >> a >> b >> c;
-        --a, --b;
-
-        adj[a].eb(b);
-        adj[a][b] += c;
-    }
-
-    max_flow_edmond_karp mx_flow(n, adj);
-    cout << mx_flow.max_flow(0, n - 1);
+  int n, m;
+  std::cin >> n >> m;
+  MaxFlow mf(n);
+  for (int i = 0; i < m; ++i) {
+    int u, v, w;
+    std::cin >> u >> v >> w;
+    mf.addEdge(u - 1, v - 1, w);
+  }
+  std::cout << mf.flow(0, n - 1) << '\n';
 }
 
-bool is_multi = false;
-
 int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(nullptr);
-    cout.tie(nullptr);
+  std::ios_base::sync_with_stdio(false);
+  std::cin.tie(nullptr);
 
-    int T = 1;
-    if (is_multi) cin >> T;
-    for (int tc = 1; tc <= T; ++tc) solve();
-
-    return 0;
+  solve();
 }
