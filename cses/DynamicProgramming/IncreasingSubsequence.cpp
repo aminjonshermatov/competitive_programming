@@ -1,85 +1,76 @@
-#include "bits/stdc++.h"
-#include <ext/pb_ds/assoc_container.hpp>
-#include <ext/pb_ds/tree_policy.hpp>
+#include <bits/stdc++.h>
 
-using namespace __gnu_pbds;
-using namespace std;
+#ifdef LOCAL
+#include "debug.h"
+#else
+#define dbg(...) 42
+#endif
 
-#pragma GCC optimize("Ofast")
-#pragma GCC optimize("unroll-loops")
-#pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx,avx,tune=native")
+template <typename Node> struct BottomUpSegmentTree {
+  int n = 0;
+  std::vector<Node> nodes;
 
-typedef long long ll;
-typedef pair<ll, ll> pll;
-typedef unsigned long long ull;
-typedef long double ld;
+  explicit BottomUpSegmentTree(int n_) { init(std::vector(n_, Node())); }
+  explicit BottomUpSegmentTree(int n_, Node node) { init(std::vector(n_, node)); }
+  template <typename T> explicit BottomUpSegmentTree(std::vector<T> init_) { init(init_); }
 
-#define F first
-#define S second
-#define P pair
-#define mp make_pair
-#define pb push_back
-#define eb emplace_back
-#define all(x) (x).begin(), (x).end()
-#define rall(x) (x).rbegin(), (x).rend()
-#define sz(x) (ll)((x).size())
+  template <typename T> void init(std::vector<T> init_) {
+    n = init_.size();
+    nodes.assign(2 * init_.size(), Node());
+    for (int i = 0; i < init_.size(); ++i) {
+      modify(i, Node{init_[i]});
+    }
+  }
 
-#define rep(i, a, b) for (ll i = (a); (i) < (b); ++(i))
-#define forr(el, cont) for (auto &(el) : (cont))
-#define read(k) ll k; cin >> k
+  void modify(int pos, Node val) {
+    for (nodes[pos += n] = val; pos > 1;) {
+      pos >>= 1;
+      nodes[pos] = Node::unite(nodes[pos << 1], nodes[pos << 1 | 1]);
+    }
+  }
+  Node query(int l, int r) {
+    auto ans = Node();
+    for (l += n, r += n; l < r; l >>= 1, r >>= 1) {
+      if (l & 1) ans = Node::unite(ans, nodes[l++]);
+      if (r & 1) ans = Node::unite(ans, nodes[--r]);
+    }
+    return ans;
+  }
+};
 
-#define IOS ios_base::sync_with_stdio(false); \
-            cin.tie(nullptr);                 \
-            cout.tie(nullptr);
-
-template<typename T>
-using V = vector<T>;
-
-template<typename T = ll>
-using ordered_set = tree<T, null_type, less_equal<T>, rb_tree_tag, tree_order_statistics_node_update>;
-
-[[maybe_unused]] mt19937 rnd(143);
-
-const ll inf = 1e15;
-const ll MOD = 1e9 + 7;
-[[maybe_unused]] const ld pi = atan2(0, -1);
-const ld eps = 1e-6;
-
-// ========================================= PROBLEM =========================================
+struct Node {
+  int val = 0;
+  static Node unite(Node a, Node b) {
+    return Node{std::max(a.val, b.val)};
+  }
+};
 
 void solve() {
-    read(N);
-    V<ll> A(N);
-    forr(a, A) cin >> a;
+  int n;
+  std::cin >> n;
+  std::vector<int> as(n);
+  for (auto& a : as) {
+    std::cin >> a;
+  }
 
-    V<ll> dp;
-    forr(a, A) {
-        auto it = lower_bound(all(dp), a);
-        if (it == dp.end()) dp.pb(a);
-        else *it = a;
-    }
+  auto as_s = as;
+  std::ranges::sort(as_s);
+  as_s.resize(std::unique(as_s.begin(), as_s.end()) - as_s.begin());
+  for (auto& a : as) {
+    a = int(std::ranges::lower_bound(as_s, a) - as_s.begin());
+  }
 
-    cout << sz(dp);
+  const auto m = int(as_s.size());
+  BottomUpSegmentTree<Node> st(m);
+  for (auto a : as) {
+    st.modify(a, {std::max(st.query(0, a).val + 1, st.query(a, a + 1).val)});
+  }
+  std::cout << st.query(0, m).val << '\n';
 }
 
-bool is_multi = false;
-
 int main() {
-    // auto start = chrono::steady_clock::now();
+  std::ios_base::sync_with_stdio(false);
+  std::cin.tie(nullptr);
 
-    IOS
-
-    int T = 1;
-    if (is_multi) cin >> T;
-    for (int tc = 1; tc <= T; ++tc) {
-        // cout << "Case #" << tc << ": ";
-        solve();
-        cout << '\n';
-    }
-
-    // auto finish = chrono::steady_clock::now();
-    // auto elapsed_ms = chrono::duration_cast<chrono::milliseconds>(finish - start);
-    // cerr << endl << "Time: " << elapsed_ms.count() << " ms\n";
-
-    return 0;
+  solve();
 }
