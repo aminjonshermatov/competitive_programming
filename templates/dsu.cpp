@@ -91,27 +91,28 @@ struct DsuRollback {
     return find(u) == find(v);
   }
 
-  void rollback() {
-    while (std::get<0>(history.back()) != UpdateType::kUpdateRank) {
-      assert(!history.empty());
-      auto [_, v, old_parent] = history.back();
-      parent[v] = old_parent;
-      history.pop_back();
+  [[nodiscard]] std::size_t snapshot() const {
+    return history.size();
+  }
+
+  void rollback(std::size_t time) {
+    for (; history.size() > time;) {
+      const auto sz = int(history.size());
+      if (sz > 1 && std::get<0>(history[sz - 1]) == UpdateType::kUpdateRank && std::get<0>(history[sz - 2]) == UpdateType::kUpdateParent) {
+        rank[std::get<1>(history.back())] = std::get<2>(history.back());
+        history.pop_back();
+        parent[std::get<1>(history.back())] = std::get<2>(history.back());
+        history.pop_back();
+        ++components;
+      } else if (std::get<0>(history.back()) == UpdateType::kUpdateRank) {
+        rank[std::get<1>(history.back())] = std::get<2>(history.back());
+        history.pop_back();
+      } else if (std::get<0>(history.back()) == UpdateType::kUpdateParent) {
+        parent[std::get<1>(history.back())] = std::get<2>(history.back());
+        history.pop_back();
+      }
+      assert(history.size() >= time);
     }
-    assert(history.size() > 1);
-    {
-      auto [type, v, old_rank] = history.back();
-      assert(type == UpdateType::kUpdateRank);
-      history.pop_back();
-      rank[v] = old_rank;
-    }
-    {
-      auto [type, v, old_parent] = history.back();
-      assert(type == UpdateType::kUpdateParent);
-      history.pop_back();
-      parent[v] = old_parent;
-    }
-    ++components;
   }
 };
 
