@@ -3,21 +3,22 @@
 //
 #include <bits/stdc++.h>
 
-template <std::integral FlowUnit = int64_t, bool DoDecompose = false>
+template <std::integral FlowUnit = int64_t, std::integral CostUnit = int64_t, bool DoDecompose = false>
 struct MinCostFlow {
-  static constexpr auto inf = std::numeric_limits<FlowUnit>::max();
+  static constexpr auto inf = std::numeric_limits<CostUnit>::max();
 
   struct FlowEdge {
     int u, v;
-    FlowUnit cap, flow, cost;
+    FlowUnit cap, flow;
+    CostUnit cost;
     int id;
-    FlowEdge(int u_, int v_, FlowUnit cap_, FlowUnit cost_, int id_) : u(u_), v(v_), cap(cap_), flow(0), cost(cost_), id(id_) { }
+    FlowEdge(int u_, int v_, FlowUnit cap_, CostUnit cost_, int id_) : u(u_), v(v_), cap(cap_), flow{}, cost(cost_), id(id_) { }
   };
 
   int n;
   std::vector<std::vector<int>> g;
   std::vector<FlowEdge> edges;
-  std::vector<FlowUnit> pot, dist;
+  std::vector<CostUnit> pot, dist;
   std::vector<int> pre;
   explicit MinCostFlow(int n_) : n(n_) {
     g.resize(n);
@@ -25,7 +26,7 @@ struct MinCostFlow {
     dist.resize(n);
     pre.resize(n);
   }
-  void addEdge(int u, int v, FlowUnit cap, FlowUnit cost, int id = -1) {
+  void addEdge(int u, int v, FlowUnit cap, CostUnit cost, int id = -1) {
     g[u].emplace_back(edges.size());
     edges.emplace_back(u, v, cap, cost, id);
     g[v].emplace_back(edges.size());
@@ -36,18 +37,20 @@ struct MinCostFlow {
     dist.assign(n, inf);
     pre.assign(n, -1);
 
-    using U = std::pair<FlowUnit, int>;
-    std::priority_queue<U, std::vector<U>, std::greater<>> pq;
+    std::priority_queue<std::pair<CostUnit, int>, std::vector<std::pair<CostUnit, int>>, std::greater<>> pq;
     pq.emplace(dist[S] = 0, S);
     while (!pq.empty()) {
       auto [d, u] = pq.top();
       pq.pop();
-      if (d > dist[u]) continue;
+      if (d > dist[u]) {
+        continue;
+      }
       for (auto id : g[u]) {
         auto v = edges[id].v;
-        if (edges[id].cap - edges[id].flow <= 0) continue;
-        auto nd = d + edges[id].cost + pot[u] - pot[v];
-        if (nd < dist[v]) {
+        if (edges[id].cap - edges[id].flow <= 0) {
+          continue;
+        }
+        if (auto nd = d + edges[id].cost + pot[u] - pot[v]; nd < dist[v]) {
           dist[v] = nd;
           pre[v] = id;
           pq.emplace(dist[v] = nd, v);
@@ -58,22 +61,24 @@ struct MinCostFlow {
   }
 
   decltype(auto) flow(int S, int T, const FlowUnit flowLimit = inf) {
-    std::fill(pot.begin(), pot.end(), 0);
+    std::fill(pot.begin(), pot.end(), CostUnit{});
     bool any = true;
     for (int _ = 0; _ < n && any; ++_) {
       any = false;
       for (const auto &edge : edges) {
-        if (edge.cap == 0) continue;
-        auto npot = pot[edge.u] + edge.cost;
-        if (pot[edge.v] > npot) {
+        if (edge.cap == CostUnit{}) {
+          continue;
+        }
+        if (auto npot = pot[edge.u] + edge.cost; pot[edge.v] > npot) {
           any |= true;
           pot[edge.v] = npot;
         }
       }
     }
-    assert(!any); // cycle of negative weight
+    assert(!any && "Detected cycle with negative weight");
 
-    FlowUnit flow = 0, cost = 0;
+    FlowUnit flow{};
+    CostUnit cost{};
     while (dijkstra(S, T) && flow < flowLimit) {
       for (int v = 0; v < n; ++v) {
         pot[v] += dist[v];
