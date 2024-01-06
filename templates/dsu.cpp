@@ -96,22 +96,17 @@ struct DsuRollback {
   }
 
   void rollback(std::size_t time) {
-    for (; history.size() > time;) {
-      const auto sz = int(history.size());
-      if (sz > 1 && std::get<0>(history[sz - 1]) == UpdateType::kUpdateRank && std::get<0>(history[sz - 2]) == UpdateType::kUpdateParent) {
+    for (; history.size() > time; history.pop_back()) {
+      if (history.size() > 1u && std::get<0>(history.back()) == UpdateType::kUpdateRank && std::get<0>(history[int(history.size()) - 2]) == UpdateType::kUpdateParent) {
         rank[std::get<1>(history.back())] = std::get<2>(history.back());
         history.pop_back();
         parent[std::get<1>(history.back())] = std::get<2>(history.back());
-        history.pop_back();
         ++components;
       } else if (std::get<0>(history.back()) == UpdateType::kUpdateRank) {
         rank[std::get<1>(history.back())] = std::get<2>(history.back());
-        history.pop_back();
       } else if (std::get<0>(history.back()) == UpdateType::kUpdateParent) {
         parent[std::get<1>(history.back())] = std::get<2>(history.back());
-        history.pop_back();
       }
-      assert(history.size() >= time);
     }
   }
 };
