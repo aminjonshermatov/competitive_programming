@@ -13,50 +13,95 @@ template <typename T> struct LinearFunction {
   [[nodiscard]] inline bool beats(const LinearFunction<T>& other, const T& x) const {
     return operator()(x) < other(x); // minimization
   }
-
+  [[nodiscard]] inline bool operator==(const LinearFunction<T>& other) const {
+    return k == other.k && m == other.m;
+  }
   template <typename U> friend std::ostream& operator<<(std::ostream& out, const LinearFunction<U>& line) {
     return out << "y=" << line.k << 'x' << (line.m >= 0 ? '+' : '-') << std::abs(line.m);
   }
 };
 
 template <typename T> struct LiChaoNode {
-  T lBound{}, rBound{};
-  LiChaoNode *lChild, *rChild;
-  LinearFunction<T> optLine;
-
-  LiChaoNode(T lb, T rb, LiChaoNode *lCh, LiChaoNode *rCh) : lBound(lb), rBound(rb), lChild(lCh), rChild(rCh) { }
-  LiChaoNode(T lb, T rb) : LiChaoNode(lb, rb, nullptr, nullptr) { }
-
-  void extend() {
-    if (lChild == nullptr && rBound - lBound > 1) {
-      auto mid = lBound + (rBound - lBound) / 2;
-      lChild = new LiChaoNode<T>(lBound, mid);
-      rChild = new LiChaoNode<T>(mid, rBound);
-    }
-  }
-
-  void addLine(LinearFunction<T> line) {
-    auto mid = lBound + (rBound - lBound) / 2;
-
-    auto fLeft = line.beats(optLine, lBound);
-    auto fMid = line.beats(optLine, mid);
-
-    if (fMid) {
-      std::swap(line, optLine);
-    }
-    if (rBound - lBound == 1) {
-      return;
-    }
-    extend();
-    (fLeft != fMid ? lChild : rChild)->addLine(line);
-  }
-  [[nodiscard]] auto query(const T& x) {
-    auto loc = optLine(x);
-    if (rBound - lBound == 1) {
-      return loc;
-    }
-    auto mid = lBound + (rBound - lBound) / 2;
-    extend();
-    return std::min(loc, (x < mid ? lChild : rChild)->query(x));
-  }
+  LiChaoNode *lc, *rc;
+  LinearFunction<T> line;
+  LiChaoNode(LiChaoNode* lc_, LiChaoNode* rc_, LinearFunction<T> line_) : lc(lc_), rc(rc_), line(line_) { }
+  LiChaoNode() : LiChaoNode(nullptr, nullptr, {}) { }
+  LiChaoNode(const LiChaoNode<T>& other) : LiChaoNode(other.lc, other.rc, other.line) { }
+  explicit LiChaoNode(LinearFunction<T> line_) : LiChaoNode(nullptr, nullptr, line_) { }
 };
+
+template <typename T> void addLineInplace(LiChaoNode<T>*& node, T lx, T rx, LinearFunction<T> line) {
+  if (node == nullptr) {
+    node = new LiChaoNode<T>(line);
+    return;
+  }
+  auto mid = lx + (rx - lx) / 2;
+
+  auto fLeft = line.beats(node->line, lx);
+  auto fMid = line.beats(node->line, mid);
+
+  if (fMid) {
+    std::swap(line, node->line);
+  }
+  if (rx - lx == 1) {
+    return;
+  }
+  if (fLeft != fMid) {
+    addLineInplace(node->lc, lx, mid, line);
+  } else {
+    addLineInplace(node->rc, mid, rx, line);
+  }
+}
+template <typename T> LiChaoNode<T>* addLine(const LiChaoNode<T>* node, T lx, T rx, LinearFunction<T> line) {
+  if (node == nullptr) {
+    return new LiChaoNode<T>(line);
+  }
+  auto mid = lx + (rx - lx) / 2;
+
+  auto fLeft = line.beats(node->line, lx);
+  auto fMid = line.beats(node->line, mid);
+
+  auto newNode = node;
+  if (fMid) {
+    newNode = new LiChaoNode(*node);
+    std::swap(line, newNode->line);
+  }
+  if (rx - lx == 1) {
+    return newNode;
+  }
+  if (fLeft != fMid) {
+    if (newNode == node) {
+      newNode = new LiChaoNode(*node);
+    }
+    newNode->lc = addLine(newNode->lc, lx, mid, line);
+  } else {
+    if (newNode == node) {
+      newNode = new LiChaoNode(*node);
+    }
+    newNode->rc = addLine(newNode->rc, mid, rx, line);
+  }
+  return newNode;
+}
+template <typename T> void merge(LiChaoNode<T>* dest, LiChaoNode<T>* from, T lx, T rx) {
+  if (from == nullptr) {
+    return;
+  }
+  addLineInplace(dest, lx, rx, from->line);
+  if (from->lc != nullptr) {
+    merge(dest, from->lc, lx, rx);
+  }
+  if (from->rc != nullptr) {
+    merge(dest, from->rc, lx, rx);
+  }
+}
+template <typename T> T query(const LiChaoNode<T>* node, T lx, T rx, const T& x) noexcept {
+  if (node == nullptr) {
+    return std::numeric_limits<T>::max();
+  }
+  auto loc = node->line(x);
+  if (rx - lx > 1) {
+    auto mid = lx + (rx - lx) / 2;
+    loc = std::min(loc, x < mid ? query(node->lc, lx, mid, x) : query(node->rc, mid, rx, x));
+  }
+  return loc;
+}
