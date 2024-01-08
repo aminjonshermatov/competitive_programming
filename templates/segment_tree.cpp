@@ -12,7 +12,7 @@ struct LazySegmentTree {
   std::vector<Tag> tags;
 
   explicit LazySegmentTree(int n_) { init(std::vector(n_, Node())); }
-  explicit LazySegmentTree(int n_, Node node) { init(std::vector(n_, node)); }
+  LazySegmentTree(int n_, Node node) { init(std::vector(n_, node)); }
   template <typename T> explicit LazySegmentTree(std::vector<T> init_) { init(init_); }
 
   template <typename T> void init(std::vector<T> init_) {
@@ -142,7 +142,7 @@ template <typename Node> struct SegmentTree {
   std::vector<Node> nodes;
 
   explicit SegmentTree(int n_) { init(std::vector(n_, Node())); }
-  explicit SegmentTree(int n_, Node node) { init(std::vector(n_, node)); }
+  SegmentTree(int n_, Node node) { init(std::vector(n_, node)); }
   template <typename T> explicit SegmentTree(std::vector<T> init_) { init(init_); }
 
   template <typename T> void init(std::vector<T> init_) {
@@ -226,7 +226,7 @@ template <typename Node> struct BottomUpSegmentTree {
   std::vector<Node> nodes;
 
   explicit BottomUpSegmentTree(int n_) { init(std::vector(n_, Node())); }
-  explicit BottomUpSegmentTree(int n_, Node node) { init(std::vector(n_, node)); }
+  BottomUpSegmentTree(int n_, Node node) { init(std::vector(n_, node)); }
   template <typename T> explicit BottomUpSegmentTree(std::vector<T> init_) { init(init_); }
 
   template <typename T> void init(std::vector<T> init_) {
