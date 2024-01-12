@@ -4,27 +4,13 @@
 #include <bits/stdc++.h>
 #include "constants.h"
 
-bool check() {
+auto check() -> bool {
   std::ifstream data(constants::DATA_IN);
   std::ifstream slow(constants::SLOW_OUT);
   std::ifstream fast(constants::FAST_OUT);
 
-  int n;
-  data >> n;
-  std::vector<std::string> ss(n);
-  for (auto &s : ss) {
-    data >> s;
-  }
-
-  std::string s, f;
-  slow >> s;
-  fast >> f;
+  int s, f;
   if (s != f) {
-    std::cerr << n << '\n';
-    for (auto &w : ss) {
-      std::cerr << w << '\n';
-    }
-    std::cerr << "bad: " << s << ' ' << f << '\n';
     return false;
   }
 
@@ -32,13 +18,16 @@ bool check() {
 }
 
 int main() {
-  for (int i = 0; i < 1000; ++i) {
+  constexpr int ITER = 1'000;
+  for (int i = 0; i < ITER; ++i) {
     std::system("./gen");
     std::system("./slow");
     std::system("./fast");
-    if (!check()) break;
+    if (!check()) {
+      break;
+    }
     using namespace std::literals::chrono_literals;
     std::this_thread::sleep_for(150ms);
-    std::cout << "done " << i << std::endl;
+    std::cout << std::format("done {}\n", i);
   }
 }

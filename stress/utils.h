@@ -1,9 +1,7 @@
 //
 // Created by aminjon on 4/13/23.
 //
-
-#ifndef COMPETITIVE_PROGRAMMING_UTILS_H
-#define COMPETITIVE_PROGRAMMING_UTILS_H
+#pragma once
 
 #include <random>
 #include <chrono>
@@ -12,22 +10,29 @@
 
 namespace utils {
 
-std::mt19937 rnd(std::chrono::steady_clock::now().time_since_epoch().count());
+std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());
 
-int random(int lo, int hi) { // [lo, hi]
+decltype(auto) randomInt(int lo, int hi) { // [lo, hi]
   assert(lo <= hi);
-  return lo + std::abs(static_cast<int>(rnd())) % (hi - lo + 1);
+  return lo + std::abs(static_cast<int>(rng())) % (hi - lo + 1);
 }
 
-std::string random_string(int len, char fst, int alpha_len) {
+decltype(auto) randomString(int len, char from, char to) {
   assert(len > 0);
   std::string s(len, '#');
   for (auto &ch : s) {
-    ch = char(fst + random(0, alpha_len - 1));
+    ch = char(from + randomInt(0, to - from));
   }
   return s;
 }
 
-}// namespace utils
+decltype(auto) randomTree(int nVertices) { // 0 - indexed
+  assert(nVertices > 0);
+  std::vector<std::pair<int, int>> edges(nVertices - 1);
+  for (int v = 1; v < nVertices; ++v) {
+    edges[v - 1] = std::pair(v, randomInt(0, v - 1));
+  }
+  return edges;
+}
 
-#endif//COMPETITIVE_PROGRAMMING_UTILS_H
+} // namespace utils
