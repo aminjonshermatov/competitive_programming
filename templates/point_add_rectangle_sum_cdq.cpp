@@ -3,7 +3,7 @@
 //
 #include <bits/stdc++.h>
 
-// https://judge.yosupo.jp/submission/183888
+// https://judge.yosupo.jp/submission/183891
 
 // CDQ
 template <typename T> struct PointAddRectangleSum {
@@ -67,12 +67,10 @@ template <typename T> struct PointAddRectangleSum {
       self(self, l, mid);
       self(self, mid, r);
 
-      std::vector<std::pair<T, T>> undo;
       std::vector<Event> ord;
       int i = l, j = mid;
-      for (; i < mid && j < r;) {
-        if (events[i].x <= events[j].x) {
-          undo.emplace_back(events[i].y, -events[i].val);
+      for (; i < mid || j < r;) {
+        if (j == r || i < mid && events[i].x <= events[j].x) {
           upd(events[i].y, events[i].val);
           ord.emplace_back(events[i++]);
         } else {
@@ -82,19 +80,10 @@ template <typename T> struct PointAddRectangleSum {
           ord.emplace_back(events[j++]);
         }
       }
-      for (; i < mid; ++i) {
-        undo.emplace_back(events[i].y, -events[i].val);
-        upd(events[i].y, events[i].val);
-        ord.emplace_back(events[i]);
-      }
-      for (; j < r; ++j) {
-        if (events[j].id != -1) {
-          ans[events[j].id] += qry(events[j].y) * events[j].sign;
+      for (int k = l; k < mid; ++k) {
+        if (events[k].val != 0) {
+          upd(events[k].y, -events[k].val);
         }
-        ord.emplace_back(events[j]);
-      }
-      for (auto [pos, val] : undo) {
-        upd(pos, val);
       }
       for (int k = 0; k < ord.size(); ++k) {
         events[l + k] = ord[k];
