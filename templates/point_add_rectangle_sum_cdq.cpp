@@ -3,7 +3,7 @@
 //
 #include <bits/stdc++.h>
 
-// https://judge.yosupo.jp/submission/183891
+// https://judge.yosupo.jp/submission/183929
 
 // CDQ
 template <typename T> struct PointAddRectangleSum {
@@ -59,6 +59,7 @@ template <typename T> struct PointAddRectangleSum {
       }
       return acc;
     };
+    std::vector<Event> ord;
     auto cdq = [&](auto& self, int l, int r) -> void {
       if (r - l <= 1) {
         return;
@@ -66,18 +67,17 @@ template <typename T> struct PointAddRectangleSum {
       auto mid = l + (r - l) / 2;
       self(self, l, mid);
       self(self, mid, r);
-
-      std::vector<Event> ord;
-      int i = l, j = mid;
-      for (; i < mid || j < r;) {
+      int ptr = 0;
+      for (int i = l, j = mid; i < mid || j < r;) {
+        for (; ord.size() <= ptr; ord.emplace_back()) { }
         if (j == r || i < mid && events[i].x <= events[j].x) {
           upd(events[i].y, events[i].val);
-          ord.emplace_back(events[i++]);
+          ord[ptr++] = events[i++];
         } else {
           if (events[j].id != -1) {
             ans[events[j].id] += qry(events[j].y) * events[j].sign;
           }
-          ord.emplace_back(events[j++]);
+          ord[ptr++] = events[j++];
         }
       }
       for (int k = l; k < mid; ++k) {
@@ -85,7 +85,7 @@ template <typename T> struct PointAddRectangleSum {
           upd(events[k].y, -events[k].val);
         }
       }
-      for (int k = 0; k < ord.size(); ++k) {
+      for (int k = 0; k < ptr; ++k) {
         events[l + k] = ord[k];
       }
     };
