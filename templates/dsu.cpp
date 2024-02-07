@@ -3,11 +3,11 @@
 //
 #include <bits/stdc++.h>
 
-struct Dsu {
+struct DSU {
   int n, components;
   std::vector<int> parent, rank;
 
-  explicit Dsu(int n_) : n(n_), components(n), parent(n), rank(n, 1) {
+  explicit DSU(int n_) : n(n_), components(n), parent(n), rank(n, 1) {
     iota(parent.begin(), parent.end(), 0);
   }
 
@@ -45,14 +45,14 @@ struct Dsu {
   }
 };
 
-struct DsuRollback {
+struct DSURollback {
   int n, components;
   std::vector<int> parent, rank;
 
   enum class UpdateType : uint8_t { kUpdateRank, kUpdateParent };
   std::vector<std::tuple<UpdateType, int, int>> history;
 
-  explicit DsuRollback(int n_) : n(n_), components(n), parent(n), rank(n, 1) {
+  explicit DSURollback(int n_) : n(n_), components(n), parent(n), rank(n, 1) {
     iota(parent.begin(), parent.end(), 0);
   }
 
@@ -111,12 +111,12 @@ struct DsuRollback {
   }
 };
 
-template <typename Node> struct DsuWeighted {
+template <typename Node> struct DSUWeighted {
   int n, components;
   std::vector<int> parent, rank;
   std::vector<Node> weight;
 
-  explicit DsuWeighted(int n_) : n(n_), components(n), parent(n), rank(n, 1), weight(n, Node()) {
+  explicit DSUWeighted(int n_) : n(n_), components(n), parent(n), rank(n, 1), weight(n, Node()) {
     iota(parent.begin(), parent.end(), 0);
   }
 
