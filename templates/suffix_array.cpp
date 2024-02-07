@@ -4,8 +4,8 @@
 #include <bits/stdc++.h>
 
 template <size_t ALPHA = 27, char MIN_ALPHA = 'a' - 1>
-std::vector<int> suffix_array(std::string_view s) {
-  assert(std::all_of(s.begin(), s.end(), [](char ch) { return std::clamp<char>(ch, MIN_ALPHA, MIN_ALPHA + ALPHA - 1) == ch; }));
+decltype(auto) suffix_array(std::string_view s) {
+  assert(std::all_of(s.begin(), s.end(), [](char ch) { return std::clamp<int>(ch - '\0', MIN_ALPHA, MIN_ALPHA + ALPHA - 1 - '\0') == (ch - '\0'); }));
   assert(s.back() == MIN_ALPHA);
 
   const auto n = static_cast<int>(s.size());
@@ -53,7 +53,7 @@ std::vector<int> suffix_array(std::string_view s) {
 }
 
 template <size_t ALPHA = 27, char MIN_ALPHA = 'a' - 1>
-std::vector<int> lcp_array(std::string_view s) {
+decltype(auto) lcp_array(std::string_view s) {
   assert(s.back() == MIN_ALPHA);
 
   const auto n = static_cast<int>(s.size());
