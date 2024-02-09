@@ -8,7 +8,9 @@ template <typename Node> struct SparseTable {
   std::vector<std::vector<Node>> table;
   std::vector<int> lg;
 
-  template <typename U> auto init(const std::vector<U> &init_) -> void {
+  template <typename U> explicit SparseTable(const std::vector<U>& init_) { init(init_); }
+
+  template <typename U> auto init(const std::vector<U>& init_) -> void {
     table.assign(init_.size(), {});
     lg.resize(init_.size() + 1);
     lg[0] = -1;
@@ -25,10 +27,10 @@ template <typename Node> struct SparseTable {
     }
   }
 
-  template <typename U> explicit SparseTable(const std::vector<U> &init_) { init(init_); }
-
   [[nodiscard]] decltype(auto) query(int l, int r) const {
+#ifdef LOCAL
     assert(0 <= l && l < r && r <= table.size());
+#endif
     const auto b = lg[r - l];
     return Node::unite(table[l][b], table[r - (1 << b)][b]);
   }
@@ -36,7 +38,7 @@ template <typename Node> struct SparseTable {
 
 struct Node {
   int val = std::numeric_limits<int>::max();
-  static Node unite(Node a, Node b) {
+  static Node unite(const Node& a, const Node& b) {
     return a.val < b.val ? a : b;
   }
 };
