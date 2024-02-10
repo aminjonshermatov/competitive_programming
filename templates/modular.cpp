@@ -3,42 +3,35 @@
 //
 #include <bits/stdc++.h>
 
-using i64 = int64_t;
+template <int P> class Z {
+  int x = 0;
+public:
+  static_assert(P <= std::numeric_limits<int>::max() / 2);
 
-template <typename T> T power(T a, i64 b) noexcept {
-  T res = 1;
-  for (; b > 0; b >>= 1, a *= a) {
-    if (b & 1) {
-      res *= a;
-    }
-  }
-  return res;
-}
-
-template <i64 P> struct Z {
-  i64 x = 0;
   constexpr Z() noexcept = default;
-  constexpr Z(i64 x) noexcept : x(norm(x % getMod())) { }
+  constexpr Z(long long y) noexcept : x(norm(y)) { }
 
-  static i64 getMod() noexcept { return P; }
-  [[nodiscard]] constexpr i64 norm(i64 y) const noexcept {
+  static constexpr int getMod() noexcept { return P; }
+  [[nodiscard]] constexpr static int norm(long long y) noexcept {
+    if (y < -getMod() || y >= getMod()) {
+      y %= getMod();
+    }
     if (y < 0) {
       y += getMod();
     }
-    if (y >= getMod()) {
-      y -= getMod();
-    }
-    return y;
+    return static_cast<int>(y);
   }
 
-  [[nodiscard]] constexpr i64 val() const noexcept { return x; }
-  constexpr explicit operator i64() const noexcept { return x; }
+  [[nodiscard]] constexpr int val() const noexcept { return x; }
+  constexpr explicit operator int() const noexcept { return x; }
 
   constexpr Z operator-() const noexcept {
-    return Z(getMod() - x);
+    return {getMod() - x};
   }
-  [[nodiscard]] constexpr Z inv() const noexcept {
-    return power(*this, getMod() - 2);
+  [[nodiscard]] constexpr Z inverse() const noexcept {
+    Z inv = *this;
+    inv.pow(getMod() - 2);
+    return inv;
   }
 
   constexpr Z& operator+=(Z other) noexcept {
@@ -50,24 +43,43 @@ template <i64 P> struct Z {
     return *this;
   }
   constexpr Z& operator*=(Z other) noexcept {
-    x = norm((x * other.val()) % getMod());
+    x = norm(x * 1LL * other.val());
     return *this;
   }
   constexpr Z& operator/=(Z other) noexcept {
-    return *this *= other.inv();
+    return *this *= other.inverse();
+  }
+
+  constexpr Z& operator++() noexcept {
+    operator+=(1);
+    return *this;
+  }
+  constexpr Z operator++(int) const noexcept {
+    auto z = *this;
+    ++(*this);
+    return z;
+  }
+  constexpr Z& operator--() noexcept {
+    operator-=(1);
+    return *this;
+  }
+  constexpr Z operator--(int) const noexcept {
+    auto z = *this;
+    --(*this);
+    return z;
   }
 
   constexpr Z operator+(Z other) const noexcept {
     return {x + other.val()};
   }
   constexpr Z operator-(Z other) const noexcept {
-    return {norm(x - other.val())};
+    return {x - other.val()};
   }
   constexpr Z operator*(Z other) const noexcept {
-    return {norm((x * other.val()) % getMod())};
+    return {x * 1LL * other.val()};
   }
   constexpr Z operator/(Z other) const noexcept {
-    return {other.inv() * x};
+    return other.inverse() * x;
   }
 
   constexpr bool operator==(Z other) const noexcept {
@@ -77,16 +89,26 @@ template <i64 P> struct Z {
     return val() != other.val();
   }
 
-  template<i64 Mod> friend std::istream& operator>>(std::istream &in, Z<Mod> &z) {
-    i64 y;
+  Z pow(long long n) {
+    Z res = 1;
+    for (; n > 0; n >>= 1, *this *= *this) {
+      if (n % 2 == 1) {
+        res *= *this;
+      }
+    }
+    return *this = res;
+  }
+
+  template <int Mod> friend std::istream& operator>>(std::istream &in, Z<Mod>& z) {
+    long long y;
     in >> y;
     z = Z{y};
     return in;
   }
-  template<i64 Mod> friend std::ostream& operator<<(std::ostream &out, const Z<Mod> &z) {
+  template <int Mod> friend std::ostream& operator<<(std::ostream &out, const Z<Mod>& z) {
     return out << z.val();
   }
 };
 
-constexpr i64 Mod = 998244353;
+constexpr int Mod = 998244353;
 using Mint = Z<Mod>;
