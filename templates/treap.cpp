@@ -82,11 +82,11 @@ template <typename TreapNode> struct TreapNodeBase {
   bool reverse;
 protected:
   TreapNodeBase()
-      : l(nullptr)
-      , r(nullptr)
-      , size(1)
-      , priority(rng())
-      , reverse(false)
+    : l(nullptr)
+    , r(nullptr)
+    , size(1)
+    , priority(rng())
+    , reverse(false)
   { }
 };
 template <typename Info, typename Aggregator> struct TreapNode : TreapNodeBase<TreapNode<Info, Aggregator>> {
@@ -95,9 +95,9 @@ template <typename Info, typename Aggregator> struct TreapNode : TreapNodeBase<T
   Aggregator aggr;
 
   explicit TreapNode(const Info& info_ = Info(), const Aggregator& aggr_ = Aggregator())
-      : Base()
-      , info(info_)
-      , aggr(aggr_)
+    : Base()
+    , info(info_)
+    , aggr(aggr_)
   { }
 };
 
@@ -185,14 +185,14 @@ struct Info {
   int val = 0;
   Info() = default;
   explicit Info(int val_)
-      : val(val_)
+    : val(val_)
   { }
 };
 struct SumAggregator {
   int sum = 0;
   SumAggregator() = default;
   explicit SumAggregator(int sum_)
-      : sum(sum_)
+    : sum(sum_)
   { }
   inline SumAggregator& operator=(const Info& info) {
     sum = info.val;
