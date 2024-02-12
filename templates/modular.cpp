@@ -89,7 +89,7 @@ public:
     return val() != other.val();
   }
 
-  Z pow(long long n) {
+  Z& pow(long long n) {
     Z res = 1;
     for (; n > 0; n >>= 1, *this *= *this) {
       if (n % 2 == 1) {
