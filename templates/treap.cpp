@@ -7,8 +7,8 @@ template <typename Node> struct TreapBase {
   using Ptr = Node*; // std::shared_ptr<Node>
   template <typename ...Args>
   inline Ptr make_node(Args&&... args) {
-    // return std::make_shared<Node>(std::forward<Args...>(args...));
-    return new Node(std::forward<Args...>(args...));
+    // return std::make_shared<Node>(std::forward<Args>(args)...);
+    return new Node(std::forward<Args>(args)...);
   }
 
   inline int size(Ptr ptr) {
@@ -49,7 +49,7 @@ template <typename Node> struct TreapBase {
   template <typename ...Args>
   inline void emplace(Ptr& ptr, int k, Args&&... args) {
     auto [l, r] = split(ptr, k);
-    ptr = merge(l, merge(make_node(std::forward<Args...>(args...)), r));
+    ptr = merge(l, merge(make_node(std::forward<Args>(args)...), r));
   }
   /*
    * @brief Insert after `k` elements, i.e 0 means to the beginning
@@ -181,24 +181,25 @@ private:
     }
   }
 };
+constexpr auto inf = std::numeric_limits<int>::max();
 struct Info {
-  int val = 0;
+  int val = inf;
   Info() = default;
   explicit Info(int val_)
     : val(val_)
   { }
 };
-struct SumAggregator {
-  int sum = 0;
-  SumAggregator() = default;
-  explicit SumAggregator(int sum_)
-    : sum(sum_)
+struct MinAggregator {
+  int min = inf;
+  MinAggregator() = default;
+  explicit MinAggregator(int min_)
+    : min(min_)
   { }
-  inline SumAggregator& operator=(const Info& info) {
-    sum = info.val;
+  inline MinAggregator& operator=(const Info& info) {
+    min = info.val;
     return *this;
   }
-  static inline SumAggregator unite(const SumAggregator& a, const SumAggregator& b) {
-    return SumAggregator{a.sum + b.sum};
+  static inline MinAggregator unite(const MinAggregator& a, const MinAggregator& b) {
+    return MinAggregator{std::min(a.min, b.min)};
   }
 };
