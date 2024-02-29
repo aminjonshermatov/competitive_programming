@@ -28,9 +28,6 @@ template <typename Node> struct SparseTable {
   }
 
   [[nodiscard]] decltype(auto) query(int l, int r) const {
-#ifdef LOCAL
-    assert(0 <= l && l < r && r <= table.size());
-#endif
     const auto b = lg[r - l];
     return Node::unite(table[l][b], table[r - (1 << b)][b]);
   }
