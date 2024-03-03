@@ -6,17 +6,11 @@
 
 template <typename Node> struct SparseTable {
   std::vector<std::vector<Node>> table;
-  std::vector<int> lg;
 
   template <typename U> explicit SparseTable(const std::vector<U>& init_) { init(init_); }
 
   template <typename U> auto init(const std::vector<U>& init_) -> void {
     table.assign(init_.size(), {});
-    lg.resize(init_.size() + 1);
-    lg[0] = -1;
-    for (int i = 1; i <= init_.size(); ++i) {
-      lg[i] = 31 - __builtin_clz(i);
-    }
     for (auto i = 0u; i < init_.size(); ++i) {
       table[i].push_back({init_[i]});
     }
@@ -28,7 +22,7 @@ template <typename Node> struct SparseTable {
   }
 
   [[nodiscard]] decltype(auto) query(int l, int r) const {
-    const auto b = lg[r - l];
+    const auto b = 31 - __builtin_clz(r - l);
     return Node::unite(table[l][b], table[r - (1 << b)][b]);
   }
 };
