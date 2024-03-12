@@ -89,6 +89,16 @@ public:
     return val() != other.val();
   }
 
+  [[nodiscard]] Z pow(long long n) const {
+    auto ret = *this;
+    Z res = 1;
+    for (; n > 0; n >>= 1, ret *= ret) {
+      if (n % 2 == 1) {
+        res *= ret;
+      }
+    }
+    return res;
+  }
   Z& pow(long long n) {
     Z res = 1;
     for (; n > 0; n >>= 1, *this *= *this) {
