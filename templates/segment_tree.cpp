@@ -230,26 +230,30 @@ template <typename Node> struct BottomUpSegmentTree {
   template <typename T> explicit BottomUpSegmentTree(std::vector<T> init_) { init(init_); }
 
   template <typename T> void init(std::vector<T> init_) {
-    n = init_.size();
-    nodes.assign(2 * init_.size(), Node());
+    n = 1;
+    for (; n < init_.size(); n *= 2) { }
+    nodes.assign(2 * n, Node());
     for (int i = 0; i < init_.size(); ++i) {
-      modify(i, Node{init_[i]});
+      nodes[i + n] = Node(init_[i]);
+    }
+    for (int i = n - 1; i >= 1; --i) {
+      nodes[i] = Node::unite(nodes[i << 1], nodes[i << 1 | 1]);
     }
   }
 
   void modify(int pos, Node val) {
-    for (nodes[pos += n] = val; pos > 1;) {
-      pos >>= 1;
+    nodes[pos += n] = val;
+    for (pos >>= 1; pos >= 1; pos >>= 1) {
       nodes[pos] = Node::unite(nodes[pos << 1], nodes[pos << 1 | 1]);
     }
   }
   Node query(int l, int r) {
-    auto ans = Node();
+    auto retL = Node(), retR = Node();
     for (l += n, r += n; l < r; l >>= 1, r >>= 1) {
-      if (l & 1) ans = Node::unite(ans, nodes[l++]);
-      if (r & 1) ans = Node::unite(ans, nodes[--r]);
+      if (l & 1) retL = Node::unite(retL, nodes[l++]);
+      if (r & 1) retR = Node::unite(nodes[--r], retR);
     }
-    return ans;
+    return Node::unite(retL, retR);
   }
 };
 
