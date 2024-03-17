@@ -29,9 +29,7 @@ public:
     return {getMod() - x};
   }
   [[nodiscard]] constexpr Z inverse() const noexcept {
-    Z inv = *this;
-    inv.pow(getMod() - 2);
-    return inv;
+    return pow(getMod() - 2);
   }
 
   constexpr Z& operator+=(Z other) noexcept {
@@ -90,7 +88,7 @@ public:
   }
 
   [[nodiscard]] Z pow(long long n) const {
-    auto ret = *this;
+    auto ret = Z(*this);
     Z res = 1;
     for (; n > 0; n >>= 1, ret *= ret) {
       if (n % 2 == 1) {
@@ -98,15 +96,6 @@ public:
       }
     }
     return res;
-  }
-  Z& pow(long long n) {
-    Z res = 1;
-    for (; n > 0; n >>= 1, *this *= *this) {
-      if (n % 2 == 1) {
-        res *= *this;
-      }
-    }
-    return *this = res;
   }
 
   template <int Mod> friend std::istream& operator>>(std::istream &in, Z<Mod>& z) {
