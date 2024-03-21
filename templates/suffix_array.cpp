@@ -3,22 +3,22 @@
 //
 #include <bits/stdc++.h>
 
-template <size_t ALPHA = 27, char MIN_ALPHA = 'a' - 1>
-decltype(auto) suffix_array(std::string_view s) {
-  assert(std::all_of(s.begin(), s.end(), [](char ch) { return std::clamp<int>(ch - '\0', MIN_ALPHA, MIN_ALPHA + ALPHA - 1 - '\0') == (ch - '\0'); }));
-  assert(s.back() == MIN_ALPHA);
+template <typename T>
+decltype(auto) suffix_array(const std::vector<T>& s, const std::size_t alpha, const T& min_alpha) {
+  assert(std::all_of(s.begin(), s.end(), [&](char x) { return std::clamp<T>(x, min_alpha, min_alpha + alpha - 1) == x; }));
+  assert(s.back() == min_alpha);
 
   const auto n = static_cast<int>(s.size());
-  const auto nn = std::max<int>(ALPHA, n) + 1;
+  const auto nn = std::max<int>(alpha, n) + 1;
   std::vector<int> p(n), c(n), cnt(nn, 0);
   for (auto ch : s) {
-    ++cnt[ch - MIN_ALPHA];
+    ++cnt[ch - min_alpha];
   }
   for (int i = 1; i < nn; ++i) {
     cnt[i] += cnt[i - 1];
   }
   for (int i = 0; i < n; ++i) {
-    p[--cnt[s[i] - MIN_ALPHA]] = i;
+    p[--cnt[s[i] - min_alpha]] = i;
   }
   c[p[0]] = 0;
   for (int i = 1; i < n; ++i) {
@@ -52,12 +52,12 @@ decltype(auto) suffix_array(std::string_view s) {
   return p;
 }
 
-template <size_t ALPHA = 27, char MIN_ALPHA = 'a' - 1>
-decltype(auto) lcp_array(std::string_view s) {
-  assert(s.back() == MIN_ALPHA);
+template <typename T>
+decltype(auto) lcp_array(const std::vector<T>& s, const std::size_t alpha, const T& min_alpha) {
+  assert(s.back() == min_alpha);
 
   const auto n = static_cast<int>(s.size());
-  const auto sa = suffix_array<ALPHA, MIN_ALPHA>(s);
+  const auto sa = suffix_array<T>(s, alpha, min_alpha);
   std::vector<int> pos(n);
   for (int i = 0; i < n; ++i) {
     pos[sa[i]] = i;
@@ -66,11 +66,15 @@ decltype(auto) lcp_array(std::string_view s) {
   int k = 0;
   for (int i = 0; i < n; ++i) {
     k = std::max(k - 1, 0);
-    if (pos[i] == n - 1) continue;
+    if (pos[i] == n - 1) {
+      continue;
+    }
     auto j = sa[pos[i] + 1];
-    while (s[i + k] == s[j + k]) ++k;
+    while (s[i + k] == s[j + k]) {
+      ++k;
+    }
     lcp[pos[i]] = k;
   }
 
-  return lcp;
+  return std::pair(lcp, sa);
 }
