@@ -26,18 +26,18 @@ constexpr void for_values(auto&& f, auto&& x) {
   (f.template operator()<Xs>(x), ...);
 }
 
-constexpr auto for_each(auto& xs, auto&& f) {
+constexpr auto for_each(auto&& xs, auto&& f) {
   [&]<size_t... Is>(std::index_sequence<Is...>){
     (for_values<Is>(f, std::get<Is>(xs)), ...);
   }(std::make_index_sequence<std::tuple_size_v<std::decay_t<decltype(xs)>>>{});
 }
 
 struct RollingHash {
-  static constexpr std::size_t nTimes = 8;
+  static constexpr std::size_t nTimes = 2;
+  static constexpr bool use_std_array = false;
 
   using T = int;
-  // using hash_type = std::array<T, nTimes>;
-  using hash_type = n_tuple_t<T, nTimes>;
+  using hash_type = std::conditional_t<use_std_array, std::array<T, nTimes>, n_tuple_t<T, nTimes>>;
 
   static constexpr std::array<T, 10> mods = {1000000007, 1000150309, 1000300597, 1000450937, 1000601171, 1000751471, 1000901723, 1001052037, 1001202337, 1001352593};
   static constexpr std::array<T, 10> bases = {9383, 886, 2777, 6915, 7793, 8335, 5386, 492, 6649, 1421};
@@ -51,15 +51,21 @@ struct RollingHash {
   static std::vector<hash_type> powerOfBases;
   std::vector<hash_type> hashes;
 
+  RollingHash() = default;
   explicit RollingHash(std::string_view s) {
+    init(s);
+  }
+
+  void init(std::string_view s) {
     if (!initializedModsAndBases) {
       initModsAndBases();
     }
     ensure_size(s.size());
 
+    hashes.clear();
     hashes.reserve(s.size());
     hash_type cur{};
-    for_each(cur, []<int i>(auto& a) { a = T{}; });
+    for_each(cur, []<int>(auto& a) { a = T{}; });
     for (std::size_t i{}; i < s.size(); ++i) {
       for_each(cur, [&]<int j>(auto& a) {
         a = add(mul(a, bases[selectedIds[j]], j), T(s[i] - '\0'), j);
