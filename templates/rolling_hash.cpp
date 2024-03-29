@@ -3,11 +3,41 @@
 //
 #include <bits/stdc++.h>
 
-struct RollingHash {
-  static constexpr std::size_t nTimes = 2;
+template <typename...> struct cat_tuple_type;
+template <typename... T, typename... U>
+struct cat_tuple_type<std::tuple<T...>, std::tuple<U...>> {
+  using type = std::tuple<T..., U...>;
+};
 
-  using T = int64_t;
-  using hash_type = std::array<T, nTimes>;
+template <typename T, size_t N> struct n_tuple {
+  static_assert(N > 0);
+  using type = typename cat_tuple_type<std::tuple<T>, typename n_tuple<T, N - 1>::type>::type;
+};
+
+template <typename T> struct n_tuple<T, std::size_t{1}> {
+  using type = std::tuple<T>;
+};
+
+template <typename T, size_t N>
+using n_tuple_t = n_tuple<T, N>::type;
+
+template <auto... Xs>
+constexpr void for_values(auto&& f, auto&& x) {
+  (f.template operator()<Xs>(x), ...);
+}
+
+constexpr auto for_each(auto& xs, auto&& f) {
+  [&]<size_t... Is>(std::index_sequence<Is...>){
+    (for_values<Is>(f, std::get<Is>(xs)), ...);
+  }(std::make_index_sequence<std::tuple_size_v<std::decay_t<decltype(xs)>>>{});
+}
+
+struct RollingHash {
+  static constexpr std::size_t nTimes = 8;
+
+  using T = int;
+  // using hash_type = std::array<T, nTimes>;
+  using hash_type = n_tuple_t<T, nTimes>;
 
   static constexpr std::array<T, 10> mods = {1000000007, 1000150309, 1000300597, 1000450937, 1000601171, 1000751471, 1000901723, 1001052037, 1001202337, 1001352593};
   static constexpr std::array<T, 10> bases = {9383, 886, 2777, 6915, 7793, 8335, 5386, 492, 6649, 1421};
@@ -18,32 +48,22 @@ struct RollingHash {
   static std::array<std::size_t, nTimes> selectedIds;
   static bool initializedModsAndBases;
 
-  static std::vector<std::array<T, nTimes>> powerOfBases;
-  std::vector<std::array<T, nTimes>> hashes;
+  static std::vector<hash_type> powerOfBases;
+  std::vector<hash_type> hashes;
 
   explicit RollingHash(std::string_view s) {
     if (!initializedModsAndBases) {
       initModsAndBases();
     }
-
-    if (powerOfBases.empty()) {
-      powerOfBases.emplace_back();
-      powerOfBases.back().fill(T(1));
-    }
-    for (; powerOfBases.size() <= s.size();) {
-      powerOfBases.emplace_back();
-      for (std::size_t i{}; i < nTimes; ++i) {
-        powerOfBases.back()[i] = mul(powerOfBases[powerOfBases.size() - 2][i], bases[selectedIds[i]], i);
-      }
-    }
+    ensure_size(s.size());
 
     hashes.reserve(s.size());
-    std::array<T, nTimes> cur{};
-    cur.fill(T{});
+    hash_type cur{};
+    for_each(cur, []<int i>(auto& a) { a = T{}; });
     for (std::size_t i{}; i < s.size(); ++i) {
-      for (std::size_t j{}; j < nTimes; ++j) {
-        cur[j] = add(mul(cur[j], bases[selectedIds[j]], j), T(s[i] - '\0'), j);
-      }
+      for_each(cur, [&]<int j>(auto& a) {
+        a = add(mul(a, bases[selectedIds[j]], j), T(s[i] - '\0'), j);
+      });
       hashes.emplace_back(cur);
     }
   }
@@ -52,9 +72,9 @@ struct RollingHash {
     assert(0 <= l && l <= r && r < hashes.size());
     auto ret = hashes[r];
     if (l > 0) {
-      for (std::size_t j{}; j < nTimes; ++j) {
-        ret[j] = sub(ret[j], mul(hashes[l - 1][j], powerOfBases[r - l + 1][j], j), j);
-      }
+      for_each(ret, [&]<int j>(auto& a) {
+        a = sub(a, mul(std::get<j>(hashes[l - 1]), std::get<j>(powerOfBases[r - l + 1]), j), j);
+      });
     }
     return ret;
   }
@@ -72,15 +92,28 @@ struct RollingHash {
     }
   }
 
+  static void ensure_size(std::size_t size) {
+    if (powerOfBases.empty()) {
+      powerOfBases.emplace_back();
+      for_each(powerOfBases.back(), []<int i>(auto& a) { a = T{1}; });
+    }
+    for (; powerOfBases.size() <= size;) {
+      powerOfBases.emplace_back();
+      for_each(powerOfBases.back(), []<int i>(auto& a) {
+        a = mul(std::get<i>(powerOfBases[powerOfBases.size() - 2]), bases[selectedIds[i]], i);
+      });
+    }
+  }
+
   [[nodiscard]] static inline T add(const T& a, const T& b, std::size_t which) {
-    auto ret = (a + b) % mods[selectedIds[which]];
+    auto ret = (a + 0LL + b) % mods[selectedIds[which]];
     if (ret < 0) {
       ret += mods[selectedIds[which]];
     }
     return ret;
   }
   [[nodiscard]] static inline T sub(const T& a, const T& b, std::size_t which) {
-    auto ret = (a - b) % mods[selectedIds[which]];
+    auto ret = (a + 0LL + mods[selectedIds[which]] - b) % mods[selectedIds[which]];
     if (ret < 0) {
       ret += mods[selectedIds[which]];
     }
@@ -95,5 +128,16 @@ struct RollingHash {
   }
 };
 bool RollingHash::initializedModsAndBases = false;
-std::vector<std::array<RollingHash::T, RollingHash::nTimes>> RollingHash::powerOfBases;
+std::vector<RollingHash::hash_type> RollingHash::powerOfBases;
 std::array<std::size_t, RollingHash::nTimes> RollingHash::selectedIds;
+
+struct RollingHashHasher {
+  auto operator() (const RollingHash::hash_type& key) const {
+    size_t result{};
+    const auto& element_hasher = std::hash<RollingHash::T>();
+    for_each(key, [&]<int>(const auto& a) {
+      result = (result << 1) ^ element_hasher(a);
+    });
+    return result;
+  }
+};
