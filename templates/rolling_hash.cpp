@@ -42,8 +42,8 @@ struct RollingHash {
   static constexpr std::array<T, 10> mods = {1000000007, 1000150309, 1000300597, 1000450937, 1000601171, 1000751471, 1000901723, 1001052037, 1001202337, 1001352593};
   static constexpr std::array<T, 10> bases = {9383, 886, 2777, 6915, 7793, 8335, 5386, 492, 6649, 1421};
 
-  static_assert(mods.size() == bases.size() && "Mismatch `mods` and `bases` length");
-  static_assert(0 < nTimes && nTimes <= mods.size() && "`nTimes` not in range [1, |mods|]");
+  static_assert(mods.size() == bases.size(), "Mismatch `mods` and `bases` length");
+  static_assert(0 < nTimes && nTimes <= mods.size(), "`nTimes` not in range [1, |mods|]");
 
   static std::array<std::size_t, nTimes> selectedIds;
   static bool initializedModsAndBases;
@@ -112,14 +112,14 @@ struct RollingHash {
   }
 
   [[nodiscard]] static inline T add(const T& a, const T& b, std::size_t which) {
-    auto ret = (a + 0LL + b) % mods[selectedIds[which]];
-    if (ret < 0) {
-      ret += mods[selectedIds[which]];
+    auto ret = a + 0LL + b;
+    if (ret >= mods[selectedIds[which]]) {
+      ret -= mods[selectedIds[which]];
     }
     return ret;
   }
   [[nodiscard]] static inline T sub(const T& a, const T& b, std::size_t which) {
-    auto ret = (a + 0LL + mods[selectedIds[which]] - b) % mods[selectedIds[which]];
+    auto ret = a - b;
     if (ret < 0) {
       ret += mods[selectedIds[which]];
     }
