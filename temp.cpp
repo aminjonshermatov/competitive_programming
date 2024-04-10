@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 
 #ifdef LOCAL
-#include "debug.h"
+#include "debug.hpp"
 #else
 #define dbg(...) 42
 #endif
