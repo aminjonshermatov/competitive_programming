@@ -5,7 +5,7 @@
 
 template <typename T>
 decltype(auto) suffix_array(const std::vector<T>& s, const std::size_t alpha, const T& min_alpha) {
-  assert(std::all_of(s.begin(), s.end(), [&](char x) { return std::clamp<T>(x, min_alpha, min_alpha + alpha - 1) == x; }));
+  assert(std::all_of(s.begin(), s.end(), [&](auto x) { return std::clamp<T>(x, min_alpha, min_alpha + alpha - 1) == x; }));
   assert(s.back() == min_alpha);
 
   const auto n = static_cast<int>(s.size());
