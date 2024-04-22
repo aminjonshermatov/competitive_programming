@@ -98,13 +98,13 @@ public:
     return res;
   }
 
-  template <int Mod> friend std::istream& operator>>(std::istream &in, Z<Mod>& z) {
+  friend std::istream& operator>>(std::istream &in, Z& z) {
     long long y;
     in >> y;
     z = Z{y};
     return in;
   }
-  template <int Mod> friend std::ostream& operator<<(std::ostream &out, const Z<Mod>& z) {
+  friend std::ostream& operator<<(std::ostream &out, const Z& z) {
     return out << z.val();
   }
 };
