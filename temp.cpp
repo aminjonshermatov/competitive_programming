@@ -6,6 +6,10 @@
 #define dbg(...) 42
 #endif
 
+constexpr void scan(auto&&... args) noexcept { (std::cin >> ... >> args); }
+constexpr void print(auto&&... args) noexcept { ((std::cout << args << ' '), ...); }
+constexpr void println(auto&&... args) noexcept { print(std::forward<decltype(args)>(args)...); std::cout << '\n'; }
+
 void solve() {
 }
 
