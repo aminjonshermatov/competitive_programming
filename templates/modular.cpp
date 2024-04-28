@@ -98,13 +98,13 @@ public:
     return res;
   }
 
-  friend std::istream& operator>>(std::istream &in, Z& z) {
+  friend std::istream& operator>>(std::istream& in, Z& z) {
     long long y;
     in >> y;
     z = Z{y};
     return in;
   }
-  friend std::ostream& operator<<(std::ostream &out, const Z& z) {
+  friend std::ostream& operator<<(std::ostream& out, const Z& z) {
     return out << z.val();
   }
 };
