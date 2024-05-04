@@ -26,7 +26,7 @@ add_executable(codechef codechef/starters/99/main.cpp)
 add_executable(cses cses/AdditionalProblems/main.cpp)
 
 #atcoder
-add_executable(atcoder_abc atcoder/abc/269/Ex.cpp)
+add_executable(atcoder_abc atcoder/abc/352/main.cpp)
 add_executable(atcoder_arc atcoder/arc/104/main.cpp)
 add_executable(atcoder_dp atcoder/dp_contest/main.cpp)
 
@@ -59,3 +59,10 @@ add_executable(projecteuler projecteuler/main.cpp)
 # target_link_libraries(projecteuler PRIVATE nlohmann_json::nlohmann_json)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/stress)
+
+find_program(CCACHE_FOUND ccache)
+if(CCACHE_FOUND)
+    message(STATUS "Using ccache")
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
+endif(CCACHE_FOUND)
