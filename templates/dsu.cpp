@@ -8,10 +8,10 @@ struct DSU {
   std::vector<int> parent, rank;
 
   explicit DSU(int n_) : n(n_), components(n), parent(n), rank(n, 1) {
-    iota(parent.begin(), parent.end(), 0);
+    std::iota(parent.begin(), parent.end(), 0);
   }
 
-  inline int find(int v) {
+  [[nodiscard]] int find(int v) noexcept {
     assert(0 <= v && v < n);
 
     while (v != parent[v]) {
@@ -20,7 +20,7 @@ struct DSU {
     return v;
   }
 
-  bool merge(int u, int v) {
+  bool merge(int u, int v) noexcept {
     assert(0 <= u && u < n);
     assert(0 <= v && v < n);
     auto pu = find(u);
@@ -38,7 +38,7 @@ struct DSU {
     return true;
   }
 
-  inline bool is_same(int u, int v) {
+  [[nodiscard]] bool is_same(int u, int v) noexcept {
     assert(0 <= u && u < n);
     assert(0 <= v && v < n);
     return find(u) == find(v);
@@ -53,10 +53,10 @@ struct DSURollback {
   std::vector<std::tuple<UpdateType, int, int>> history;
 
   explicit DSURollback(int n_) : n(n_), components(n), parent(n), rank(n, 1) {
-    iota(parent.begin(), parent.end(), 0);
+    std::iota(parent.begin(), parent.end(), 0);
   }
 
-  inline int find(int v) {
+  [[nodiscard]] int find(int v) {
     assert(0 <= v && v < n);
     while (v != parent[v]) {
       history.emplace_back(UpdateType::kUpdateParent, v, parent[v]);
@@ -85,13 +85,13 @@ struct DSURollback {
     return true;
   }
 
-  inline bool is_same(int u, int v) {
+  [[nodiscard]] bool is_same(int u, int v) noexcept {
     assert(0 <= u && u < n);
     assert(0 <= v && v < n);
     return find(u) == find(v);
   }
 
-  [[nodiscard]] std::size_t snapshot() const {
+  [[nodiscard]] std::size_t snapshot() const noexcept {
     return history.size();
   }
 
@@ -117,10 +117,10 @@ template <typename Node> struct DSUWeighted {
   std::vector<Node> weight;
 
   explicit DSUWeighted(int n_) : n(n_), components(n), parent(n), rank(n, 1), weight(n, Node()) {
-    iota(parent.begin(), parent.end(), 0);
+    std::iota(parent.begin(), parent.end(), 0);
   }
 
-  inline decltype(auto) find(int v) {
+  [[nodiscard]] decltype(auto) find(int v) {
     assert(0 <= v && v < n);
     auto res = Node();
 
@@ -157,7 +157,7 @@ template <typename Node> struct DSUWeighted {
     return true;
   }
 
-  inline bool is_same(int u, int v) {
+  [[nodiscard]] bool is_same(int u, int v) const {
     assert(0 <= u && u < n);
     assert(0 <= v && v < n);
     return find(u).first == find(v).first;
