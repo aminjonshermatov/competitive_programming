@@ -55,7 +55,7 @@ struct TwoSat {
       }
       sat[v] = comp[2 * v] < comp[2 * v + 1];
     }
-    return std::move(sat);
+    return sat;
   }
 private:
   int n;
