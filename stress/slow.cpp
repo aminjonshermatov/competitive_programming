@@ -1,12 +1,13 @@
-#include <bits/stdc++.h>
-#include "constants.h"
+#include <iostream>
 
-auto solve(std::istream& in, std::ostream& out) {
+#include "config.hpp"
+
+auto slow() {
+  int a, b;
+  std::cin >> a >> b;
+  std::cout << a + b << '\n';
 }
 
 int main() {
-  std::ifstream in(constants::DATA_IN);
-  std::ofstream out(constants::SLOW_OUT);
-
-  solve(in, out);
+  slow();
 }

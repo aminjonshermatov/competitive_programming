@@ -1,14 +1,11 @@
-//
-// Created by aminjon on 4/13/23.
-//
-#include <bits/stdc++.h>
-#include "utils.h"
-#include "constants.h"
+#include <iostream>
 
-auto gen(std::ofstream& out) {
+#include "utils.hpp"
+
+auto gen() {
+  std::cout << utils::randomInt(1, 10) << ' ' << utils::randomInt(1, 10) << '\n';
 }
 
 int main() {
-  std::ofstream out(constants::DATA_IN);
-  gen(out);
+  gen();
 }

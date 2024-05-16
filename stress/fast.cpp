@@ -1,15 +1,13 @@
-//
-// Created by aminjon on 4/13/23.
-//
-#include <bits/stdc++.h>
-#include "constants.h"
+#include <iostream>
 
-auto solve(std::istream& in, std::ostream& out) {
+#include "config.hpp"
+
+auto fast() {
+  int a, b;
+  std::cin >> a >> b;
+  std::cout << a + b << '\n';
 }
 
 int main() {
-  auto in = std::ifstream(constants::DATA_IN);
-  auto out = std::ofstream(constants::FAST_OUT);
-
-  solve(in, out);
+  fast();
 }
