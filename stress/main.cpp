@@ -22,9 +22,9 @@ std::expected<void, std::string> compile() {
   };
 
   std::array cmds{
-      compileCommandGenerator(path::cpp::kGen),
-      compileCommandGenerator(path::cpp::kSlow),
-      compileCommandGenerator(path::cpp::kFast),
+    compileCommandGenerator(path::cpp::kGen),
+    compileCommandGenerator(path::cpp::kSlow),
+    compileCommandGenerator(path::cpp::kFast),
   };
 
   constexpr std::size_t nCmds = cmds.size();
@@ -102,7 +102,7 @@ std::expected<void, std::string> runTest() {
   }
 
   if (auto&& slowData = slowStdOut.get(), fastData = fastStdOut.get();
-      slowData != fastData) {
+    slowData != fastData) {
     return std::unexpected(std::format("Fail: {}slow: {}fast: {}"sv,
                                        data, slowData, fastData));
   }
@@ -128,6 +128,6 @@ std::expected<void, std::string> runTests() {
 
 int main() {
   std::cout << compile()
-      .and_then(runTests<true>)
-      .error_or("Successfully done"s) << std::endl;
+    .and_then(runTests</*kSync=*/true>)
+    .error_or("Successfully done"s) << std::endl;
 }
