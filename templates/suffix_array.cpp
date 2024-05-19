@@ -6,7 +6,7 @@
 decltype(auto) SuffixArray(auto&& s, const std::size_t alpha, auto&& minAlpha) {
   static_assert(
     std::is_same_v<typename std::remove_reference_t<decltype(s)>::value_type, typename std::remove_reference_t<decltype(minAlpha)>>);
-  assert(std::all_of(s.begin(), s.end(), [&](auto&& x) {
+  assert(std::all_of(s.begin(), s.end(), [&alpha, &minAlpha](auto&& x) {
     return std::clamp<typename std::remove_reference_t<decltype(minAlpha)>>(x, minAlpha, minAlpha + alpha - 1) == x;
   }));
   assert(s.back() == minAlpha);
