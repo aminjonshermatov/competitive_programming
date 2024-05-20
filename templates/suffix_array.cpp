@@ -37,7 +37,7 @@ decltype(auto) SuffixArray(auto&& s, const std::size_t alpha, auto&& minAlpha) {
     for (std::size_t i{}; i < n; ++i) {
       ++cnt[c[np[i]]];
     }
-    for (std::size_t i = 1; i < m; ++i) {
+    for (std::size_t i{1}; i < m; ++i) {
       cnt[i] += cnt[i - 1];
     }
     for (std::size_t i = n - 1; i + 1 > std::size_t{}; --i) {
