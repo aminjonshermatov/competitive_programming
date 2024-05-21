@@ -4,32 +4,36 @@
 
 #include <bits/stdc++.h>
 
-template <typename Node> struct SparseTable {
+template <typename Node>
+struct SparseTable {
   std::vector<std::vector<Node>> table;
 
-  template <typename U> explicit SparseTable(const std::vector<U>& init_) { init(init_); }
+  template <typename U>
+  explicit SparseTable(const std::vector<U>& init_) { init(init_); }
 
-  template <typename U> auto init(const std::vector<U>& init_) -> void {
-    table.assign(init_.size(), {});
-    for (auto i = 0u; i < init_.size(); ++i) {
-      table[i].push_back({init_[i]});
+  template <typename U>
+  void init(const std::vector<U>& init_) {
+    table.resize(init_.size());
+    for (std::size_t i{}; i < init_.size(); ++i) {
+      table[i].emplace_back(init_[i]);
     }
-    for (auto l = 1u, j = 0u; 2 * l <= init_.size(); ++j, l <<= 1) {
-      for (auto i = 0u; i + 2 * l <= init_.size(); ++i) {
-        table[i].emplace_back(Node::unite(table[i][j], table[i + l][j]));
+    for (std::size_t l{1}, j{}; 2 * l <= init_.size(); ++j, l <<= 1u) {
+      for (std::size_t i{}; i + 2 * l <= init_.size(); ++i) {
+        table[i].emplace_back(Node::unite(std::forward<Node>(table[i][j]),
+                                          std::forward<Node>(table[i + l][j])));
       }
     }
   }
 
-  [[nodiscard]] decltype(auto) query(int l, int r) const {
-    const auto b = 31 - __builtin_clz(r - l);
+  [[nodiscard]] Node query(std::size_t l, std::size_t r) const {
+    const auto b = std::__lg(r - l);
     return Node::unite(table[l][b], table[r - (1 << b)][b]);
   }
 };
 
 struct Node {
   int val = std::numeric_limits<int>::max();
-  static Node unite(const Node& a, const Node& b) {
+  static Node unite(auto&& a, auto&& b) {
     return a.val < b.val ? a : b;
   }
 };
