@@ -198,7 +198,7 @@ struct SegmentTree {
 
   explicit SegmentTree(std::size_t n_) { init(std::vector(n_, Node())); }
 
-  SegmentTree(int n_, Node&& node) { init(std::vector(n_, std::forward<Node>(node))); }
+  SegmentTree(std::size_t n_, Node&& node) { init(std::vector(n_, std::forward<Node>(node))); }
 
   template <typename T>
   explicit SegmentTree(const std::vector<T>& init_) { init(init_); }
