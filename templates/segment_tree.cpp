@@ -5,22 +5,32 @@
 
 using namespace std;
 
-template <typename Node, typename Tag> struct LazySegmentTree {
-  int n = 0;
+template <typename Node, typename Tag>
+struct LazySegmentTree {
+  std::size_t n{};
   std::vector<Node> nodes;
   std::vector<Tag> tags;
 
-  LazySegmentTree() = default;
-  explicit LazySegmentTree(int n_) { init(std::vector(n_, Node())); }
-  LazySegmentTree(int n_, const Node& node) { init(std::vector(n_, node)); }
-  template <typename T> explicit LazySegmentTree(const std::vector<T>& init_) { init(init_); }
+  static constexpr auto npos = static_cast<size_t>(-1);
 
-  template <typename T> void init(const std::vector<T>& init_) {
-    for (n = 1; n < init_.size(); n <<= 1) { }
+  LazySegmentTree() = default;
+
+  explicit LazySegmentTree(std::size_t n_) { init(std::vector(n_, Node())); }
+
+  LazySegmentTree(std::size_t n_, Node&& node) {
+    init(std::vector(n_, std::forward<Node>(node)));
+  }
+
+  template <typename T>
+  explicit LazySegmentTree(const std::vector<T>& init_) { init(init_); }
+
+  template <typename T>
+  void init(const std::vector<T>& init_) {
+    n = 1u << std::__lg(2 * init_.size() - 1);
     nodes.assign(2 * n - 1, Node());
     tags.assign(2 * n - 1, Tag());
-    auto build = [&](auto&& self, int x, int lx, int rx) -> void {
-      if (rx - lx == 1) {
+    auto build = [&](auto&& self, std::size_t x, std::size_t lx, std::size_t rx) -> void {
+      if (rx - lx == 1u) {
         if (lx < init_.size()) {
           nodes[x] = Node{init_[lx]};
         }
@@ -29,57 +39,70 @@ template <typename Node, typename Tag> struct LazySegmentTree {
       const auto mid = lx + (rx - lx) / 2;
       self(self, 2 * x + 1, lx, mid);
       self(self, 2 * x + 2, mid, rx);
-      nodes[x] = Node::unite(nodes[2 * x + 1], nodes[2 * x + 2]);
+      nodes[x] = Node::unite(std::forward<Node>(nodes[2 * x + 1]),
+                             std::forward<Node>(nodes[2 * x + 2]));
     };
-    build(build, 0, 0, n);
+    build(build, 0u, 0u, n);
   }
 
-  inline void apply(int x, const Tag& tag) {
-    nodes[x].apply(tag);
-    tags[x].apply(tag);
+  void apply(std::size_t x, Tag&& tag) {
+    nodes[x].apply(std::forward<Tag>(tag));
+    tags[x].apply(std::forward<Tag>(tag));
   }
-  inline void push(int x) {
-    apply(2 * x + 1, tags[x]);
-    apply(2 * x + 2, tags[x]);
+
+  void push(std::size_t x) {
+    apply(2 * x + 1, std::forward<Tag>(tags[x]));
+    apply(2 * x + 2, std::forward<Tag>(tags[x]));
     tags[x] = Tag();
   }
-  inline void pull(int x) {
-    nodes[x] = Node::unite(nodes[2 * x + 1], nodes[2 * x + 2]);
+
+  void pull(std::size_t x) {
+    nodes[x] = Node::unite(std::forward<Node>(nodes[2 * x + 1]),
+                           std::forward<Node>(nodes[2 * x + 2]));
   }
 
-  void modify(int pos, const Node& node, int x, int lx, int rx) {
-    if (rx - lx == 1) {
+  void modify(std::size_t pos, Node&& node,
+              std::size_t x, std::size_t lx, std::size_t rx) {
+    if (rx - lx == 1u) {
       nodes[x] = node;
       return;
     }
     push(x);
     const auto mid = lx + (rx - lx) / 2;
     if (pos < mid) {
-      modify(pos, node, 2 * x + 1, lx, mid);
+      modify(pos, std::forward<Node>(node), 2 * x + 1, lx, mid);
     } else {
-      modify(pos, node, 2 * x + 2, mid, rx);
+      modify(pos, std::forward<Node>(node), 2 * x + 2, mid, rx);
     }
     pull(x);
   }
-  void modify(int pos, const Node& node) {
-    modify(pos, node, 0, 0, n);
+
+  void modify(std::size_t pos, Node&& node) {
+    modify(pos, std::forward<Node>(node), 0u, 0u, n);
   }
-  void modify(int ql, int qr, const Tag& tag, int x, int lx, int rx) {
-    if (ql >= rx || qr <= lx) return;
+
+  void modify(std::size_t ql, std::size_t qr, Tag&& tag,
+              std::size_t x, std::size_t lx, std::size_t rx) {
+    if (ql >= rx || qr <= lx) {
+      return;
+    }
     if (ql <= lx && rx <= qr) {
-      apply(x, tag);
+      apply(x, std::forward<Tag>(tag));
       return;
     }
     push(x);
     const auto mid = lx + (rx - lx) / 2;
-    modify(ql, qr, tag, 2 * x + 1, lx, mid);
-    modify(ql, qr, tag, 2 * x + 2, mid, rx);
+    modify(ql, qr, std::forward<Tag>(tag), 2 * x + 1, lx, mid);
+    modify(ql, qr, std::forward<Tag>(tag), 2 * x + 2, mid, rx);
     pull(x);
   }
-  void modify(int ql, int qr, const Tag& tag) {
-    modify(ql, qr, tag, 0, 0, n);
+
+  void modify(std::size_t ql, std::size_t qr, Tag&& tag) {
+    modify(ql, qr, std::forward<Tag>(tag), 0u, 0u, n);
   }
-  Node query(int ql, int qr, int x, int lx, int rx) {
+
+  Node query(std::size_t ql, std::size_t qr,
+             std::size_t x, std::size_t lx, std::size_t rx) {
     if (ql >= rx || qr <= lx) {
       return Node();
     }
@@ -88,85 +111,104 @@ template <typename Node, typename Tag> struct LazySegmentTree {
     }
     push(x);
     const auto mid = lx + (rx - lx) / 2;
-    return Node::unite(query(ql, qr, 2 * x + 1, lx, mid), query(ql, qr, 2 * x + 2, mid, rx));
-  }
-  Node query(int ql, int qr) {
-    return query(ql, qr, 0, 0, n);
-  }
-  Node query(int pos) {
-    return query(pos, pos + 1, 0, 0, n);
+    return Node::unite(std::forward<Node>(query(ql, qr, 2 * x + 1, lx, mid)),
+                       std::forward<Node>(query(ql, qr, 2 * x + 2, mid, rx)));
   }
 
-  template <typename F> int findFirst(int ql, int qr, F&& pred, int x, int lx, int rx) {
+  Node query(std::size_t ql, std::size_t qr) {
+    return query(ql, qr, 0u, 0u, n);
+  }
+
+  Node query(std::size_t pos) {
+    return query(pos, pos + 1, 0u, 0u, n);
+  }
+
+  template <typename F>
+  std::size_t findFirst(std::size_t ql, std::size_t qr, F&& pred,
+                        std::size_t x, std::size_t lx, std::size_t rx) {
     if (lx >= qr || rx <= ql || !pred(nodes[x])) {
-      return -1;
+      return npos;
     }
-    if (rx - lx == 1) {
+    if (rx - lx == 1u) {
       return lx;
     }
     push(x);
     const auto mid = lx + (rx - lx) / 2;
     auto res = findFirst(ql, qr, std::forward<F>(pred), 2 * x + 1, lx, mid);
-    if (res == -1) {
+    if (res == npos) {
       res = findFirst(ql, qr, std::forward<F>(pred), 2 * x + 2, mid, rx);
     }
     return res;
   }
-  template <typename F> int findFirst(int ql, int qr, F&& pred) {
-    return findFirst(ql, qr, std::forward<F>(pred), 0, 0, n);
+
+  template <typename F>
+  std::size_t findFirst(std::size_t ql, std::size_t qr, F&& pred) {
+    return findFirst(ql, qr, std::forward<F>(pred), 0u, 0u, n);
   }
-  template <typename F> int findLast(int ql, int qr, F&& pred, int x, int lx, int rx) {
+
+  template <typename F>
+  std::size_t findLast(std::size_t ql, std::size_t qr, F&& pred,
+                       std::size_t x, std::size_t lx, std::size_t rx) {
     if (lx >= qr || rx <= ql || !pred(nodes[x])) {
-      return -1;
+      return npos;
     }
-    if (rx - lx == 1) {
+    if (rx - lx == 1u) {
       return lx;
     }
     push(x);
     const auto mid = lx + (rx - lx) / 2;
     auto res = findLast(ql, qr, std::forward<F>(pred), 2 * x + 2, mid, rx);
-    if (res == -1) {
+    if (res == npos) {
       res = findLast(ql, qr, std::forward<F>(pred), 2 * x + 1, lx, mid);
     }
     return res;
   }
-  template <typename F> int findLast(int ql, int qr, F&& pred) {
-    return findLast(ql, qr, std::forward<F>(pred), 0, 0, n);
+
+  template <typename F>
+  std::size_t findLast(std::size_t ql, std::size_t qr, F&& pred) {
+    return findLast(ql, qr, std::forward<F>(pred), 0u, 0u, n);
   }
 };
 
 struct Tag {
-  int val = -1;
-  void apply(const Tag& tag) {
+  int val = 0;
+  void apply(auto&& tag) {
     val += tag.val;
   }
 };
 
 struct Node {
-  int sum = 0;
-  void apply(const Tag& tag) {
-    sum += tag.val;
+  int min = std::numeric_limits<int>::max() / 2;
+  void apply(auto&& tag) {
+    min += tag.val;
   }
-  static Node unite(const Node& a, const Node& b) {
-    return {a.sum + b.sum};
+  static Node unite(auto&& a, auto&& b) {
+    return {std::min(a.min, b.min)};
   }
 };
 
-
-template <typename Node> struct SegmentTree {
-  int n = 0;
+template <typename Node>
+struct SegmentTree {
+  std::size_t n{};
   std::vector<Node> nodes;
 
-  SegmentTree() = default;
-  explicit SegmentTree(int n_) { init(std::vector(n_, Node())); }
-  SegmentTree(int n_, const Node& node) { init(std::vector(n_, node)); }
-  template <typename T> explicit SegmentTree(const std::vector<T>& init_) { init(init_); }
+  static constexpr auto npos = static_cast<size_t>(-1);
 
-  template <typename T> void init(const std::vector<T>& init_) {
-    for (n = 1; n < init_.size(); n <<= 1) { }
+  SegmentTree() = default;
+
+  explicit SegmentTree(std::size_t n_) { init(std::vector(n_, Node())); }
+
+  SegmentTree(int n_, Node&& node) { init(std::vector(n_, std::forward<Node>(node))); }
+
+  template <typename T>
+  explicit SegmentTree(const std::vector<T>& init_) { init(init_); }
+
+  template <typename T>
+  void init(const std::vector<T>& init_) {
+    n = 1u << std::__lg(2 * init_.size() - 1);
     nodes.assign(2 * n - 1, Node());
-    auto build = [&](auto&& self, int x, int lx, int rx) -> void {
-      if (rx - lx == 1) {
+    auto build = [&](auto&& self, std::size_t x, std::size_t lx, std::size_t rx) -> void {
+      if (rx - lx == 1u) {
         if (lx < init_.size()) {
           nodes[x] = Node{init_[lx]};
         }
@@ -175,28 +217,34 @@ template <typename Node> struct SegmentTree {
       const auto mid = lx + (rx - lx) / 2;
       self(self, 2 * x + 1, lx, mid);
       self(self, 2 * x + 2, mid, rx);
-      nodes[x] = Node::unite(nodes[2 * x + 1], nodes[2 * x + 2]);
+      nodes[x] = Node::unite(std::forward<Node>(nodes[2 * x + 1]),
+                             std::forward<Node>(nodes[2 * x + 2]));
     };
-    build(build, 0, 0, n);
+    build(build, 0u, 0u, n);
   }
 
-  void modify(int pos, const Node& node, int x, int lx, int rx) {
-    if (rx - lx == 1) {
+  void modify(std::size_t pos, Node&& node,
+              std::size_t x, std::size_t lx, std::size_t rx) {
+    if (rx - lx == 1u) {
       nodes[x] = node;
       return;
     }
     const auto mid = lx + (rx - lx) / 2;
     if (pos < mid) {
-      modify(pos, node, 2 * x + 1, lx, mid);
+      modify(pos, std::forward<Node>(node), 2 * x + 1, lx, mid);
     } else {
-      modify(pos, node, 2 * x + 2, mid, rx);
+      modify(pos, std::forward<Node>(node), 2 * x + 2, mid, rx);
     }
-    nodes[x] = Node::unite(nodes[2 * x + 1], nodes[2 * x + 2]);
+    nodes[x] = Node::unite(std::forward<Node>(nodes[2 * x + 1]),
+                           std::forward<Node>(nodes[2 * x + 2]));
   }
-  void modify(int pos, const Node& node) {
-    modify(pos, node, 0, 0, n);
+
+  void modify(std::size_t pos, Node&& node) {
+    modify(pos, std::forward<Node>(node), 0u, 0u, n);
   }
-  Node query(int ql, int qr, int x, int lx, int rx) {
+
+  Node query(std::size_t ql, std::size_t qr,
+             std::size_t x, std::size_t lx, std::size_t rx) {
     if (ql >= rx || qr <= lx) {
       return Node();
     }
@@ -204,93 +252,123 @@ template <typename Node> struct SegmentTree {
       return nodes[x];
     }
     const auto mid = lx + (rx - lx) / 2;
-    return Node::unite(query(ql, qr, 2 * x + 1, lx, mid), query(ql, qr, 2 * x + 2, mid, rx));
+    return Node::unite(std::forward<Node>(query(ql, qr, 2 * x + 1, lx, mid)),
+                       std::forward<Node>(query(ql, qr, 2 * x + 2, mid, rx)));
   }
-  Node query(int ql, int qr) {
-    return query(ql, qr, 0, 0, n);
+
+  Node query(std::size_t ql, std::size_t qr) {
+    return query(ql, qr, 0u, 0u, n);
   }
-  Node query(int pos) {
-    return query(pos, pos + 1, 0, 0, n);
+
+  Node query(std::size_t pos) {
+    return query(pos, pos + 1, 0u, 0u, n);
   }
-  template <typename F> int findFirst(int ql, int qr, F&& pred, int x, int lx, int rx) {
+
+  template <typename F>
+  std::size_t findFirst(std::size_t ql, std::size_t qr, F&& pred,
+                        std::size_t x, std::size_t lx, std::size_t rx) {
     if (lx >= qr || rx <= ql || !pred(nodes[x])) {
-      return -1;
+      return npos;
     }
-    if (rx - lx == 1) {
+    if (rx - lx == 1u) {
       return lx;
     }
     const auto mid = lx + (rx - lx) / 2;
     auto res = findFirst(ql, qr, std::forward<F>(pred), 2 * x + 1, lx, mid);
-    if (res == -1) {
+    if (res == npos) {
       res = findFirst(ql, qr, std::forward<F>(pred), 2 * x + 2, mid, rx);
     }
     return res;
   }
-  template <typename F> int findFirst(int ql, int qr, F&& pred) {
-    return findFirst(ql, qr, std::forward<F>(pred), 0, 0, n);
+
+  template <typename F>
+  std::size_t findFirst(std::size_t ql, std::size_t qr, F&& pred) {
+    return findFirst(ql, qr, std::forward<F>(pred), 0u, 0u, n);
   }
-  template <typename F> int findLast(int ql, int qr, F&& pred, int x, int lx, int rx) {
+
+  template <typename F>
+  std::size_t findLast(std::size_t ql, std::size_t qr, F&& pred,
+                       std::size_t x, std::size_t lx, std::size_t rx) {
     if (lx >= qr || rx <= ql || !pred(nodes[x])) {
-      return -1;
+      return npos;
     }
-    if (rx - lx == 1) {
+    if (rx - lx == 1u) {
       return lx;
     }
     const auto mid = lx + (rx - lx) / 2;
     auto res = findLast(ql, qr, std::forward<F>(pred), 2 * x + 2, mid, rx);
-    if (res == -1) res = findLast(ql, qr, std::forward<F>(pred), 2 * x + 1, lx, mid);
+    if (res == npos) {
+      res = findLast(ql, qr, std::forward<F>(pred), 2 * x + 1, lx, mid);
+    }
     return res;
   }
-  template <typename F> int findLast(int ql, int qr, F&& pred) {
-    return findLast(ql, qr, std::forward<F>(pred), 0, 0, n);
+
+  template <typename F>
+  std::size_t findLast(std::size_t ql, std::size_t qr, F&& pred) {
+    return findLast(ql, qr, std::forward<F>(pred), 0u, 0u, n);
   }
 };
 
 struct Node {
   int val = 0;
-  static Node unite(const Node& a, const Node& b) {
+  static Node unite(auto&& a, auto&& b) {
     return {std::max(a.val, b.val)};
   }
 };
 
 
-template <typename Node> struct BottomUpSegmentTree {
-  int n = 0;
+template <typename Node>
+struct BottomUpSegmentTree {
+  std::size_t n{};
   std::vector<Node> nodes;
 
   BottomUpSegmentTree() = default;
-  explicit BottomUpSegmentTree(int n_) { init(std::vector(n_, Node())); }
-  BottomUpSegmentTree(int n_, const Node& node) { init(std::vector(n_, node)); }
-  template <typename T> explicit BottomUpSegmentTree(const std::vector<T>& init_) { init(init_); }
 
-  template <typename T> void init(const std::vector<T>& init_) {
-    for (n = 1; n < init_.size(); n *= 2) { }
+  explicit BottomUpSegmentTree(std::size_t n_) { init(std::vector(n_, Node())); }
+
+  BottomUpSegmentTree(std::size_t n_, Node&& node) {
+    init(std::vector(n_, std::forward<Node>(node)));
+  }
+
+  template <typename T>
+  explicit BottomUpSegmentTree(const std::vector<T>& init_) { init(init_); }
+
+  template <typename T>
+  void init(const std::vector<T>& init_) {
+    n = 1u << std::__lg(2 * init_.size() - 1);
     nodes.assign(2 * n, Node());
-    for (int i = 0; i < init_.size(); ++i) {
-      nodes[i + n] = Node(init_[i]);
+    for (std::size_t i{}; i < init_.size(); ++i) {
+      nodes[i + n] = Node{init_[i]};
     }
-    for (int i = n - 1; i >= 1; --i) {
-      nodes[i] = Node::unite(nodes[i << 1], nodes[i << 1 | 1]);
+    for (std::size_t i = n - 1; i >= 1u; --i) {
+      nodes[i] = Node::unite(std::forward<Node>(nodes[i << 1]),
+                             std::forward<Node>(nodes[i << 1 | 1]));
     }
   }
 
-  void modify(int pos, const Node& val) {
+  void modify(std::size_t pos, Node&& val) {
     nodes[pos += n] = val;
     for (pos >>= 1; pos >= 1; pos >>= 1) {
-      nodes[pos] = Node::unite(nodes[pos << 1], nodes[pos << 1 | 1]);
+      nodes[pos] = Node::unite(std::forward<Node>(nodes[pos << 1]),
+                               std::forward<Node>(nodes[pos << 1 | 1]));
     }
   }
-  Node query(int l, int r) {
+
+  Node query(std::size_t l, std::size_t r) {
     auto retL = Node(), retR = Node();
     for (l += n, r += n; l < r; l >>= 1, r >>= 1) {
-      if (l & 1) {
+      if (l % 2 == 1u) {
         retL = Node::unite(retL, nodes[l++]);
       }
-      if (r & 1) {
+      if (r % 2 == 1u) {
         retR = Node::unite(nodes[--r], retR);
       }
     }
-    return Node::unite(retL, retR);
+    return Node::unite(std::forward<Node>(retL), std::forward<Node>(retR));
+  }
+
+  Node query(std::size_t pos) {
+    return query(pos, pos + 1);
   }
 };
 
