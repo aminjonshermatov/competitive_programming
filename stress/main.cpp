@@ -5,7 +5,6 @@
 #include <boost/process.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/experimental/awaitable_operators.hpp>
-#include <boost/fiber/all.hpp>
 
 #include "config.hpp"
 
@@ -17,7 +16,7 @@ using namespace std::chrono_literals;
 
 using i32 = int32_t;
 
-constexpr auto kExitSuccessCode = 0uz;
+constexpr auto kExitSuccessCode = 0u;
 
 std::expected<void, std::string> compile() {
   auto compileCommandGenerator = [](const std::filesystem::path& path) {
@@ -128,6 +127,8 @@ std::expected<void, std::string> runTests() {
       if (auto&& ret = runTest(); !ret) {
         return std::unexpected(ret.error());
       }
+      std::println(std::cerr, "done: {}", i);
+      std::cerr.flush();
     }
     return {};
   } else {
@@ -138,6 +139,6 @@ std::expected<void, std::string> runTests() {
 
 int main() {
   std::cout << compile()
-    .and_then(runTests</*kIter=*/100uz, /*kSync=*/true>)
+    .and_then(runTests</*kIter=*/1000000u, /*kSync=*/true>)
     .error_or("Successfully done"s) << std::endl;
 }

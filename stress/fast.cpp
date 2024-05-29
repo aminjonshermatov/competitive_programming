@@ -1,9 +1,11 @@
-#include <iostream>
+#include <bits/stdc++.h>
+
+constexpr void scan(auto&&... args) noexcept { (std::cin >> ... >> args); }
 
 auto fast() {
   int a, b;
-  std::cin >> a >> b;
-  std::cout << a + b << '\n';
+  scan(a, b);
+  std::println("{}", a + b);
 }
 
 int main() {
