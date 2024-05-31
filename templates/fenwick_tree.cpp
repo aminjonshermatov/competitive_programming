@@ -220,18 +220,30 @@ template <typename T> struct FenwickTree2DRangeUpdatePointQuery {
   }
 };
 
-template <typename T, auto Op, auto Inv, auto Id> struct TimedBit {
+template <typename T, auto Op, auto Inv, auto Id>
+struct TimedBIT {
+  int n{}, timer{};
   std::vector<T> data;
   std::vector<int> when;
-  int n, timer;
-  explicit TimedBit(int nn) : n(nn), data(nn, Id), when(nn, 0), timer(1) { }
-  inline void upd(int pos, const T& val) {
+  TimedBIT() = default;
+
+  explicit TimedBIT(const int nn) { init(nn); }
+
+  void init(const int nn) {
+    n = nn;
+    timer = 1;
+    data.assign(n, Id);
+    when.assign(n, 0);
+  }
+
+  void upd(int pos, const T& val) {
     for (; pos < n; pos = pos | (pos + 1)) {
       data[pos] = Op(when[pos] == timer ? data[pos] : Id, val);
       when[pos] = timer;
     }
   }
-  [[nodiscard]] inline T qry(int l, int r) const { // [l, r)
+
+  [[nodiscard]] T qry(int l, int r) const { // [l, r)
     T ret = Id;
     for (--r; r >= 0; r = (r & (r + 1)) - 1) {
       ret = Op(ret, when[r] == timer ? data[r] : Id);
@@ -241,9 +253,10 @@ template <typename T, auto Op, auto Inv, auto Id> struct TimedBit {
     }
     return ret;
   }
-  inline void reset() {
+
+  void reset() {
     ++timer;
   }
 };
-using ProdBit = TimedBit<Mint, [](const Mint& a, const Mint& b) { return a * b; }, [](const Mint& x) { return x.inverse(); }, 1>;
-using SumBit = TimedBit<int, [](int a, int b) { return a + b; }, [](int x) { return -x; }, 0>;
+using SumBIT = TimedBIT<int, [](const int a, const int b) { return a + b; }, [](const int x) { return -x; }, 0>;
+using ProdBIT = TimedBIT<Mint, [](const Mint& a, const Mint& b) { return a * b; }, [](const Mint& x) { return x.inverse(); }, Mint(1)>;
