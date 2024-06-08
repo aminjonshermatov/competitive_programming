@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 project(competitive_programming)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 
 # find_package(nlohmann_json 3.2.0 REQUIRED)
 
@@ -26,7 +26,7 @@ add_executable(codechef codechef/starters/99/main.cpp)
 add_executable(cses cses/AdditionalProblems/main.cpp)
 
 #atcoder
-add_executable(atcoder_abc atcoder/abc/356/main.cpp)
+add_executable(atcoder_abc atcoder/abc/357/main.cpp)
 add_executable(atcoder_arc atcoder/arc/104/main.cpp)
 add_executable(atcoder_dp atcoder/dp_contest/main.cpp)
 
