@@ -3,17 +3,17 @@
 //
 #include <bits/stdc++.h>
 
-decltype(auto) SuffixArray(auto&& s, const std::size_t alpha, auto&& minAlpha) {
+decltype(auto) SuffixArray(auto&& s, const std::size_t sigma, auto&& minAlpha) {
   static_assert(
-    std::is_same_v<typename std::remove_reference_t<decltype(s)>::value_type, typename std::remove_reference_t<decltype(minAlpha)>>);
-  assert(std::all_of(s.begin(), s.end(), [&alpha, &minAlpha](auto&& x) {
-    return std::clamp<typename std::remove_reference_t<decltype(minAlpha)>>(x, minAlpha, minAlpha + alpha) == x;
+    std::is_same_v<typename std::remove_cvref_t<decltype(s)>::value_type, std::remove_cvref_t<decltype(minAlpha)>>);
+  assert(std::all_of(s.begin(), s.end(), [&sigma, &minAlpha](auto&& x) {
+    return std::clamp<std::remove_cvref_t<decltype(minAlpha)>>(x, minAlpha, minAlpha + sigma - 1) == x;
   }));
   assert(s.back() == minAlpha);
 
   const auto n = s.size();
-  const auto m = std::max(alpha, n) + 1;
-  std::vector<std::size_t> p(n), c(n), cnt(m);
+  const auto m = std::max(sigma, n) + 1;
+  std::vector<std::size_t> sa(n), cls(n), cnt(m);
   for (auto&& ch: s) {
     ++cnt[ch - minAlpha];
   }
@@ -21,63 +21,62 @@ decltype(auto) SuffixArray(auto&& s, const std::size_t alpha, auto&& minAlpha) {
     cnt[i] += cnt[i - 1];
   }
   for (std::size_t i{}; i < n; ++i) {
-    p[--cnt[s[i] - minAlpha]] = i;
+    sa[--cnt[s[i] - minAlpha]] = i;
   }
-  c[p[0]] = std::size_t{};
+  cls[sa[0]] = std::size_t{};
   for (std::size_t i{1}; i < n; ++i) {
-    c[p[i]] = c[p[i - 1]] + (s[p[i - 1]] != s[p[i]]);
+    cls[sa[i]] = cls[sa[i - 1]] + (s[sa[i - 1]] != s[sa[i]]);
   }
 
-  std::vector<std::size_t> np(n), nc(n);
+  std::vector<std::size_t> nsa(n), ncls(n);
   for (std::size_t k{1}; k < n; k <<= 1) {
     for (std::size_t i{}; i < n; ++i) {
-      np[i] = (p[i] + n - k) % n;
+      nsa[i] = (sa[i] + n - k) % n;
     }
-    std::fill(cnt.begin(), cnt.end(), std::size_t{});
+    std::ranges::fill(cnt, std::size_t{});
     for (std::size_t i{}; i < n; ++i) {
-      ++cnt[c[np[i]]];
+      ++cnt[cls[nsa[i]]];
     }
     for (std::size_t i{1}; i < m; ++i) {
       cnt[i] += cnt[i - 1];
     }
     for (std::size_t i = n - 1; i + 1 > std::size_t{}; --i) {
-      p[--cnt[c[np[i]]]] = np[i];
+      sa[--cnt[cls[nsa[i]]]] = nsa[i];
     }
-    nc[p[0]] = std::size_t{};
+    ncls[sa[0]] = std::size_t{};
     for (std::size_t i{1}; i < n; ++i) {
-      auto&& cur = std::pair(c[p[i]], c[(p[i] + k) % n]);
-      auto&& prv = std::pair(c[p[i - 1]], c[(p[i - 1] + k) % n]);
-      nc[p[i]] = nc[p[i - 1]] + (cur != prv);
+      ncls[sa[i]] = ncls[sa[i - 1]] + (std::pair(cls[sa[i]], cls[(sa[i] + k) % n]) !=
+                                   std::pair(cls[sa[i - 1]], cls[(sa[i - 1] + k) % n]));
     }
-    nc.swap(c);
+    ncls.swap(cls);
   }
 
-  return p;
+  return sa;
 }
 
-decltype(auto) LCPArray(auto&& s, const std::size_t alpha, auto&& minAlpha) {
+decltype(auto) LCPArray(auto&& s, const std::size_t sigma, auto&& minAlpha) {
   assert(s.back() == minAlpha);
 
   const auto n = s.size();
-  auto&& sa = SuffixArray(std::forward<decltype(s)>(s), alpha,
+  auto&& sa = SuffixArray(std::forward<decltype(s)>(s), sigma,
                           std::forward<decltype(minAlpha)>(minAlpha));
-  std::vector<std::size_t> pos(n);
+  std::vector<std::size_t> isa(n);
   for (std::size_t i{}; i < n; ++i) {
-    pos[sa[i]] = i;
+    isa[sa[i]] = i;
   }
   std::vector<std::size_t> lcp(n); // lcp(s[sa[i]], s[sa[i + 1]])
   std::size_t k{};
   for (std::size_t i{}; i < n; ++i) {
     k = k == std::size_t{} ? std::size_t{} : (k - 1);
-    if (pos[i] == n - 1) {
+    if (isa[i] == n - 1) {
       continue;
     }
-    auto&& j = sa[pos[i] + 1];
+    auto&& j = sa[isa[i] + 1];
     while (s[i + k] == s[j + k]) {
       ++k;
     }
-    lcp[pos[i]] = k;
+    lcp[isa[i]] = k;
   }
 
-  return std::pair(std::move(lcp), std::move(sa));
+  return std::tuple(std::move(lcp), std::move(sa), std::move(isa));
 }
