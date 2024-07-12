@@ -4,7 +4,7 @@
 
 namespace path {
 
-const std::filesystem::path kStressDirectory("/home/aminjon/edu/competitive_programming/stress");
+const std::filesystem::path kStressDirectory("/Users/aminjonshermatov/projects/competitive_programming/stress");
 
 namespace cpp {
 

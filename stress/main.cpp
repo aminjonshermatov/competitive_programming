@@ -127,7 +127,7 @@ std::expected<void, std::string> runTests() {
       if (auto&& ret = runTest(); !ret) {
         return std::unexpected(ret.error());
       }
-      std::println(std::cerr, "done: {}", i);
+      std::cerr << std::format("done: {}\n", i);
       std::cerr.flush();
     }
     return {};

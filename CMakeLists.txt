@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 project(competitive_programming)
 
-set(CMAKE_CXX_STANDARD 23)
-
 # find_package(nlohmann_json 3.2.0 REQUIRED)
 
 add_definitions(-DLOCAL)
@@ -28,7 +26,7 @@ add_executable(temp temp.cpp)
 # add_executable(projecteuler projecteuler/main.cpp)
 # target_link_libraries(projecteuler PRIVATE nlohmann_json::nlohmann_json)
 
-# add_subdirectory(${PROJECT_SOURCE_DIR}/stress)
+add_subdirectory(${PROJECT_SOURCE_DIR}/stress)
 
 find_program(CCACHE_FOUND ccache)
 if(CCACHE_FOUND)
