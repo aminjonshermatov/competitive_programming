@@ -1,8 +1,4 @@
-#include <iostream>
-#include <vector>
-#include <set>
-#include <map>
-#include <functional>
+#include <bits/stdc++.h>
 
 #ifdef LOCAL
 #include "debug.hpp"

@@ -3,6 +3,8 @@ project(competitive_programming)
 
 # find_package(nlohmann_json 3.2.0 REQUIRED)
 
+set(CMAKE_CXX_STANDARD 20)
+
 add_definitions(-DLOCAL)
 
 include_directories(.)

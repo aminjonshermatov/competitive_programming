@@ -1,8 +1,4 @@
-#include <iostream>
-#include <vector>
-#include <set>
-#include <map>
-#include <functional>
+#include <bits/stdc++.h>
 
 constexpr void scan(auto&&... args) noexcept { (std::cin >> ... >> args); }
 constexpr void print(auto&&... args) noexcept { ((std::cout << args << ' '), ...); }
