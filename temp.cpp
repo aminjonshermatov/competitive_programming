@@ -18,7 +18,7 @@ int main() {
   std::cin.tie(nullptr);
 
 #ifdef LOCAL
-  freopen("../../input.txt", "r", stdin);
+  freopen("../input.txt", "r", stdin);
 #endif
 
   solve();
