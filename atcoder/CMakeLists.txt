@@ -1,0 +1,1 @@
+add_executable(abc abc/362/main.cpp)

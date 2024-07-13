@@ -15,10 +15,7 @@ include_directories(.)
 #cses
 # add_executable(cses cses/AdditionalProblems/main.cpp)
 
-#atcoder
-# add_executable(atcoder_abc atcoder/abc/360/main.cpp)
-# add_executable(atcoder_arc atcoder/arc/104/main.cpp)
-# add_executable(atcoder_dp atcoder/dp_contest/main.cpp)
+add_subdirectory(${PROJECT_SOURCE_DIR}/atcoder)
 
 #temp
 add_executable(temp temp.cpp)
