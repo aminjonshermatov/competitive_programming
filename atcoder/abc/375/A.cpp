@@ -11,6 +11,14 @@ constexpr void print(auto&& ... args) noexcept { ((std::cout << args << ' '), ..
 constexpr void println(auto&& ... args) noexcept { print(std::forward<decltype(args)>(args)...); std::cout << '\n'; }
 
 void solve() {
+  int n;
+  std::string s;
+  scan(n, s);
+  int tot = 0;
+  for (int i = 0; i + 2 < n; ++i) {
+    tot += s[i] == '#' && s[i + 1] == '.' && s[i + 2] == '#';
+  }
+  println(tot);
 }
 
 int main() {

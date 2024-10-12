@@ -2,4 +2,5 @@
 
 iwo/
 /cmake-build-debug-gnu-gcc/
+/cmake-build-debug
 /build
