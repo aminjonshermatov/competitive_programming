@@ -1,6 +1,5 @@
 #include <iostream>
 #include <format>
-#include <expected>
 
 #include <boost/process.hpp>
 #include <boost/asio.hpp>
@@ -18,9 +17,9 @@ using i32 = int32_t;
 
 constexpr auto kExitSuccessCode = 0u;
 
-std::expected<void, std::string> compile() {
+std::string compile() {
   auto compileCommandGenerator = [](const std::filesystem::path& path) {
-    return std::format("g++ --std=c++23 -O2 {} -DLOCAL -o {}"sv,
+    return std::format("g++-14 --std=c++2a -O2 {} -DLOCAL -o {}"sv,
                        path.string(),
                        path.stem().string());
   };
@@ -49,13 +48,13 @@ std::expected<void, std::string> compile() {
 
   for (std::size_t i{}; i < nCmds; ++i) {
     if (exitCodes[i].get() != kExitSuccessCode) {
-      return std::unexpected(stdErr[i].get());
+      return stdErr[i].get();
     }
   }
   return {};
 }
 
-std::expected<void, std::string> runTest() {
+std::string runTest() {
   boost::asio::io_context ioc;
 
   std::future<std::string> genStdOut, genStdErr;
@@ -69,7 +68,7 @@ std::expected<void, std::string> runTest() {
 
   ioc.run();
   if (auto&& exitCode = genExitCode.get(); exitCode != kExitSuccessCode) {
-    return std::unexpected(std::format("generator: {}"sv, genStdErr.get()));
+    return std::format("generator: {}"sv, genStdErr.get());
   }
 
   auto&& data = genStdOut.get();
@@ -89,7 +88,7 @@ std::expected<void, std::string> runTest() {
   std::future<std::string> slowStdErr, slowStdOut;
   std::future<i32> slowExitCode;
   std::vector<bp::child> ch;
-  ch.emplace_back(std::format("./{}"sv, path::cpp::kSlow.stem().string()),
+  ch.emplace_back(std::format("{}"sv, path::cpp::kSlow.stem().string()),
                   bp::std_in < slowPipe,
                   bp::std_out > slowStdOut,
                   bp::std_err > slowStdErr,
@@ -97,7 +96,7 @@ std::expected<void, std::string> runTest() {
                   ioc);
   std::future<std::string> fastStdErr, fastStdOut;
   std::future<i32> fastExitCode;
-  ch.emplace_back(std::format("./{}"sv, path::cpp::kFast.stem().string()),
+  ch.emplace_back(std::format("{}"sv, path::cpp::kFast.stem().string()),
                   bp::std_in < fastPipe,
                   bp::std_out > fastStdOut,
                   bp::std_err > fastStdErr,
@@ -106,26 +105,26 @@ std::expected<void, std::string> runTest() {
   ioc.run();
 
   if (auto&& exitCode = slowExitCode.get(); exitCode != kExitSuccessCode) {
-    return std::unexpected(std::format("slow: {}"sv, slowStdErr.get()));
+    return std::format("slow: {}"sv, slowStdErr.get());
   }
   if (auto&& exitCode = fastExitCode.get(); exitCode != kExitSuccessCode) {
-    return std::unexpected(std::format("fast: {}"sv, fastStdErr.get()));
+    return std::format("fast: {}"sv, fastStdErr.get());
   }
 
   if (auto&& slowData = slowStdOut.get(), && fastData = fastStdOut.get();
     slowData != fastData) {
-    return std::unexpected(std::format("Fail: {}slow: {}fast: {}"sv,
-                                       data, slowData, fastData));
+    return std::format("Fail:\n{}slow:\n{}fast:\n{}"sv,
+                                       data, slowData, fastData);
   }
   return {};
 }
 
 template <std::size_t kIter, bool kSync>
-std::expected<void, std::string> runTests() {
+std::string runTests() {
   if constexpr (kSync) {
     for (std::size_t i{}; i < kIter; ++i) {
-      if (auto&& ret = runTest(); !ret) {
-        return std::unexpected(ret.error());
+      if (auto&& ret = runTest(); !ret.empty()) {
+        return ret;
       }
       std::cerr << std::format("done: {}\n", i);
       std::cerr.flush();
@@ -138,7 +137,13 @@ std::expected<void, std::string> runTests() {
 }
 
 int main() {
-  std::cout << compile()
-    .and_then(runTests</*kIter=*/1000000u, /*kSync=*/true>)
-    .error_or("Successfully done"s) << std::endl;
+  if (auto ret = compile(); !ret.empty()) {
+    std::cerr << ret << std::endl;
+    return 1;
+  }
+  if (auto ret = runTests</*kIter=*/1000u, /*kSync=*/true>(); !ret.empty()) {
+    std::cerr << ret << std::endl;
+    return 1;
+  }
+  std::cerr << "Ok" << std::endl;
 }

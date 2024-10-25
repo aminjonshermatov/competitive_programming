@@ -1,6 +1,7 @@
 .idea/
 
 iwo/
-/cmake-build-debug-gnu-gcc/
+/cmake-build-debug-gcc/
+/cmake-build-debug-clang/
 /cmake-build-debug
 /build
