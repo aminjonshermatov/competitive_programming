@@ -3,49 +3,50 @@
 //
 #include <bits/stdc++.h>
 
-template <int P> class Z {
-  int x = 0;
-public:
-  static_assert(P <= std::numeric_limits<int>::max() / 2);
+template <int P>
+class Z {
+ public:
+  static_assert(0 < P && P <= std::numeric_limits<int>::max() / 2);
 
   constexpr Z() noexcept = default;
-  constexpr Z(long long y) noexcept : x(norm(y)) { }
+  constexpr Z(int64_t y) noexcept : X_(Norm(y)) { }
 
-  static constexpr int getMod() noexcept { return P; }
-  [[nodiscard]] constexpr static int norm(long long y) noexcept {
-    if (y < -getMod() || y >= getMod()) {
-      y %= getMod();
+  static constexpr int GetMod() noexcept { return P; }
+
+  [[nodiscard]] constexpr static int Norm(int64_t y) noexcept {
+    if (y < -GetMod() || y >= GetMod()) {
+      y %= GetMod();
     }
     if (y < 0) {
-      y += getMod();
+      y += GetMod();
     }
     return static_cast<int>(y);
   }
 
-  [[nodiscard]] constexpr int val() const noexcept { return x; }
-  constexpr explicit operator int() const noexcept { return x; }
+  [[nodiscard]] constexpr int Val() const noexcept { return X_; }
+  constexpr explicit operator int() const noexcept { return X_; }
 
   constexpr Z operator-() const noexcept {
-    return {getMod() - x};
+    return {GetMod() - X_};
   }
-  [[nodiscard]] constexpr Z inverse() const noexcept {
-    return pow(getMod() - 2);
+  [[nodiscard]] constexpr Z Inverse() const noexcept {
+    return Pow(GetMod() - 2);
   }
 
   constexpr Z& operator+=(Z other) noexcept {
-    x = norm(x + other.val());
+    X_ = Norm(X_ + other.Val());
     return *this;
   }
   constexpr Z& operator-=(Z other) noexcept {
-    x = norm(x - other.val());
+    X_ = Norm(X_ - other.Val());
     return *this;
   }
   constexpr Z& operator*=(Z other) noexcept {
-    x = norm(x * 1LL * other.val());
+    X_ = Norm(X_ * 1LL * other.Val());
     return *this;
   }
   constexpr Z& operator/=(Z other) noexcept {
-    return *this *= other.inverse();
+    return *this *= other.Inverse();
   }
 
   constexpr Z& operator++() noexcept {
@@ -68,26 +69,26 @@ public:
   }
 
   constexpr Z operator+(Z other) const noexcept {
-    return {x + other.val()};
+    return {X_ + other.Val()};
   }
   constexpr Z operator-(Z other) const noexcept {
-    return {x - other.val()};
+    return {X_ - other.Val()};
   }
   constexpr Z operator*(Z other) const noexcept {
-    return {x * 1LL * other.val()};
+    return {X_ * 1LL * other.Val()};
   }
   constexpr Z operator/(Z other) const noexcept {
-    return other.inverse() * x;
+    return other.Inverse() * X_;
   }
 
   constexpr bool operator==(Z other) const noexcept {
-    return val() == other.val();
+    return Val() == other.Val();
   }
   constexpr bool operator!=(Z other) const noexcept {
-    return val() != other.val();
+    return Val() != other.Val();
   }
 
-  [[nodiscard]] Z pow(long long n) const {
+  [[nodiscard]] Z Pow(int64_t n) const {
     auto ret = Z(*this);
     Z res = 1;
     for (; n > 0; n >>= 1, ret *= ret) {
@@ -99,15 +100,18 @@ public:
   }
 
   friend std::istream& operator>>(std::istream& in, Z& z) {
-    long long y;
+    int64_t y;
     in >> y;
     z = Z{y};
     return in;
   }
   friend std::ostream& operator<<(std::ostream& out, const Z& z) {
-    return out << z.val();
+    return out << z.Val();
   }
+
+ private:
+  int X_{0};
 };
 
-constexpr int Mod = 998244353;
-using Mint = Z<Mod>;
+constexpr int kMod = 998244353;
+using Mint = Z<kMod>;

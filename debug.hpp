@@ -96,6 +96,10 @@ std::ostream& operator<<(std::ostream& os, std::unordered_map<T, U> uMap) {
   return os << '}';
 }
 
+std::ostream& operator<<(std::ostream& os, std::integral auto&& x) {
+  return os << x;
+}
+
 std::ostream& operator<<(std::ostream& os, bool f) {
   return os << (f ? "True" : "False");
 }
