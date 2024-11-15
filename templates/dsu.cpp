@@ -3,46 +3,56 @@
 //
 #include <bits/stdc++.h>
 
-struct DSU {
-  int n, components;
-  std::vector<int> parent, rank;
-
-  explicit DSU(int n_) : n(n_), components(n), parent(n), rank(n, 1) {
-    std::iota(parent.begin(), parent.end(), 0);
+class DSU {
+ public:
+  explicit DSU(int n)
+      : N_(n), Components(n), Parent_(n), Rank(n, 1)
+  {
+    std::iota(Parent_.begin(), Parent_.end(), 0);
   }
 
-  [[nodiscard]] int find(int v) noexcept {
-    assert(0 <= v && v < n);
+  [[nodiscard]] int Find(int v) {
+    assert(std::clamp(v, 0, N_ - 1) == v);
 
-    while (v != parent[v]) {
-      v = parent[v] = parent[parent[v]];
+    while (v != Parent_[v]) {
+      v = Parent_[v] = Parent_[Parent_[v]];
     }
     return v;
   }
 
-  bool merge(int u, int v) noexcept {
-    assert(0 <= u && u < n);
-    assert(0 <= v && v < n);
-    auto pu = find(u);
-    auto pv = find(v);
+  bool Merge(int u, int v) {
+    assert(std::clamp(u, 0, N_ - 1) == u);
+    assert(std::clamp(v, 0, N_ - 1) == v);
+
+    auto pu = Find(u);
+    auto pv = Find(v);
     if (pu == pv) {
       return false;
     }
 
-    if (rank[pu] < rank[pv]) {
+    if (Rank[pu] < Rank[pv]) {
       std::swap(pu, pv);
     }
-    parent[pv] = pu;
-    rank[pu] += rank[pv];
-    --components;
+    Parent_[pv] = pu;
+    Rank[pu] += Rank[pv];
+    --Components;
     return true;
   }
 
-  [[nodiscard]] bool is_same(int u, int v) noexcept {
-    assert(0 <= u && u < n);
-    assert(0 <= v && v < n);
-    return find(u) == find(v);
+  [[nodiscard]] bool IsSame(int u, int v) noexcept {
+    assert(std::clamp(u, 0, N_ - 1) == u);
+    assert(std::clamp(v, 0, N_ - 1) == v);
+
+    return Find(u) == Find(v);
   }
+
+ public:
+  int Components{0};
+  std::vector<int> Rank;
+
+ private:
+  int N_{0};
+  std::vector<int> Parent_;
 };
 
 struct DSURollback {
