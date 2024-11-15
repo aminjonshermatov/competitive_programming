@@ -3,8 +3,6 @@
 //
 #include <bits/stdc++.h>
 
-using namespace std;
-
 template <typename Info, typename Tag>
 class LazySegmentTree {
  public:
