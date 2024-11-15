@@ -3,6 +3,8 @@
 //
 #include <bits/stdc++.h>
 
+namespace lazy_segment_tree {
+
 template <typename Info, typename Tag>
 class LazySegmentTree {
  public:
@@ -25,7 +27,7 @@ class LazySegmentTree {
   template <typename T>
   void Init(const std::vector<T>& init) {
     assert(!init.empty());
-    N_ = 1u << std::__lg(2 * init.size() - 1);
+    N_ = 1u << (std::bit_width(2 * init.size() - 1) - 1);
     Infos_.assign(2 * N_ - 1, Info{});
     Tags_.assign(2 * N_ - 1, Tag{});
 
@@ -195,6 +197,10 @@ Info operator+(const Info& lhs, const Info& rhs) {
   return {std::min(lhs.Min, rhs.Min)};
 }
 
+} // namespace lazy_segment_tree
+
+
+namespace segment_tree {
 
 template <typename Info>
 class SegmentTree {
@@ -218,7 +224,7 @@ class SegmentTree {
   template <typename T>
   void Init(const std::vector<T>& init) {
     assert(!init.empty());
-    N_ = 1u << std::__lg(2 * init.size() - 1);
+    N_ = 1u << (std::bit_width(2 * init.size() - 1) - 1);
     Infos_.assign(2 * N_ - 1, Info{});
 
     auto build = [&](auto&& self, std::size_t x, std::size_t lx, std::size_t rx) -> void {
@@ -334,6 +340,10 @@ Info operator+(const Info& lhs, const Info& rhs) {
   return {std::max(lhs.Val, rhs.Val)};
 }
 
+} // namespace segment_tree
+
+
+namespace bottom_up_segment_tree {
 
 template <typename Info>
 class BottomUpSegmentTree {
@@ -353,7 +363,7 @@ class BottomUpSegmentTree {
 
   template <typename T>
   void Init(const std::vector<T>& init) {
-    N_ = 1u << std::__lg(2 * init.size() - 1);
+    N_ = 1u << (std::bit_width(2 * init.size() - 1) - 1);
     Infos_.assign(2 * N_, Info{});
     for (std::size_t i{0}; i < init.size(); ++i) {
       Infos_[i + N_] = Info{init[i]};
@@ -399,3 +409,5 @@ class Info {
 Info operator+(const Info& lhs, const Info& rhs) {
   return {std::max(lhs.Val, rhs.Val)};
 }
+
+} // namespace bottom_up_segment_tree
