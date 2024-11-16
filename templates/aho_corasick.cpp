@@ -14,6 +14,7 @@ class AhoCorasick {
   { }
 
   void AddWord(std::string_view s, const int idx = kEmpty) {
+    assert(!HasBuilt_ && "Already has built");
     assert(std::ranges::all_of(s, [](auto c) { return std::clamp<char>(c, kMinAlpha, kMinAlpha + kSigma - 1) == c; }));
 
     auto v = kRoot;
@@ -27,25 +28,31 @@ class AhoCorasick {
     Nodes_[v].Indices.emplace_back(idx);
   }
 
-  int Go(const int curState, const char c) noexcept {
+  int Go(const int curState, const char c) const noexcept {
+    assert(HasBuilt_ && "Not yet built");
     assert(std::clamp<int>(curState, 0, Nodes_.size() - 1) == curState);
     assert(std::clamp<char>(c, kMinAlpha, kMinAlpha + kSigma - 1) == c);
     return Nodes_[curState].Go[c - kMinAlpha];
   }
-  int SufLink(const int curState) noexcept {
+  int SufLink(const int curState) const noexcept {
+    assert(HasBuilt_ && "Not yet built");
     assert(std::clamp<int>(curState, 0, Nodes_.size() - 1) == curState);
     return Nodes_[curState].SufLink;
   }
-  int TermSufLink(const int curState) noexcept {
+  int TermSufLink(const int curState) const noexcept {
+    assert(HasBuilt_ && "Not yet built");
     assert(std::clamp<int>(curState, 0, Nodes_.size() - 1) == curState);
     return Nodes_[curState].TermSufLink;
   }
-  std::vector<int>& GetIndices(const int curState) noexcept {
+  const std::vector<int>& GetIndices(const int curState) const noexcept {
+    assert(HasBuilt_ && "Not yet built");
     assert(std::clamp<int>(curState, 0, Nodes_.size() - 1) == curState);
     return Nodes_[curState].Indices;
   }
 
   void Build() {
+    assert(!HasBuilt_ && "Already has built");
+
     Nodes_[kRoot].SufLink = kRoot;
     Nodes_[kRoot].TermSufLink = kRoot;
     for (int ch = 0; ch < kSigma; ++ch) {
@@ -78,6 +85,7 @@ class AhoCorasick {
         q.emplace(u);
       }
     }
+    HasBuilt_ = true;
   }
 
  private:
@@ -96,5 +104,6 @@ class AhoCorasick {
     std::array<int, kSigma> Next{}, Go{};
   };
 
+  bool HasBuilt_{false};
   std::vector<Node> Nodes_;
 };
