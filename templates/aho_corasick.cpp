@@ -3,65 +3,98 @@
 //
 #include <bits/stdc++.h>
 
-template <size_t ALPHA = 26, char MIN_ALPHA = 'a'> struct AhoCorasick {
-  struct Node {
-    int suf_link, term_suf_link;
-    std::vector<int> ids;
-    std::array<int, ALPHA> next{}, go{};
-    Node() : suf_link(-1), term_suf_link(-1) {
-      next.fill(-1);
-      go.fill(-1);
-    }
-  };
+template <size_t kSigma = 26, char kMinAlpha = 'a'>
+class AhoCorasick {
+ public:
+  static constexpr int kRoot{0};
 
-  std::vector<Node> t;
-  static constexpr int ROOT = 0;
-  AhoCorasick() {
-    t.emplace_back();
-  }
+ public:
+  AhoCorasick()
+    : Nodes_(1u)
+  { }
 
-  void add(std::string_view s, int idx = -1) {
-    assert(all_of(s.begin(), s.end(), [](char ch) { return std::clamp<char>(ch, MIN_ALPHA, MIN_ALPHA + ALPHA - 1) == ch; }));
+  void AddWord(std::string_view s, const int idx = kEmpty) {
+    assert(std::ranges::all_of(s, [](auto c) { return std::clamp<char>(c, kMinAlpha, kMinAlpha + kSigma - 1) == c; }));
 
-    int v = ROOT;
-    for (auto ch : s) {
-      if (t[v].next[ch - MIN_ALPHA] == -1) {
-        t[v].next[ch - MIN_ALPHA] = int(t.size());
-        t.emplace_back();
+    auto v = kRoot;
+    for (auto c : s) {
+      if (Nodes_[v].Next[c - kMinAlpha] == kEmpty) {
+        Nodes_[v].Next[c - kMinAlpha] = static_cast<int>(Nodes_.size());
+        Nodes_.emplace_back();
       }
-      v = t[v].next[ch - MIN_ALPHA];
+      v = Nodes_[v].Next[c - kMinAlpha];
     }
-    t[v].ids.emplace_back(idx);
+    Nodes_[v].Indices.emplace_back(idx);
   }
 
-  void build() {
-    t[ROOT].suf_link = ROOT;
-    t[ROOT].term_suf_link = ROOT;
-    for (int ch = 0; ch < ALPHA; ++ch) {
-      if (t[ROOT].next[ch] != -1) {
-        t[ROOT].go[ch] = t[ROOT].next[ch];
+  int Go(const int curState, const char c) noexcept {
+    assert(std::clamp<int>(curState, 0, Nodes_.size() - 1) == curState);
+    assert(std::clamp<char>(c, kMinAlpha, kMinAlpha + kSigma - 1) == c);
+    return Nodes_[curState].Go[c - kMinAlpha];
+  }
+  int SufLink(const int curState) noexcept {
+    assert(std::clamp<int>(curState, 0, Nodes_.size() - 1) == curState);
+    return Nodes_[curState].SufLink;
+  }
+  int TermSufLink(const int curState) noexcept {
+    assert(std::clamp<int>(curState, 0, Nodes_.size() - 1) == curState);
+    return Nodes_[curState].TermSufLink;
+  }
+  std::vector<int>& GetIndices(const int curState) noexcept {
+    assert(std::clamp<int>(curState, 0, Nodes_.size() - 1) == curState);
+    return Nodes_[curState].Indices;
+  }
+
+  void Build() {
+    Nodes_[kRoot].SufLink = kRoot;
+    Nodes_[kRoot].TermSufLink = kRoot;
+    for (int ch = 0; ch < kSigma; ++ch) {
+      if (Nodes_[kRoot].Next[ch] != kEmpty) {
+        Nodes_[kRoot].Go[ch] = Nodes_[kRoot].Next[ch];
       } else {
-        t[ROOT].go[ch] = ROOT;
+        Nodes_[kRoot].Go[ch] = kRoot;
       }
     }
 
     std::queue<int> q;
-    for (q.push(0); !q.empty(); q.pop()) {
-      auto v = q.front();
-      for (int ch = 0; ch < ALPHA; ++ch) {
-        auto u = t[v].next[ch];
-        if (u == -1) continue;
-        t[u].suf_link = v == ROOT ? ROOT : t[t[v].suf_link].go[ch];
-        t[u].term_suf_link = !t[t[u].suf_link].ids.empty() ? t[u].suf_link : t[t[u].suf_link].term_suf_link;
-        for (int d = 0; d < ALPHA; ++d) {
-          if (t[u].next[d] != -1) {
-            t[u].go[d] = t[u].next[d];
+    for (q.push(kRoot); !q.empty(); q.pop()) {
+      const auto v = q.front();
+      for (int ch = 0; ch < kSigma; ++ch) {
+        const auto u = Nodes_[v].Next[ch];
+        if (u == kEmpty) {
+          continue;
+        }
+        Nodes_[u].SufLink = v == kRoot ? kRoot : Nodes_[Nodes_[v].SufLink].Go[ch];
+        Nodes_[u].TermSufLink = !Nodes_[Nodes_[u].SufLink].Indices.empty()
+                                  ? Nodes_[u].SufLink
+                                  : Nodes_[Nodes_[u].SufLink].TermSufLink;
+        for (int d = 0; d < kSigma; ++d) {
+          if (Nodes_[u].Next[d] != kEmpty) {
+            Nodes_[u].Go[d] = Nodes_[u].Next[d];
           } else {
-            t[u].go[d] = t[t[u].suf_link].go[d];
+            Nodes_[u].Go[d] = Nodes_[Nodes_[u].SufLink].Go[d];
           }
         }
         q.emplace(u);
       }
     }
   }
+
+ private:
+  static constexpr int kEmpty{-1};
+
+  class Node {
+   public:
+    Node() {
+      Next.fill(kEmpty);
+      Go.fill(kEmpty);
+    }
+
+   public:
+    int SufLink{kRoot}, TermSufLink{kRoot};
+    std::vector<int> Indices;
+    std::array<int, kSigma> Next{}, Go{};
+  };
+
+  std::vector<Node> Nodes_;
 };

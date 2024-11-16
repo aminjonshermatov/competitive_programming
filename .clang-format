@@ -8,8 +8,9 @@ DerivePointerAlignment: false
 PointerAlignment: Left
 SortIncludes: CaseSensitive
 PackConstructorInitializers: Never
-BreakConstructorInitializers: BeforeColon
-BreakInheritanceList: AfterComma
+BreakConstructorInitializers: BeforeComma
+BreakInheritanceList: BeforeComma
+ConstructorInitializerIndentWidth: 2
 IndentWidth: 2
 ContinuationIndentWidth: 2
 MaxEmptyLinesToKeep: 2
