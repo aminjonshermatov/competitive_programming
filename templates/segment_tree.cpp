@@ -72,7 +72,7 @@ class LazySegmentTree {
  private:
   void Apply(std::size_t x, Tag tag) {
     Infos_[x].Apply(tag);
-    Infos_[x].Apply(tag);
+    Tags_[x].Apply(tag);
   }
 
   void Push(std::size_t x) {
@@ -398,7 +398,7 @@ class BottomUpSegmentTree {
   }
 
  private:
-  std::size_t N_{};
+  std::size_t N_{0};
   std::vector<Info> Infos_;
 };
 
