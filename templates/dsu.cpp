@@ -6,7 +6,7 @@
 class DSU {
  public:
   explicit DSU(int n)
-      : N_(n), Components(n), Parent_(n), Rank(n, 1)
+    : N_(n), Components(n), Parent_(n), Rank(n, 1)
   {
     std::iota(Parent_.begin(), Parent_.end(), 0);
   }
