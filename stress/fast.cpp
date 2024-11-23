@@ -1,15 +1,15 @@
 #include <bits/stdc++.h>
 
-constexpr void scan(auto&&... args) noexcept { (std::cin >> ... >> args); }
-constexpr void print(auto&&... args) noexcept { ((std::cout << args << ' '), ...); }
-constexpr void println(auto&&... args) noexcept { print(std::forward<decltype(args)>(args)...); std::cout << '\n'; }
+constexpr void Scan(auto&&... args) noexcept { (std::cin >> ... >> args); }
+constexpr void Print(auto&&... args) noexcept { ((std::cout << args << ' '), ...); }
+constexpr void Println(auto&&... args) noexcept { Print(std::forward<decltype(args)>(args)...); std::cout << '\n'; }
 
-auto solve() {
+auto Solve() {
   int a, b;
-  scan(a, b);
-  println(a + b);
+  Scan(a, b);
+  Println(a + b);
 }
 
 int main() {
-  solve();
+  Solve();
 }
