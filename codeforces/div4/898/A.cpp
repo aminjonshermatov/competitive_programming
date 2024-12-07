@@ -11,7 +11,7 @@ using namespace std;
 void solve() {
   string s;
   cin >> s;
-  string x = "abc";
+  string x = "383";
   int cnt = 0;
   for (int i = 0; i < 3; ++i) {
     cnt += s[i] != x[i];
