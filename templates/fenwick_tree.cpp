@@ -3,78 +3,92 @@
 //
 #include <bits/stdc++.h>
 
-template <typename T> struct FenwickTreePointUpdateRangeQuery {
-  int n = 0;
-  std::vector<T> bit;
+namespace point_update_range_query {
 
-  FenwickTreePointUpdateRangeQuery() = default;
-  explicit FenwickTreePointUpdateRangeQuery(int n_) : n(n_), bit(n_, T(0))  { }
-  template<typename U> explicit FenwickTreePointUpdateRangeQuery(const std::vector<U> &A) : n(A.size()), bit(A.size(), T(0)) {
-    for (auto idx = 0u; idx < n; ++idx) {
-      modify(idx, A[idx]);
+template <typename Info>
+class FenwickTree {
+ public:
+  FenwickTree() = default;
+  explicit FenwickTree(const int n) {
+    Init(std::vector(n, Info{}));
+  }
+  FenwickTree(const int n, const Info& info) {
+    Init(std::vector(n, info));
+  }
+  template<typename U>
+  explicit FenwickTree(const std::vector<U>& as) {
+    std::vector<Info> init(as.size());
+    std::ranges::generate(init, [id = std::size_t{0}, &as]() mutable {
+      return Info{as[id++]};
+    });
+    Init(init);
+  }
+
+  auto Init(const std::vector<Info>& init) {
+    N_ = static_cast<int>(init.size());
+    Bit_.assign(N_, Info{});
+    for (int i = 0; i < N_; ++i) {
+      Modify(i, init[i]);
     }
   }
 
-  void init(int n_) {
-    n = n_;
-    bit.assign(n, T(0));
-  }
-
-  auto modify(int idx, T val) -> void {
-    for (; idx < n; idx = idx | (idx + 1)) {
-      bit[idx] += val;
+  auto Modify(const int idx, const Info& val) {
+    for (auto id = idx; id < N_; id = id | (id + 1)) {
+      Bit_[id] = Bit_[id] + val;
     }
   }
 
-  [[nodiscard]] auto query(int idx) const -> T {
-    T ret = T(0);
-    for (; idx >= 0; idx = (idx & (idx + 1)) - 1) {
-      ret += bit[idx];
-    }
-    return ret;
+  auto Query(const int idx) const -> Info {
+    return Query(idx, idx + 1);
   }
 
-  [[nodiscard]] auto query(int l, int r) const -> T { // [l, r)
-    return query(r - 1) - query(l - 1);
-  }
-};
-
-template <typename T> struct FenwickTreeRangeUpdatePointQuery {
-  int n = 0;
-  std::vector<T> bit;
-
-  FenwickTreeRangeUpdatePointQuery() = default;
-  explicit FenwickTreeRangeUpdatePointQuery(int n_) : n(n_), bit(n_, T(0))  { }
-  template<typename U> explicit FenwickTreeRangeUpdatePointQuery(const std::vector<U> &A) : n(A.size()) , bit(A.size(), T(0)) {
-    for (auto idx = 0u; idx < n; ++idx) {
-      modify(idx, idx + 1, A[idx]);
-    }
+  // [l, r)
+  auto Query(const int l, const int r) const -> Info {
+    return QueryImpl(r - 1) - QueryImpl(l - 1);
   }
 
-  void init(int n_) {
-    n = n_;
-    bit.assign(n, T(0));
-  }
-
-  auto modify(int idx, T val) -> void {
-    for (; idx < n; idx = idx | (idx + 1)) {
-      bit[idx] += val;
-    }
-  }
-
-  auto modify(int l, int r, T val) -> void { // [, r)
-    modify(l, val);
-    modify(r, -val);
-  }
-
-  [[nodiscard]] auto query(int idx) const -> T {
-    T ret = T(0);
-    for (; idx >= 0; idx = (idx & (idx + 1)) - 1) {
-      ret += bit[idx];
+ private:
+  auto QueryImpl(const int idx) const -> Info {
+    auto ret = Info{};
+    for (auto id = idx; id >= 0; id = (id & (id + 1)) - 1) {
+      ret = ret + Bit_[id];
     }
     return ret;
   }
+
+ private:
+  int N_{0};
+  std::vector<Info> Bit_;
 };
+
+class Info {
+ public:
+  Info() = default;
+  explicit Info(const int64_t val)
+    : Sum(val), Cnt(1)
+  { }
+  Info(const int64_t sum, const int64_t cnt)
+    : Sum(sum), Cnt(cnt)
+  { }
+
+  Info operator+(const Info& other) {
+    return {
+      Sum + other.Sum,
+      Cnt + other.Cnt
+    };
+  }
+  Info operator-(const Info& other) {
+    return {
+      Sum - other.Sum,
+      Cnt - other.Cnt
+    };
+  }
+
+ public:
+  int64_t Sum{0}, Cnt{0};
+};
+
+} // namespace point_update_range_query
 
 template <typename T> struct FenwickTreeRangeUpdateRangeQuery {
   int n = 0;
