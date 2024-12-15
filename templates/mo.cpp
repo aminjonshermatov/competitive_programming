@@ -3,61 +3,65 @@
 //
 #include <bits/stdc++.h>
 
-using i64 = int64_t;
-
-const int BLOCK_SIZE = 500;
-
-struct Query {
-  int l, r, idx;
-  bool operator<(const Query &other) const {
-    return std::pair(l / BLOCK_SIZE, r) < std::pair(other.l / BLOCK_SIZE, other.r);
+class Mo {
+ public:
+  void Add(const int l, const int r) {
+    Queries_.emplace_back(l, r);
   }
+
+  void Run(
+    auto&& addLeft, auto&& addRight, auto&& removeLeft, auto&& removeRight,
+    auto&& pull, const int blockWidth
+  ) {
+    std::vector<std::size_t> ord(Queries_.size());
+    std::iota(ord.begin(), ord.end(), std::size_t{0});
+    std::ranges::sort(
+      ord,
+      [blockWidth, &queries = std::as_const(Queries_)](const std::size_t a, const std::size_t b) {
+        auto [lA, rA] = queries[a];
+        auto [lB, rB] = queries[b];
+        lA /= blockWidth;
+        lB /= blockWidth;
+        return lA != lB ? lA < lB : lA % 2 == 1 ? rA > rB : rA < rB;
+      }
+    );
+
+    int curL = -1, curR = -1;
+    for (const auto id : ord) {
+      const auto [l, r] = Queries_[id];
+      while (curL > l) {
+        addLeft(--curL + 1);
+      }
+      while (curR < r) {
+        addRight(curR++ + 1);
+      }
+      while (curL < l) {
+        removeLeft(curL++ + 1);
+      }
+      while (curR > r) {
+        removeRight(--curR + 1);
+      }
+      pull(id);
+    }
+  }
+
+ private:
+  std::vector<std::pair<int, int>> Queries_;
 };
 
-void solve() {
-  int n, q;
-  std::cin >> n >> q;
-  std::vector<i64> as(n);
-  for (auto &a : as) {
-    std::cin >> a;
-  }
-  std::vector<Query> queries(q);
-  for (int i = 0; i < q; ++i) {
-    int l, r;
-    std::cin >> l >> r;
-    --l, --r;
-    queries[i] = Query{l, r, i};
-  }
-
-  sort(queries.begin(), queries.end());
-
-  i64 cur = 0;
-  std::vector<i64> cnt(1e6 + 1, 0);
-  auto add = [&](i64 idx) -> void {
-    cur -= cnt[as[idx]] * cnt[as[idx]] * as[idx];
-    ++cnt[as[idx]];
-    cur += cnt[as[idx]] * cnt[as[idx]] * as[idx];
-  };
-  auto rmv = [&](i64 idx) -> void {
-    cur -= cnt[as[idx]] * cnt[as[idx]] * as[idx];
-    --cnt[as[idx]];
-    cur += cnt[as[idx]] * cnt[as[idx]] * as[idx];
-  };
-
-  std::vector<i64> ans(q);
-  int cur_l = 0, cur_r = -1;
-  for (auto [l, r, idx] : queries) {
-    while (cur_l > l) add(--cur_l);
-    while (cur_r < r) add(++cur_r);
-    while (cur_l < l) rmv(cur_l++);
-    while (cur_r > r) rmv(cur_r--);
-    ans[idx] = cur;
-  }
-
-  for (auto &x : ans) {
-    std::cout << x << '\n';
-  }
-}
+/*
+auto addLeft = [&](const int pos) {};
+auto addRight = [&](const int pos) {};
+auto removeLeft = [&](const int pos) {};
+auto removeRight = [&](const int pos) {};
+auto pull = [&](const int qId) {};
+mo.Run(
+  addLeft, addRight, removeLeft, removeRight,
+  pull, [] {
+    return 1000;
+  }()
+);
+*/
 
 // 3D Mo's algo
 // https://gist.github.com/aminjonshermatov/8c34af802c075264b24615a971a0c09c
