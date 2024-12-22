@@ -4,36 +4,45 @@
 
 #include <bits/stdc++.h>
 
-template <typename Node>
-struct SparseTable {
-  std::vector<std::vector<Node>> table;
+template <typename Info>
+class SparseTable {
+ public:
+  template <typename T>
+  explicit SparseTable(const std::vector<T>& init) {
+    Init(init);
+  }
 
-  template <typename U>
-  explicit SparseTable(const std::vector<U>& init_) { init(init_); }
-
-  template <typename U>
-  void init(const std::vector<U>& init_) {
-    table.resize(init_.size());
-    for (std::size_t i{}; i < init_.size(); ++i) {
-      table[i].emplace_back(init_[i]);
+  template <typename T>
+  auto Init(const std::vector<T>& init) {
+    assert(!init.empty());
+    const auto b = std::bit_width(init.size());
+    Infos_.assign(b, std::vector(init.size(), Info{}));
+    for (std::size_t i = 0; i < init.size(); ++i) {
+      Infos_[0][i] = Info{init[i]};
     }
-    for (std::size_t l{1}, j{}; 2 * l <= init_.size(); ++j, l <<= 1u) {
-      for (std::size_t i{}; i + 2 * l <= init_.size(); ++i) {
-        table[i].emplace_back(Node::unite(std::forward<Node>(table[i][j]),
-                                          std::forward<Node>(table[i + l][j])));
+    for (std::size_t w = 1; w < b; ++w) {
+      for (std::size_t i = 0; i < init.size(); ++i) {
+        Infos_[w][i] = Infos_[w - 1][i] + Infos_[w - 1][std::min(init.size() - 1, i + (1u << (w - 1)))];
       }
     }
   }
 
-  [[nodiscard]] Node query(std::size_t l, std::size_t r) const {
-    const auto b = std::__lg(r - l);
-    return Node::unite(table[l][b], table[r - (1 << b)][b]);
+  auto Query(std::size_t l, std::size_t r) const -> Info {
+    if (l == r) {
+      return {};
+    }
+    const auto b = std::bit_width(r - l) - 1;
+    return Infos_[b][l] + Infos_[b][r - (1 << b)];
   }
+
+ private:
+  std::vector<std::vector<Info>> Infos_{};
 };
 
-struct Node {
-  int val = std::numeric_limits<int>::max();
-  static Node unite(auto&& a, auto&& b) {
-    return a.val < b.val ? a : b;
-  }
+class Info {
+ public:
+  int Val = std::numeric_limits<int>::min();
 };
+Info operator+(const Info& lhs, const Info& rhs) {
+  return {std::max(lhs.Val, rhs.Val)};
+}
