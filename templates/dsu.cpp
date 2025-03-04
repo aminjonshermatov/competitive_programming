@@ -3,187 +3,164 @@
 //
 #include <bits/stdc++.h>
 
-class DSU {
+class DSU final {
  public:
-  explicit DSU(int n)
-    : N_(n), Components(n), Parent_(n), Rank(n, 1)
+  using Vertex = std::size_t;
+
+ public:
+  explicit DSU(const std::size_t nVertices)
+    : NumberOfVertices_(nVertices)
+    , Components_(nVertices)
+    , Parents_(nVertices)
+    , Ranks_(nVertices, 1U)
   {
-    std::iota(Parent_.begin(), Parent_.end(), 0);
+    std::iota(Parents_.begin(), Parents_.end(), Vertex{0});
   }
 
-  [[nodiscard]] int Find(int v) {
-    assert(std::clamp(v, 0, N_ - 1) == v);
-
-    while (v != Parent_[v]) {
-      v = Parent_[v] = Parent_[Parent_[v]];
+  [[nodiscard]] auto Leader(Vertex v) -> Vertex {
+    assert(std::clamp(v, {0}, NumberOfVertices_ - 1) == v);
+    if (Parents_[v] != v) {
+      Parents_[v] = Leader(Parents_[v]);
     }
     return v;
   }
 
-  bool Merge(int u, int v) {
-    assert(std::clamp(u, 0, N_ - 1) == u);
-    assert(std::clamp(v, 0, N_ - 1) == v);
-
-    auto pu = Find(u);
-    auto pv = Find(v);
+  auto Merge(Vertex u, Vertex v) -> bool {
+    assert(std::clamp(u, {0}, NumberOfVertices_ - 1) == u);
+    assert(std::clamp(v, {0}, NumberOfVertices_ - 1) == v);
+    auto pu = Leader(u);
+    auto pv = Leader(v);
     if (pu == pv) {
       return false;
     }
-
-    if (Rank[pu] < Rank[pv]) {
+    if (Ranks_[pu] < Ranks_[pv]) {
       std::swap(pu, pv);
     }
-    Parent_[pv] = pu;
-    Rank[pu] += Rank[pv];
-    --Components;
+    Parents_[pv] = pu;
+    Ranks_[pu] += Ranks_[pv];
+    --Components_;
     return true;
   }
 
-  [[nodiscard]] bool IsSame(int u, int v) noexcept {
-    assert(std::clamp(u, 0, N_ - 1) == u);
-    assert(std::clamp(v, 0, N_ - 1) == v);
-
-    return Find(u) == Find(v);
+  [[nodiscard]] auto IsSame(const Vertex u, const Vertex v) noexcept -> bool {
+    assert(std::clamp(u, {0}, NumberOfVertices_ - 1) == u);
+    assert(std::clamp(v, {0}, NumberOfVertices_ - 1) == v);
+    return Leader(u) == Leader(v);
   }
 
- public:
-  int Components{0};
-  std::vector<int> Rank;
+  auto Rank(const Vertex v) {
+    assert(std::clamp(v, {0}, NumberOfVertices_ - 1) == v);
+    return Ranks_[Leader(v)];
+  }
+
+  auto Components() const {
+    return Components_;
+  }
 
  private:
-  int N_{0};
-  std::vector<int> Parent_;
+  std::size_t NumberOfVertices_{0}, Components_{0};
+  std::vector<Vertex> Parents_;
+  std::vector<uint32_t> Ranks_;
 };
 
-struct DSURollback {
-  int n, components;
-  std::vector<int> parent, rank;
+template <typename DSU>
+concept DSUConcept = requires(DSU dsu) {
+  { dsu.Leader(std::size_t{0}) } -> std::same_as<std::size_t>;
+  { dsu.Merge(std::size_t{}, std::size_t{}) } -> std::same_as<bool>;
+  { dsu.IsSame(std::size_t{}, std::size_t{}) } -> std::same_as<bool>;
+  { dsu.Rank(std::size_t{}) } -> std::same_as<uint32_t>;
+  { dsu.Components() } -> std::same_as<std::size_t>;
+};
 
-  enum class UpdateType : uint8_t { kUpdateRank, kUpdateParent };
-  std::vector<std::tuple<UpdateType, int, int>> history;
+static_assert(DSUConcept<DSU>);
 
-  explicit DSURollback(int n_) : n(n_), components(n), parent(n), rank(n, 1) {
-    std::iota(parent.begin(), parent.end(), 0);
-  }
+class DSUWithRollbacks final {
+ public:
+  using Vertex = std::size_t;
 
-  [[nodiscard]] int find(int v) {
-    assert(0 <= v && v < n);
-    while (v != parent[v]) {
-      history.emplace_back(UpdateType::kUpdateParent, v, parent[v]);
-      v = parent[v] = parent[parent[v]];
+ public:
+  explicit DSUWithRollbacks(const std::size_t nVertices)
+    : NumberOfVertices_(nVertices)
+    , Components_(nVertices)
+    , Infos_(nVertices, -1)
+  { }
+
+  [[nodiscard]] auto Leader(Vertex v) -> Vertex {
+    if (Infos_[v] < 0) {
+      return v;
     }
-    return v;
+    assert(std::clamp(v, {0}, NumberOfVertices_ - 1) == v);
+    return Leader(Infos_[v]);
   }
 
-  bool merge(int u, int v) {
-    assert(0 <= u && u < n);
-    assert(0 <= v && v < n);
-    auto pu = find(u);
-    auto pv = find(v);
+  auto Merge(Vertex u, Vertex v) -> bool {
+    assert(std::clamp(u, {0}, NumberOfVertices_ - 1) == u);
+    assert(std::clamp(v, {0}, NumberOfVertices_ - 1) == v);
+    auto pu = Leader(u);
+    auto pv = Leader(v);
     if (pu == pv) {
       return false;
     }
-
-    if (rank[pu] < rank[pv]) {
+    History_.emplace(u, Infos_[u]);
+    History_.emplace(v, Infos_[v]);
+    assert(Infos_[u] < 0);
+    assert(Infos_[v] < 0);
+    if (-Infos_[pu] < -Infos_[pv]) {
       std::swap(pu, pv);
     }
-    history.emplace_back(UpdateType::kUpdateParent, pv, parent[pv]);
-    parent[pv] = pu;
-    history.emplace_back(UpdateType::kUpdateRank, pu, rank[pu]);
-    rank[pu] += rank[pv];
-    --components;
+    Infos_[pu] += Infos_[pv];
+    Infos_[pv] = pu;
+    --Components_;
     return true;
   }
 
-  [[nodiscard]] bool is_same(int u, int v) noexcept {
-    assert(0 <= u && u < n);
-    assert(0 <= v && v < n);
-    return find(u) == find(v);
+  [[nodiscard]] auto IsSame(const Vertex u, const Vertex v) noexcept -> bool {
+    assert(std::clamp(u, {0}, NumberOfVertices_ - 1) == u);
+    assert(std::clamp(v, {0}, NumberOfVertices_ - 1) == v);
+    return Leader(u) == Leader(v);
   }
 
-  [[nodiscard]] std::size_t snapshot() const noexcept {
-    return history.size();
+  [[nodiscard]] auto Rank(const Vertex v) -> uint32_t {
+    assert(std::clamp(v, {0}, NumberOfVertices_ - 1) == v);
+    return static_cast<uint32_t>(-Infos_[Leader(v)]);
   }
 
-  void rollback(std::size_t time) {
-    for (; history.size() > time; history.pop_back()) {
-      if (history.size() > 1u && std::get<0>(history.back()) == UpdateType::kUpdateRank && std::get<0>(history[int(history.size()) - 2]) == UpdateType::kUpdateParent) {
-        rank[std::get<1>(history.back())] = std::get<2>(history.back());
-        history.pop_back();
-        parent[std::get<1>(history.back())] = std::get<2>(history.back());
-        ++components;
-      } else if (std::get<0>(history.back()) == UpdateType::kUpdateRank) {
-        rank[std::get<1>(history.back())] = std::get<2>(history.back());
-      } else if (std::get<0>(history.back()) == UpdateType::kUpdateParent) {
-        parent[std::get<1>(history.back())] = std::get<2>(history.back());
-      }
-    }
+  auto Components() const {
+    return Components_;
   }
+
+  auto GetState() const {
+    return static_cast<int32_t>(History_.size());
+  }
+  [[nodiscard]] auto Snapshot() {
+    return LastSnapshot_ = GetState();
+  }
+
+  auto Rollback(const std::optional<int32_t> state = std::nullopt) {
+    const auto tillState = state.value_or(LastSnapshot_);
+    for (assert(tillState <= GetState()); tillState < GetState(); Undo()) { }
+  }
+
+ private:
+  auto Undo() -> void {
+    Infos_[History_.top().first] = History_.top().second;
+    History_.pop();
+    Infos_[History_.top().first] = History_.top().second;
+    History_.pop();
+  }
+
+ private:
+  std::size_t NumberOfVertices_{0}, Components_{0};
+  int32_t LastSnapshot_{0};
+  std::vector<int32_t> Infos_;
+  std::stack<std::pair<Vertex, decltype(Infos_)::value_type>> History_;
 };
 
-template <typename Node> struct DSUWeighted {
-  int n, components;
-  std::vector<int> parent, rank;
-  std::vector<Node> weight;
-
-  explicit DSUWeighted(int n_) : n(n_), components(n), parent(n), rank(n, 1), weight(n, Node()) {
-    std::iota(parent.begin(), parent.end(), 0);
-  }
-
-  [[nodiscard]] decltype(auto) find(int v) {
-    assert(0 <= v && v < n);
-    auto res = Node();
-
-    while (v != parent[v]) {
-      res = Node::unite(res, weight[v]);
-      res = Node::unite(res, weight[parent[v]]);
-      weight[v] = Node::unite(weight[v], weight[parent[v]]);
-      v = parent[v] = parent[parent[v]];
-    }
-    return std::pair(v, res);
-  }
-
-  bool merge(int u, int v, Node w) {
-    assert(0 <= u && u < n);
-    assert(0 <= v && v < n);
-    auto [pu, wu] = find(u);
-    auto [pv, wv] = find(v);
-    if (pu == pv) {
-      return false;
-    }
-
-    if (rank[pu] < rank[pv]) {
-      std::swap(pv, pu);
-      std::swap(wv, wu);
-      w = Node::inverse(w);
-    }
-    // U - V = w
-    // weight[v] - weight[u] + ? = w
-    // ? = weight[u] - weight[v] + w
-    parent[pv] = pu;
-    rank[pu] += rank[pv];
-    weight[pv] = Node::unite(wu, Node::unite(Node::inverse(wv), w));
-    --components;
-    return true;
-  }
-
-  [[nodiscard]] bool is_same(int u, int v) const {
-    assert(0 <= u && u < n);
-    assert(0 <= v && v < n);
-    return find(u).first == find(v).first;
-  }
+template <typename DS>
+concept RollbackConcept = requires(DS ds) {
+  { ds.GetState() } -> std::same_as<int32_t>;
+  { ds.Snapshot() } -> std::same_as<int32_t>;
+  { ds.Rollback(std::optional{std::size_t{}}) } -> std::same_as<void>;
 };
 
-using i64 = int64_t;
-struct Node {
-  i64 val = 0;
-  inline static Node unite(Node a, Node b) {
-    return Node{a.val + b.val};
-  }
-  inline static Node inverse(Node a) {
-    return Node{-a.val};
-  }
-  inline bool operator==(const Node &node) const noexcept {
-    return val == node.val;
-  }
-};
+static_assert(DSUConcept<DSUWithRollbacks> && RollbackConcept<DSUWithRollbacks>);
