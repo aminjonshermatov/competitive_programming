@@ -65,10 +65,12 @@ class DSU final {
 
 template <typename DSU>
 concept DSUConcept = requires(DSU dsu) {
-  { dsu.Leader(std::size_t{0}) } -> std::same_as<std::size_t>;
-  { dsu.Merge(std::size_t{}, std::size_t{}) } -> std::same_as<bool>;
-  { dsu.IsSame(std::size_t{}, std::size_t{}) } -> std::same_as<bool>;
-  { dsu.Rank(std::size_t{}) } -> std::same_as<uint32_t>;
+  typename DSU::Vertex;
+
+  { dsu.Leader(std::declval<typename DSU::Vertex>()) } -> std::same_as<std::size_t>;
+  { dsu.Merge(std::declval<typename DSU::Vertex>(), std::declval<typename DSU::Vertex>()) } -> std::same_as<bool>;
+  { dsu.IsSame(std::declval<typename DSU::Vertex>(), std::declval<typename DSU::Vertex>()) } -> std::same_as<bool>;
+  { dsu.Rank(std::declval<typename DSU::Vertex>()) } -> std::same_as<uint32_t>;
   { dsu.Components() } -> std::same_as<std::size_t>;
 };
 
@@ -101,10 +103,10 @@ class DSUWithRollbacks final {
     if (pu == pv) {
       return false;
     }
-    History_.emplace(u, Infos_[u]);
-    History_.emplace(v, Infos_[v]);
-    assert(Infos_[u] < 0);
-    assert(Infos_[v] < 0);
+    History_.emplace(&Infos_[pu], Infos_[pu]);
+    History_.emplace(&Infos_[pv], Infos_[pv]);
+    assert(Infos_[pu] < 0);
+    assert(Infos_[pv] < 0);
     if (-Infos_[pu] < -Infos_[pv]) {
       std::swap(pu, pv);
     }
@@ -132,35 +134,27 @@ class DSUWithRollbacks final {
   auto GetState() const {
     return static_cast<int32_t>(History_.size());
   }
-  [[nodiscard]] auto Snapshot() {
-    return LastSnapshot_ = GetState();
-  }
 
-  auto Rollback(const std::optional<int32_t> state = std::nullopt) {
-    const auto tillState = state.value_or(LastSnapshot_);
-    for (assert(tillState <= GetState()); tillState < GetState(); Undo()) { }
+  auto Rollback(const int32_t state) {
+    for (assert(state <= GetState()); state < GetState(); Undo()) { }
   }
 
  private:
   auto Undo() -> void {
-    Infos_[History_.top().first] = History_.top().second;
-    History_.pop();
-    Infos_[History_.top().first] = History_.top().second;
+    *History_.top().first = History_.top().second;
     History_.pop();
   }
 
  private:
   std::size_t NumberOfVertices_{0}, Components_{0};
-  int32_t LastSnapshot_{0};
-  std::vector<int32_t> Infos_;
-  std::stack<std::pair<Vertex, decltype(Infos_)::value_type>> History_;
+  std::vector<int64_t> Infos_;
+  std::stack<std::pair<decltype(Infos_)::pointer, decltype(Infos_)::value_type>> History_;
 };
 
 template <typename DS>
 concept RollbackConcept = requires(DS ds) {
   { ds.GetState() } -> std::same_as<int32_t>;
-  { ds.Snapshot() } -> std::same_as<int32_t>;
-  { ds.Rollback(std::optional{std::size_t{}}) } -> std::same_as<void>;
+  { ds.Rollback(std::declval<std::size_t>()) } -> std::same_as<void>;
 };
 
 static_assert(DSUConcept<DSUWithRollbacks> && RollbackConcept<DSUWithRollbacks>);
