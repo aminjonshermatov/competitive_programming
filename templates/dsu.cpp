@@ -22,7 +22,7 @@ class DSU final {
     if (Parents_[v] != v) {
       Parents_[v] = Leader(Parents_[v]);
     }
-    return v;
+    return Parents_[v];
   }
 
   auto Merge(Vertex u, Vertex v) -> bool {
