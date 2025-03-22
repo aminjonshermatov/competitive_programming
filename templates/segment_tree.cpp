@@ -363,6 +363,7 @@ class BottomUpSegmentTree {
 
   template <typename T>
   void Init(const std::vector<T>& init) {
+    assert(!init.empty());
     N_ = 1u << (std::bit_width(2 * init.size() - 1) - 1);
     Infos_.assign(2 * N_, Info{});
     for (std::size_t i{0}; i < init.size(); ++i) {
