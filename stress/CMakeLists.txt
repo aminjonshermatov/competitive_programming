@@ -5,5 +5,5 @@ add_executable(slow slow.cpp)
 add_executable(fast fast.cpp)
 add_executable(stress main.cpp)
 
-find_package(Boost 1.85.0 REQUIRED)
+find_package(Boost 1.85.0 CONFIG REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
