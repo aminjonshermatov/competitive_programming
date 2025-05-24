@@ -4,110 +4,118 @@
 #include <bits/stdc++.h>
 
 template <std::integral FlowUnit = int64_t, std::integral CostUnit = int64_t, bool DoDecompose = false>
-struct MinCostFlow {
-  static constexpr auto inf = std::numeric_limits<CostUnit>::max();
-
-  struct FlowEdge {
-    int u, v;
-    FlowUnit cap, flow;
-    CostUnit cost;
-    int id;
-    FlowEdge(int u_, int v_, FlowUnit cap_, CostUnit cost_, int id_) : u(u_), v(v_), cap(cap_), flow{}, cost(cost_), id(id_) { }
-  };
-
-  int n;
-  std::vector<std::vector<int>> g;
-  std::vector<FlowEdge> edges;
-  std::vector<CostUnit> pot, dist;
-  std::vector<int> pre;
-  explicit MinCostFlow(int n_) : n(n_) {
-    g.resize(n);
-    pot.resize(n);
-    dist.resize(n);
-    pre.resize(n);
-  }
-  void addEdge(int u, int v, FlowUnit cap, CostUnit cost, int id = -1) {
-    g[u].emplace_back(edges.size());
-    edges.emplace_back(u, v, cap, cost, id);
-    g[v].emplace_back(edges.size());
-    edges.emplace_back(v, u, 0, -cost, -1);
+class MinCostFlow {
+ public:
+ public:
+  explicit MinCostFlow(const int n) : N_(n) {
+    Graph_.resize(n);
+    Potential_.resize(n);
+    Distance_.resize(n);
+    Previous_.resize(n);
   }
 
-  bool dijkstra(int S, int T) {
-    dist.assign(n, inf);
-    pre.assign(n, -1);
+  auto AddEdge(int u, int v, FlowUnit capacity, CostUnit cost, int id = -1) {
+    Graph_[u].emplace_back(Edges_.size());
+    Edges_.emplace_back(u, v, capacity, cost, id);
+    Graph_[v].emplace_back(Edges_.size());
+    Edges_.emplace_back(v, u, 0, -cost, -1);
+  }
 
-    std::priority_queue<std::pair<CostUnit, int>, std::vector<std::pair<CostUnit, int>>, std::greater<>> pq;
-    pq.emplace(dist[S] = 0, S);
-    while (!pq.empty()) {
-      auto [d, u] = pq.top();
-      pq.pop();
-      if (d > dist[u]) {
-        continue;
-      }
-      for (auto id : g[u]) {
-        auto v = edges[id].v;
-        if (edges[id].cap - edges[id].flow <= 0) {
+  decltype(auto) Slope(const int s, const int t, const FlowUnit flowLimit = std::numeric_limits<FlowUnit>::max()) {
+    std::ranges::fill(Potential_, CostUnit{});
+    auto found = true;
+    for ([[maybe_unused]] auto it = 0; it < N_ && found; ++it) {
+      found = false;
+      for (const auto& edge : Edges_) {
+        if (edge.Capacity == CostUnit{}) {
           continue;
         }
-        if (auto nd = d + edges[id].cost + pot[u] - pot[v]; nd < dist[v]) {
-          dist[v] = nd;
-          pre[v] = id;
-          pq.emplace(dist[v] = nd, v);
+        if (auto nPotential = Potential_[edge.U] + edge.Cost; Potential_[edge.V] > nPotential) {
+          found |= true;
+          Potential_[edge.V] = nPotential;
         }
       }
     }
-    return dist[T] != inf;
-  }
+    assert(!found && "Detected cycle with negative weight");
 
-  decltype(auto) flow(int S, int T, const FlowUnit flowLimit = inf) {
-    std::fill(pot.begin(), pot.end(), CostUnit{});
-    bool any = true;
-    for (int _ = 0; _ < n && any; ++_) {
-      any = false;
-      for (const auto &edge : edges) {
-        if (edge.cap == CostUnit{}) {
-          continue;
-        }
-        if (auto npot = pot[edge.u] + edge.cost; pot[edge.v] > npot) {
-          any |= true;
-          pot[edge.v] = npot;
-        }
-      }
-    }
-    assert(!any && "Detected cycle with negative weight");
-
+    std::vector<std::pair<FlowUnit, CostUnit>> results;
     FlowUnit flow{};
     CostUnit cost{};
-    while (dijkstra(S, T) && flow < flowLimit) {
-      for (int v = 0; v < n; ++v) {
-        pot[v] += dist[v];
+    results.emplace_back(flow, cost);
+    while (Dijkstra(s, t) && flow < flowLimit) {
+      for (auto v = 0; v < N_; ++v) {
+        Potential_[v] += Distance_[v];
       }
-      auto nf = flowLimit - flow;
-      for (int v = T; v != S; v = edges[pre[v]].u) {
-        nf = std::min(nf, edges[pre[v]].cap - edges[pre[v]].flow);
+      std::integral auto nFlow = flowLimit - flow;
+      for (auto v = t; v != s; v = Edges_[Previous_[v]].U) {
+        nFlow = std::min(nFlow, Edges_[Previous_[v]].Capacity - Edges_[Previous_[v]].Flow);
       }
-      flow += nf;
-      cost += (pot[T] - pot[S]) * nf;
-      for (int v = T; v != S; v = edges[pre[v]].u) {
-        edges[pre[v]].flow += nf;
-        edges[pre[v] ^ 1].flow -= nf;
+      flow += nFlow;
+      cost += (Potential_[t] - Potential_[s]) * nFlow;
+      if ((Potential_[t] - Potential_[s]) * nFlow == results.back().second) {
+        results.pop_back();
+      }
+      results.emplace_back(flow, cost);
+      for (auto v = t; v != s; v = Edges_[Previous_[v]].U) {
+        Edges_[Previous_[v]].Flow += nFlow;
+        Edges_[Previous_[v] ^ 1].Flow -= nFlow;
       }
     }
     if constexpr (DoDecompose) {
-      //const auto mx_id = max_element(edges.begin(), edges.end(), [](const FlowEdge &lhs, const FlowEdge &rhs) {
-      //  return lhs.id < rhs.id;
-      //})->id;
-      //std::vector<FlowUnit> fall_through(mx_id + 1, 0);
-      std::map<int, FlowUnit> fall_through;
-      for (const auto &edge : edges) {
-        if (edge.id != -1 && edge.flow > 0) {
-          fall_through[edge.id] = edge.flow;
+      std::map<int, FlowUnit> fallThrough;
+      for (const auto& edge : Edges_) {
+        if (edge.Id != -1 && edge.Flow > 0) {
+          fallThrough[edge.Id] = edge.Flow;
         }
       }
-      return std::tuple{flow, cost, std::move(fall_through)};
+      return std::tuple{std::move(results), std::move(fallThrough)};
     } else {
-      return std::tuple{flow, cost};
+      return std::tuple{std::move(results)};
     }
   }
+
+ private:
+  auto Dijkstra(const int s, const int t) {
+    Distance_.assign(N_, std::numeric_limits<CostUnit>::max());
+    Previous_.assign(N_, -1);
+
+    using T = std::tuple<CostUnit, int>;
+    auto pq = std::priority_queue(std::greater<T>{}, std::vector<T>{});
+    pq.emplace(Distance_[s] = 0, s);
+    while (!pq.empty()) {
+      const auto [d, u] = pq.top();
+      pq.pop();
+      if (d != Distance_[u]) {
+        continue;
+      }
+      for (const auto id : Graph_[u]) {
+        const auto v = Edges_[id].V;
+        if (Edges_[id].Capacity - Edges_[id].Flow <= 0) {
+          continue;
+        }
+        if (auto nD = d + Edges_[id].Cost + Potential_[u] - Potential_[v]; nD < Distance_[v]) {
+          Previous_[v] = id;
+          pq.emplace(Distance_[v] = nD, v);
+        }
+      }
+    }
+    return Distance_[t] != std::numeric_limits<CostUnit>::max();
+  }
+
+ private:
+  struct FlowEdge {
+    int U, V, Id;
+    FlowUnit Capacity, Flow;
+    CostUnit Cost;
+    FlowEdge(int u, int v, FlowUnit capacity, CostUnit cost, int id)
+      : U(u), V(v), Capacity(capacity), Flow{}, Cost(cost), Id(id)
+    { }
+  };
+
+ private:
+  int N_;
+  std::vector<std::vector<int>> Graph_{};
+  std::vector<FlowEdge> Edges_;
+  std::vector<CostUnit> Potential_, Distance_;
+  std::vector<int> Previous_{};
 };
