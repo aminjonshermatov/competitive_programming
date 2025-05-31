@@ -19,7 +19,7 @@ constexpr auto kExitSuccessCode = 0u;
 
 std::string compile() {
   auto compileCommandGenerator = [](const std::filesystem::path& path) {
-    return std::format("g++-14 --std=c++2a -O2 {} -DLOCAL -o {}"sv,
+    return std::format("/opt/homebrew/bin/g++-15 --std=c++23 -O2 {} -DLOCAL -o {}"sv,
                        path.string(),
                        path.stem().string());
   };
