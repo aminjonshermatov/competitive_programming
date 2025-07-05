@@ -3,34 +3,34 @@
 //
 #include <bits/stdc++.h>
 
-std::size_t reverse(std::size_t num, std::size_t lg) noexcept {
-  std::size_t res = 0;
+auto Reverse(const std::size_t num, const std::size_t lg) noexcept {
+  std::size_t res = 0UZ;
   for (std::size_t i = 0; i < lg; i++) {
-    if (num >> i & 1) {
+    if ((num >> i & 1) == 1) {
       res |= 1 << (lg - 1 - i);
     }
   }
   return res;
 }
 
-using f80 = long double;
-const f80 pi = std::acos(-1);
+using F80 = long double;
+const F80 pi = std::acos(-1.);
 
-void fft(std::vector<std::complex<f80>>& vs, bool inverse = false) {
+auto FFT(std::vector<std::complex<F80>>& vs, const bool inverse = false) {
   const auto n = vs.size();
   const auto lg = std::__lg(n);
 
   for (std::size_t i = 0; i < n; i++) {
-    if (auto rv = reverse(i, lg); i < rv) {
+    if (auto rv = Reverse(i, lg); i < rv) {
       swap(vs[i], vs[rv]);
     }
   }
 
   for (std::size_t len = 2; len <= n; len <<= 1) {
     const auto ang = pi * 2 / len * (inverse ? -1 : 1);
-    std::complex<f80> wn(std::cos(ang), std::sin(ang));
+    std::complex<F80> wn(std::cos(ang), std::sin(ang));
     for (std::size_t i = 0; i < n; i += len) {
-      std::complex<f80> w(1);
+      std::complex<F80> w(1);
       for (std::size_t j = 0; j < len / 2; j++, w *= wn) {
         const auto u = vs[i + j], v = vs[i + j + len / 2] * w;
         vs[i + j] = u + v;
@@ -46,21 +46,20 @@ void fft(std::vector<std::complex<f80>>& vs, bool inverse = false) {
 }
 
 template <std::integral T>
-std::vector<T> multiple(const std::vector<T>& as, const std::vector<T>& bs) {
-  std::size_t n = 1 << std::__lg(2 * as.size() - 1);
-  std::vector<std::complex<f80>> x(n), y(n);
+std::vector<T> Multiple(const std::vector<T>& as, const std::vector<T>& bs) {
+  std::size_t n = 1UZ << std::__lg(2 * std::max(2UZ, as.size() + bs.size()) - 1);
+  std::vector<std::complex<F80>> x(n), y(n);
 
   std::copy(as.begin(), as.end(), x.begin());
   std::copy(bs.begin(), bs.end(), y.begin());
-  fft(x), fft(y);
+  FFT(x), FFT(y);
   for (std::size_t i = 0; i < n; ++i) {
     x[i] *= y[i];
   }
-  fft(x, true);
+  FFT(x, true);
   std::vector<T> ret;
   ret.reserve(x.size());
-  std::transform(x.begin(), x.end(), std::back_inserter(ret),
-                 [](auto&& complex) { return std::round(complex.real()); });
+  std::transform(x.begin(), x.end(), std::back_inserter(ret), [](auto&& complex) { return std::round(complex.real()); });
   return ret;
 }
 
@@ -68,23 +67,22 @@ std::vector<T> multiple(const std::vector<T>& as, const std::vector<T>& bs) {
 // returns C[0...(n-m)], where C[i] = sum_j B[j]*A[i+j]
 // i.e. dot-product array on window of size m, with shifts
 template <std::integral T>
-std::vector<T> correlation(const std::vector<T>& as, const std::vector<T>& bs) {
+std::vector<T> Correlation(const std::vector<T>& as, const std::vector<T>& bs) {
   assert(as.size() >= bs.size() && !as.empty());
-  std::size_t n = 1 << std::__lg(2 * as.size() - 1);
-  std::vector<std::complex<f80>> x(n), y(n);
+  std::size_t n = 1UZ << std::__lg(2 * std::max(2UZ, as.size() + bs.size()) - 1);
+  std::vector<std::complex<F80>> x(n), y(n);
 
   std::copy(as.begin(), as.end(), x.begin());
   std::copy(bs.rbegin(), bs.rend(), y.begin());
-  fft(x), fft(y);
+  FFT(x), FFT(y);
   for (std::size_t i = 0; i < n; ++i) {
     x[i] *= y[i];
   }
-  fft(x, true);
+  FFT(x, true);
   x.resize(as.size());
   x.erase(x.begin(), x.begin() + bs.size() - 1);
   std::vector<T> ret;
   ret.reserve(x.size());
-  std::transform(x.begin(), x.end(), std::back_inserter(ret),
-                 [](auto&& complex) { return std::round(complex.real()); });
+  std::transform(x.begin(), x.end(), std::back_inserter(ret), [](auto&& complex) { return std::round(complex.real()); });
   return ret;
 }
