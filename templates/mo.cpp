@@ -26,20 +26,20 @@ class Mo {
       }
     );
 
-    int curL = -1, curR = -1;
+    int curL = 0, curR = -1;
     for (const auto id : ord) {
       const auto [l, r] = Queries_[id];
       while (curL > l) {
-        addLeft(--curL + 1);
+        addLeft(--curL);
       }
       while (curR < r) {
-        addRight(curR++ + 1);
+        addRight(++curR);
       }
       while (curL < l) {
-        removeLeft(curL++ + 1);
+        removeLeft(curL++);
       }
       while (curR > r) {
-        removeRight(--curR + 1);
+        removeRight(curR--);
       }
       pull(id);
     }
