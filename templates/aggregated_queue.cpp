@@ -5,9 +5,9 @@
 #include <bits/stdc++.h>
 
 template <typename T, template <typename> typename Aggregation>
-class AggregatedQueue final {
+class AggregateQueue final {
  public:
-  explicit AggregatedQueue(const std::size_t n)
+  explicit AggregateQueue(const std::size_t n)
     : Bwd_(n), Fwd_(n)
   { }
 
@@ -53,17 +53,15 @@ struct Aggregation final {
   T Max = std::numeric_limits<T>::min();
 
   Aggregation() = default;
-  Aggregation(const Aggregation<T>& other) = default;
   explicit Aggregation(const T& x) : Min(x), Max(x) { }
 
   static inline constexpr Aggregation<T> E() {
     return {};
   }
 };
-
 template <typename T>
 Aggregation<T> operator+(const Aggregation<T>& a, const Aggregation<T>& b) {
-  auto ret = Aggregation<T>{};
+  auto ret = Aggregation<T>::E();
   ret.Min = std::min(a.Min, b.Min);
   ret.Max = std::max(a.Max, b.Max);
   return ret;
