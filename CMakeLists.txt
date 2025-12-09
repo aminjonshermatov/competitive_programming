@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD 23)
 add_definitions(-DLOCAL)
 
 include_directories(.)
+include_directories(/usr/local/include)
 
 #codechef
 # add_executable(codechef codechef/starters/99/main.cpp)
