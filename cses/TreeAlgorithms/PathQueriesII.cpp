@@ -1,184 +1,220 @@
-// #define _GLIBCXX_DEBUG
 #include <bits/stdc++.h>
-#include <ext/pb_ds/assoc_container.hpp>
-#include <ext/pb_ds/tree_policy.hpp>
-
-#pragma GCC optimize("Ofast")
-#pragma GCC optimize("unroll-loops")
-#pragma GCC optimize("fast-math")
-#pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx,avx,tune=native")
 
 #ifdef LOCAL
-#include "debug.h"
+#include "debug.hpp"
 #else
 #define dbg(...) 42
 #endif
 
-using namespace std;
-using namespace __gnu_pbds;
+constexpr void Scan(auto&& ... args) noexcept { (std::cin >> ... >> args); }
+constexpr void Print(auto&& ... args) noexcept { ((std::cout << args << ' '), ...); }
+constexpr void Println(auto&& ... args) noexcept { Print(std::forward<decltype(args)>(args)...); std::cout << '\n'; }
 
-typedef long long ll;
-typedef long double ld;
-typedef pair<ll, ll> pll;
-typedef pair<int, int> pii;
-typedef pair<ll, int> pli;
-typedef pair<int, ll> pil;
-typedef unsigned long long ull;
+class HeavyLightDecomposition final {
+ public:
+  template<typename G>
+  explicit HeavyLightDecomposition(const G &g) : N_(static_cast<int>(g.size())) {
+    Parent_.assign(N_, -1);
+    Root_.assign(N_, -1);
+    TreePos_.assign(N_, -1);
+    Heavy_.assign(N_, -1);
+    Depth_.resize(N_);
+    Depth_[0] = 0;
+    Dfs(g, 0);
 
-#define fi first
-#define se second
-#define P pair
-#define mp make_pair
-#define pb push_back
-#define eb emplace_back
-#define all(x) (x).begin(), (x).end()
-#define rall(x) (x).rbegin(), (x).rend()
-#define sz(x) (ll)(x.size())
-
-#define rep(i, b) for (auto i = 0; i < b; ++i)
-#define forr(el, cont) for (auto &el: cont)
-
-template<typename T>
-using ordered_set = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>;
-template<typename K, typename V>
-using gp_ht = gp_hash_table<K, V, hash<K>, equal_to<K>, direct_mask_range_hashing<>, linear_probe_fn<>, hash_standard_resize_policy<hash_exponential_size_policy<>, hash_load_check_resize_trigger<>, true>>;
-
-inline constexpr auto inf = numeric_limits<int>::max();
-inline constexpr auto ninf = numeric_limits<int>::min();
-inline constexpr int MOD = 1e9 + 7;
-inline const ld pi = ::atan2(0, -1);
-inline constexpr ld eps = 1e-6;
-
-mt19937 rnd(chrono::steady_clock::now().time_since_epoch().count());
-
-struct SegmentTree {
-  int n;
-  vector<int> tree;
-
-  explicit SegmentTree(int n_) : n(n_), tree(2 * n_, ninf) { }
-
-  void set(int pos, int nval) {
-    pos += n;
-    tree[pos] = nval;
-    while (pos > 1) {
-      pos >>= 1;
-      tree[pos] = max(tree[pos << 1], tree[pos << 1 | 1]);
-    }
-  }
-
-  int query(int ql, int qr) {
-    ql += n; qr += n;
-    auto ans = ninf;
-    while (ql < qr) {
-      if (ql & 1) ans = max(ans, tree[ql++]);
-      if (qr & 1) ans = max(ans, tree[--qr]);
-      ql >>= 1;
-      qr >>= 1;
-    }
-    return ans;
-  }
-
-};
-
-void solve() {
-  int n, q;
-  cin >> n >> q;
-  vector<int> A(n);
-  forr(a, A) cin >> a;
-
-  vector<vector<int>> g(n);
-  rep(_, n - 1) {
-    int u, v;
-    cin >> u >> v;
-    --u, --v;
-    g[u].eb(v);
-    g[v].eb(u);
-  }
-
-  vector<int> size(n, 0), parent(n, -1), root(n, -1), heavy(n, -1), treePos(n, -1), depth(n);
-  auto dfs_size = [&](auto f, int v) -> void {
-    size[v] = 1;
-    int heavy_v = -1;
-    forr(u, g[v]) {
-      if (u == parent[v]) continue;
-      depth[u] = depth[v] + 1;
-      parent[u] = v;
-      f(f, u);
-      if (heavy_v == -1 || size[heavy_v] < size[u]) {
-        heavy_v = u;
+    for (auto u = 0, currentPos = 0; u < N_; ++u) {
+      if (Parent_[u] == -1 || Heavy_[Parent_[u]] != u) {
+        for (auto v = u; v != -1; v = Heavy_[v]) {
+          Root_[v] = u;
+          TreePos_[v] = currentPos++;
+        }
       }
     }
-    heavy[v] = heavy_v;
-  };
-  depth[0] = 0;
-  dfs_size(dfs_size, 0);
+  }
 
-  int cur_pos = 0;
-  auto dfs_pos = [&](auto f, int v, int head) -> void {
-    treePos[v] = cur_pos++;
-    root[v] = head;
-    if (heavy[v] != -1) {
-      f(f, heavy[v], head);
+  template <typename F>
+  auto Modify(const int v, F&& f) {
+    Modify(v, v, std::move(f));
+  }
+
+  template <typename F>
+  auto Modify(const int u, const int v, F&& f) { // [u, v]
+    ProcessPath(u, v, [f = std::move(f)](const int l, const int r) {
+      f(l, r); // [l, r)
+    });
+  }
+
+  template <typename F>
+  auto Query(const int u, const int v, F&& f) { // [u, v]
+    ProcessPath(u, v, std::move(f));
+  }
+
+  auto Pos(const int v) const {
+    assert(std::clamp(v, 0, N_ - 1) == v);
+    return TreePos_[v];
+  }
+
+ private:
+  template<typename BinaryOP>
+  void ProcessPath(int u, int v, BinaryOP&& op) {
+    for (; Root_[u] != Root_[v]; v = Parent_[Root_[v]]) {
+      if (Depth_[Root_[u]] > Depth_[Root_[v]]) {
+        std::swap(u, v); // u closer to lca rather than v
+      }
+      op(TreePos_[Root_[v]], TreePos_[v] + 1);
     }
-    forr(u, g[v]) {
-      if (u == parent[v] || u == heavy[v]) continue ;
-      f(f, u, u);
+    if (Depth_[u] > Depth_[v]) {
+      std::swap(u, v);
     }
-  };
-  dfs_pos(dfs_pos, 0, 0);
+    op(TreePos_[u], TreePos_[v] + 1);
+  }
 
-  SegmentTree st(n);
-  for (int v = 0; v < n; ++v) st.set(treePos[v], A[v]);
-
-  auto qry = [&](int u, int v) -> int {
-    auto ans = ninf;
-    for (; root[u] != root[v]; u = parent[root[u]]) {
-      if (depth[root[v]] > depth[root[u]]) swap(u, v);
-      ans = max(ans, st.query(treePos[root[u]], treePos[u] + 1));
+  template<typename G>
+  auto Dfs(const G &g, const int v) -> int {
+    auto size = 1, maxSubtree = 0;
+    for (auto u : g[v]) {
+      if (u == Parent_[v]) {
+        continue;
+      }
+      Parent_[u] = v;
+      Depth_[u] = Depth_[v] + 1;
+      auto subtree = Dfs(g, u);
+      if (subtree > maxSubtree) {
+        Heavy_[v] = u;
+        maxSubtree = subtree;
+      }
+      size += subtree;
     }
-    if (depth[u] > depth[v]) swap(u, v); // u is father to root
-    ans = max(ans, st.query(treePos[u], treePos[v] + 1));
-    return ans;
-  };
+    return size;
+  }
 
-  auto upd = [&](int v, int nval) {
-    st.set(treePos[v], nval);
-  };
+ private:
+  const int N_ = 0;
+  std::vector<int> Parent_, Root_, Depth_, TreePos_, Heavy_;
+};
 
-  rep(_, q) {
-    char cmd;
-    cin >> cmd;
-    if (cmd == '1') {
-      int s, x;
-      cin >> s >> x;
-      upd(s - 1, x);
-    } else if (cmd == '2') {
-      int a, b;
-      cin >> a >> b;
-      cout << qry(a - 1, b - 1) << ' ';
+template <typename Info>
+class BottomUpSegmentTree {
+ public:
+  BottomUpSegmentTree() = default;
+
+  explicit BottomUpSegmentTree(std::size_t n) {
+    Init(std::vector(n, Info{}));
+  }
+  BottomUpSegmentTree(std::size_t n, Info&& info) {
+    Init(std::vector(n, std::forward<Info>(info)));
+  }
+  template <typename T>
+  explicit BottomUpSegmentTree(const std::vector<T>& init) {
+    Init(init);
+  }
+
+  template <typename T>
+  void Init(const std::vector<T>& init) {
+    assert(!init.empty());
+    N_ = 1u << (std::bit_width(2 * init.size() - 1) - 1);
+    Infos_.assign(2 * N_, Info{});
+    for (std::size_t i{0}; i < init.size(); ++i) {
+      Infos_[i + N_] = Info{init[i]};
+    }
+    for (std::size_t i = N_ - 1; i >= 1u; --i) {
+      Infos_[i] = Infos_[i << 1] + Infos_[i << 1 | 1];
     }
   }
-  cout << '\n';
+
+  void Modify(std::size_t pos, Info&& val) {
+    Infos_[pos += N_] = val;
+    for (pos >>= 1; pos >= 1; pos >>= 1) {
+      Infos_[pos] = Infos_[pos << 1] + Infos_[pos << 1 | 1];
+    }
+  }
+
+  Info Query(std::size_t l, std::size_t r) {
+    auto retL = Info{}, retR = Info{};
+    for (l += N_, r += N_; l < r; l >>= 1, r >>= 1) {
+      if (l % 2 == 1u) {
+        retL = retL + Infos_[l++];
+      }
+      if (r % 2 == 1u) {
+        retR = Infos_[--r] + retR;
+      }
+    }
+    return retL + retR;
+  }
+
+  Info Query(std::size_t pos) {
+    return Query(pos, pos + 1);
+  }
+
+ private:
+  std::size_t N_{0};
+  std::vector<Info> Infos_;
+};
+
+constexpr auto kInf = std::numeric_limits<int>::max() / 2;
+class Info {
+ public:
+  int Val = -kInf;
+};
+Info operator+(const Info& lhs, const Info& rhs) {
+  return {std::max(lhs.Val, rhs.Val)};
 }
 
-//#define MEASURE_TIME
-bool is_multi = false;
+void Solve() {
+  int n, q;
+  Scan(n, q);
+  std::vector<int> as(n);
+  for (int i = 0; i < n; ++i) {
+    Scan(as[i]);
+  }
+  std::vector<std::vector<int>> g(n);
+  for (int i = 0; i + 1 < n; ++i) {
+    int u, v;
+    Scan(u, v);
+    --u, --v;
+    g[u].emplace_back(v);
+    g[v].emplace_back(u);
+  }
+
+  HeavyLightDecomposition hld(g);
+  std::vector<Info> init(n);
+  for (int i = 0; i < n; ++i) {
+    init[hld.Pos(i)] = Info{as[i]};
+  }
+  BottomUpSegmentTree<Info> st(init);
+
+  while (q-- > 0) {
+    char cmd;
+    Scan(cmd);
+    if (cmd == '1') {
+      int v, x;
+      Scan(v, x);
+      --v;
+
+      hld.Modify(v, [&st, x](const int l, const int r) {
+        assert(r - l == 1);
+        st.Modify(l, {x});
+      });
+    } else if (cmd == '2') {
+      int u, v;
+      Scan(u, v);
+      --u, --v;
+
+      auto ret = -kInf;
+      hld.Query(u, v, [&ret, &st](const int l, const int r) {
+        ret = std::max(ret, st.Query(l, r).Val);
+      });
+      Print(ret);
+    } else {
+      assert(false);
+    }
+  }
+  Println();
+}
 
 int main() {
-  ios_base::sync_with_stdio(false);
-  cin.tie(nullptr);
-  cout.tie(nullptr);
-#ifdef MEASURE_TIME
-  auto start = chrono::steady_clock::now();
-#endif
-  int T = 1;
-  if (is_multi) cin >> T;
-  for (int tc = 1; tc <= T; ++tc) solve();
-#ifdef MEASURE_TIME
-  auto finish = chrono::steady_clock::now();
-  auto elapsed_ms = chrono::duration_cast<chrono::milliseconds>(finish - start);
-  cerr << endl
-       << "Time: " << elapsed_ms.count() << " ms\n";
-#endif
-  return 0;
+  std::ios_base::sync_with_stdio(false);
+  std::cin.tie(nullptr);
+
+  Solve();
 }
