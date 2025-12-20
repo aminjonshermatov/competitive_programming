@@ -3,91 +3,77 @@
 //
 #include <bits/stdc++.h>
 
-template <typename T> struct FenwickTreeRangeUpdateRangeQuery {
-  int n = 0;
-  std::vector<T> bitA, bitB;
+class HeavyLightDecomposition final {
+ public:
+  template<typename G>
+  explicit HeavyLightDecomposition(const G &g) : N_(static_cast<int>(g.size())) {
+    Parent_.assign(N_, -1);
+    Root_.assign(N_, -1);
+    TreePos_.assign(N_, -1);
+    Heavy_.assign(N_, -1);
+    Depth_.resize(N_);
+    Depth_[0] = 0;
+    Dfs(g, 0);
 
-  FenwickTreeRangeUpdateRangeQuery() = default;
-  explicit FenwickTreeRangeUpdateRangeQuery(int n_) : n(n_), bitA(n_, T(0)), bitB(n_, T(0))  { }
-  template<typename U> explicit FenwickTreeRangeUpdateRangeQuery(const std::vector<U> &A) : n(A.size()) , bitA(A.size(), T(0)), bitB(A.size(), T(0)) {
-    for (auto idx = 0u; idx < n; ++idx) {
-      modify(idx, idx + 1, A[idx]);
-    }
-  }
-
-  void init(int n_) {
-    n = n_;
-    bitA.assign(n, T(0));
-    bitB.assign(n, T(0));
-  }
-
-  auto modify(std::vector<T> &bit, int idx, T val) -> void {
-    for (; idx < n; idx = idx | (idx + 1)) {
-      bit[idx] += val;
-    }
-  }
-
-  auto modify(int l, int r, T val) -> void { // [, r)
-    modify(bitA, l, val);
-    modify(bitA, r, -val);
-    modify(bitB, l, val * (l - 1));
-    modify(bitB, r, -val * (r - 1));
-  }
-
-  [[nodiscard]] auto query(const std::vector<T> &bit, int idx) const -> T {
-    T ret = T(0);
-    for (; idx >= 0; idx = (idx & (idx + 1)) - 1) {
-      ret += bit[idx];
-    }
-    return ret;
-  }
-
-  [[nodiscard]] auto prefix_query(int idx) const -> T {
-    return query(bitA, idx) * idx - query(bitB, idx);
-  }
-
-  [[nodiscard]] auto query(int l, int r) const -> T {
-    return prefix_query(r - 1) - prefix_query(l - 1);
-  }
-  [[nodiscard]] auto query(int idx) const -> T {
-    return prefix_query(idx) - prefix_query(idx - 1);
-  }
-};
-
-template<typename T, template<typename> typename DataStructure> struct HeavyLightDecomposition {
-  std::vector<int> parent, root, depth, treePos, heavy;
-  DataStructure<T> tree;
-
-  template<typename G> explicit HeavyLightDecomposition(const G &g) {
-    const auto n = int(g.size());
-    parent.assign(n, -1);
-    root.assign(n, -1);
-    treePos.assign(n, -1);
-    heavy.assign(n, -1);
-    depth.resize(n);
-    depth[0] = 0;
-    dfs(g, 0);
-
-    for (int u = 0, currentPos = 0; u < n; ++u) {
-      if (parent[u] == -1 || heavy[parent[u]] != u) {
-        for (int v = u; v != -1; v = heavy[v]) {
-          root[v] = u;
-          treePos[v] = currentPos++;
+    for (auto u = 0, currentPos = 0; u < N_; ++u) {
+      if (Parent_[u] == -1 || Heavy_[Parent_[u]] != u) {
+        for (auto v = u; v != -1; v = Heavy_[v]) {
+          Root_[v] = u;
+          TreePos_[v] = currentPos++;
         }
       }
     }
-    tree.init(n);
   }
 
-  template<typename G> int dfs(const G &g, int v) {
-    int size = 1, maxSubtree = 0;
+  template <typename F>
+  auto Modify(const int v, F&& f) {
+    Modify(v, v, std::move(f));
+  }
+
+  template <typename F>
+  auto Modify(const int u, const int v, F&& f) { // [u, v]
+    ProcessPath(u, v, [f = std::move(f)](const int l, const int r) {
+      f(l, r); // [l, r)
+    });
+  }
+
+  template <typename F>
+  auto Query(const int u, const int v, F&& f) { // [u, v]
+    ProcessPath(u, v, std::move(f));
+  }
+
+  auto Pos(const int v) const {
+    assert(std::clamp(v, 0, N_ - 1) == v);
+    return TreePos_[v];
+  }
+
+ private:
+  template<typename BinaryOP>
+  void ProcessPath(int u, int v, BinaryOP&& op) {
+    for (; Root_[u] != Root_[v]; v = Parent_[Root_[v]]) {
+      if (Depth_[Root_[u]] > Depth_[Root_[v]]) {
+        std::swap(u, v); // u closer to lca rather than v
+      }
+      op(TreePos_[Root_[v]], TreePos_[v] + 1);
+    }
+    if (Depth_[u] > Depth_[v]) {
+      std::swap(u, v);
+    }
+    op(TreePos_[u], TreePos_[v] + 1);
+  }
+
+  template<typename G>
+  auto Dfs(const G &g, const int v) -> int {
+    auto size = 1, maxSubtree = 0;
     for (auto u : g[v]) {
-      if (u == parent[v]) continue;
-      parent[u] = v;
-      depth[u] = depth[v] + 1;
-      auto subtree = dfs(g, u);
+      if (u == Parent_[v]) {
+        continue;
+      }
+      Parent_[u] = v;
+      Depth_[u] = Depth_[v] + 1;
+      auto subtree = Dfs(g, u);
       if (subtree > maxSubtree) {
-        heavy[v] = u;
+        Heavy_[v] = u;
         maxSubtree = subtree;
       }
       size += subtree;
@@ -95,33 +81,7 @@ template<typename T, template<typename> typename DataStructure> struct HeavyLigh
     return size;
   }
 
-  template<typename BinaryOP> void processPath(int u, int v, BinaryOP op) {
-    for (; root[u] != root[v]; v = parent[root[v]]) {
-      if (depth[root[u]] > depth[root[v]]) {
-        std::swap(u, v); // u closer to lca rather than v
-      }
-      op(treePos[root[v]], treePos[v] + 1);
-    }
-    if (depth[u] > depth[v]) {
-      std::swap(u, v);
-    }
-    op(treePos[u], treePos[v] + 1);
-  }
-
-  void modify(int v, const T &val) {
-    modify(v, v, val);
-  }
-  void modify(int u, int v, const T &val) { // [u, v]
-    processPath(u, v, [this, &val](int l, int r) { // [l, r)
-      tree.modify(l, r, val);
-    });
-  }
-
-  T query(int u, int v) { // [u, v]
-    T res(0);
-    processPath(u, v, [this, &res](int l, int r) { // [l, r)
-      res += tree.query(l, r);
-    });
-    return res;
-  }
+ private:
+  const int N_ = 0;
+  std::vector<int> Parent_, Root_, Depth_, TreePos_, Heavy_;
 };
