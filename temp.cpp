@@ -6,11 +6,11 @@
 #define dbg(...) 42
 #endif
 
-constexpr void Scan(auto&& ... args) noexcept { (std::cin >> ... >> args); }
-constexpr void Print(auto&& ... args) noexcept { ((std::cout << args << ' '), ...); }
-constexpr void Println(auto&& ... args) noexcept { Print(std::forward<decltype(args)>(args)...); std::cout << '\n'; }
+static constexpr void Scan(auto&& ... args) noexcept { (std::cin >> ... >> args); }
+static constexpr void Print(auto&& ... args) noexcept { ((std::cout << args << ' '), ...); }
+static constexpr void Println(auto&& ... args) noexcept { Print(std::forward<decltype(args)>(args)...); std::cout << '\n'; }
 
-void Solve() {
+static void Solve() {
 }
 
 int main() {

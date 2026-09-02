@@ -1,13 +1,13 @@
 #include <iostream>
 #include <format>
 
-#include <boost/process.hpp>
+#include <boost/process/v1.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/experimental/awaitable_operators.hpp>
 
 #include "config.hpp"
 
-namespace bp = boost::process;
+namespace bp = boost::process::v1;
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
@@ -19,7 +19,7 @@ constexpr auto kExitSuccessCode = 0u;
 
 std::string compile() {
   auto compileCommandGenerator = [](const std::filesystem::path& path) {
-    return std::format("/opt/homebrew/bin/g++-15 --std=c++23 -O2 {} -DLOCAL -o {}"sv,
+    return std::format("/usr/bin/g++ --std=c++23 -O2 {} -DLOCAL -o {}"sv,
                        path.string(),
                        path.stem().string());
   };
@@ -83,7 +83,7 @@ std::string runTest() {
   };
   boost::asio::co_spawn(ioc, WriteToPipes, boost::asio::detached);
   ioc.run();
-  ioc.reset();
+  ioc.restart();
 
   std::future<std::string> slowStdErr, slowStdOut;
   std::future<i32> slowExitCode;
